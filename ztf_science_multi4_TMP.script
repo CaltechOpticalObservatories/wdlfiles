@@ -1,0 +1,544 @@
+[PARAMETER#]
+exptime=0
+Expose=0
+Readout=0
+TrigLowThisLine=1
+ShutterEnable=1
+RoiReadout=0
+shutdelay=500
+SweepCount=0
+SerialPrescan=50
+SerialOverscan=30
+ParallelOverscan=0
+ImageCols=3072
+ImageRows=3080
+SplitLines=3080
+Lines=3080
+Pixels=3152
+IdleLines=3080
+FullPixels=6244
+ST=19
+RGH=30
+RGL=30
+SWH=30
+SWL=30
+SHP=30
+SHD=30
+FauxFlag=0
+FauxPixels=3152
+FauxLines=3080
+PartialLines=385
+MedLines=385
+LowLines=385
+ZeroLines=385
+rev=0
+RoiLineStart=0
+RoiLines=0
+RemainingLines=0
+PSplit=1
+PUp=0
+PDown=0
+SSplit=0
+SRight=0
+SLeft=0
+NotFast=0
+GoFast=1
+[LINE#]
+Start: # sequence
+STATE000; CALL wCloseShutter                                 #      0        2
+STATE000; CALL SerialReceiving                               #      1       24
+STATE000; CALL SynchedLineTransfer                           #      2    95025
+STATE000; CALL wReset                                        #      3    95027
+STATE000; CALL Wait1us                                       #      4    95128
+STATE000; CALL wUnsetReset                                   #      5    95130
+STATE000; CALL GroundBLC                                     #      6    95132
+STATE000; CALL ADClamp                                       #      7    95134
+STATE000; CALL Wait1us                                       #      8    95235
+STATE000; CALL OpenBLC                                       #      9    95237
+STATE000; CALL ADClamp_                                      #     10    95239
+STATE000; CALL Idling(IdleLines)                             #     11   190603
+WaitForExpose: # sequence
+STATE000; CALL Idling                                        #      0    95364
+STATE000; if Expose CALL DoExpose                            #      1 2002115571
+STATE000; GOTO WaitForExpose                                 #      2 2002115572
+WaitForReadout: # sequence
+STATE000; if Readout CALL DoScienceReadout                   #      0    95539
+STATE000; GOTO WaitForReadout                                #      1    95540
+DoFauxSignal: # sequence
+STATE000; FauxFlag--                                         #      1        2
+STATE000; Readout--                                          #      3        4
+STATE000; CALL wFrame                                        #      4        6
+STATE000; CALL FauxRead                                      #      5  1644224
+STATE000; CALL FauxToZero                                    #      6  1644226
+STATE000; GOTO WaitForExpose                                 #      7  1644227
+FauxRead: # sequence
+STATE000; CALL DoLevel1(PartialLines)                        #      0   280527
+STATE000; CALL DoLevel2(PartialLines)                        #      1   561054
+STATE000; CALL DoLevel3(PartialLines)                        #      2   741581
+STATE000; CALL DoLevel4(PartialLines)                        #      3   922108
+STATE000; CALL DoLevel5(PartialLines)                        #      4  1102635
+STATE000; CALL DoLevel6(PartialLines)                        #      5  1283162
+STATE000; CALL DoLevel7(PartialLines)                        #      6  1463689
+STATE000; CALL DoLevel8(PartialLines)                        #      7  1644216
+STATE000; RETURN FauxRead                                    #      8  1644217
+DoLevel1: # sequence
+STATE000; CALL DoLineTransfer                                #      0    80002
+STATE000; CALL wLine                                         #      1    80004
+STATE000; CALL FauxLevel1(FauxPixels)                        #      2    80517
+STATE000; CALL Wait1ms                                       #      3   180517
+STATE000; CALL GroundBLC                                     #      4   180519
+STATE000; CALL ADClamp                                       #      5   180521
+STATE000; CALL Wait1ms                                       #      6   280521
+STATE000; CALL OpenBLC                                       #      7   280523
+STATE000; CALL ADClamp_                                      #      8   280525
+STATE000; RETURN DoLevel1                                    #      9   280526
+DoLevel2: # sequence
+STATE000; CALL DoLineTransfer                                #      0    80002
+STATE000; CALL wLine                                         #      1    80004
+STATE000; CALL FauxLevel2(FauxPixels)                        #      2    80517
+STATE000; CALL Wait1ms                                       #      3   180517
+STATE000; CALL GroundBLC                                     #      4   180519
+STATE000; CALL ADClamp                                       #      5   180521
+STATE000; CALL Wait1ms                                       #      6   280521
+STATE000; CALL OpenBLC                                       #      7   280523
+STATE000; CALL ADClamp_                                      #      8   280525
+STATE000; RETURN DoLevel2                                    #      9   280526
+DoLevel3: # sequence
+STATE000; CALL DoLineTransfer                                #      0    80002
+STATE000; CALL wLine                                         #      1    80004
+STATE000; CALL FauxLevel3(FauxPixels)                        #      2    80517
+STATE000; CALL GroundBLC                                     #      3    80519
+STATE000; CALL ADClamp                                       #      4    80521
+STATE000; CALL Wait1ms                                       #      5   180521
+STATE000; CALL OpenBLC                                       #      6   180523
+STATE000; CALL ADClamp_                                      #      7   180525
+STATE000; RETURN DoLevel3                                    #      8   180526
+DoLevel4: # sequence
+STATE000; CALL DoLineTransfer                                #      0    80002
+STATE000; CALL wLine                                         #      1    80004
+STATE000; CALL FauxLevel4(FauxPixels)                        #      2    80517
+STATE000; CALL GroundBLC                                     #      3    80519
+STATE000; CALL ADClamp                                       #      4    80521
+STATE000; CALL Wait1ms                                       #      5   180521
+STATE000; CALL OpenBLC                                       #      6   180523
+STATE000; CALL ADClamp_                                      #      7   180525
+STATE000; RETURN DoLevel4                                    #      8   180526
+DoLevel5: # sequence
+STATE000; CALL DoLineTransfer                                #      0    80002
+STATE000; CALL wLine                                         #      1    80004
+STATE000; CALL FauxLevel5(FauxPixels)                        #      2    80517
+STATE000; CALL GroundBLC                                     #      3    80519
+STATE000; CALL ADClamp                                       #      4    80521
+STATE000; CALL Wait1ms                                       #      5   180521
+STATE000; CALL OpenBLC                                       #      6   180523
+STATE000; CALL ADClamp_                                      #      7   180525
+STATE000; RETURN DoLevel5                                    #      8   180526
+DoLevel6: # sequence
+STATE000; CALL DoLineTransfer                                #      0    80002
+STATE000; CALL wLine                                         #      1    80004
+STATE000; CALL FauxLevel6(FauxPixels)                        #      2    80517
+STATE000; CALL GroundBLC                                     #      3    80519
+STATE000; CALL ADClamp                                       #      4    80521
+STATE000; CALL Wait1ms                                       #      5   180521
+STATE000; CALL OpenBLC                                       #      6   180523
+STATE000; CALL ADClamp_                                      #      7   180525
+STATE000; RETURN DoLevel6                                    #      8   180526
+DoLevel7: # sequence
+STATE000; CALL DoLineTransfer                                #      0    80002
+STATE000; CALL wLine                                         #      1    80004
+STATE000; CALL FauxLevel7(FauxPixels)                        #      2    80517
+STATE000; CALL GroundBLC                                     #      3    80519
+STATE000; CALL ADClamp                                       #      4    80521
+STATE000; CALL Wait1ms                                       #      5   180521
+STATE000; CALL OpenBLC                                       #      6   180523
+STATE000; CALL ADClamp_                                      #      7   180525
+STATE000; RETURN DoLevel7                                    #      8   180526
+DoLevel8: # sequence
+STATE000; CALL DoLineTransfer                                #      0    80002
+STATE000; CALL wLine                                         #      1    80004
+STATE000; CALL FauxLevel8(FauxPixels)                        #      2    80517
+STATE000; CALL GroundBLC                                     #      3    80519
+STATE000; CALL ADClamp                                       #      4    80521
+STATE000; CALL Wait1ms                                       #      5   180521
+STATE000; CALL OpenBLC                                       #      6   180523
+STATE000; CALL ADClamp_                                      #      7   180525
+STATE000; RETURN DoLevel8                                    #      8   180526
+DoClampedInput: # sequence
+STATE000; Expose--                                           #      1        2
+STATE000; CALL GroundBLC                                     #      2        4
+STATE000; CALL wFrame                                        #      3        6
+STATE000; CALL ClampedRead                                   #      4   280533
+STATE000; CALL FauxToZero                                    #      5   280535
+STATE000; RETURN DoClampedInput                              #      6   280536
+ClampedRead: # sequence
+STATE000; CALL CLevel1(SplitLines)                           #      0   280525
+STATE000; RETURN ClampedRead                                 #      1   280526
+CLevel1: # sequence
+STATE000; CALL DoLineTransfer                                #      0    80002
+STATE000; CALL ADClamp_                                      #      1    80004
+STATE000; CALL wLine                                         #      2    80006
+STATE000; CALL FauxLevel1(FauxPixels)                        #      3    80519
+STATE000; CALL Wait1ms                                       #      4   180519
+STATE000; CALL GroundBLC                                     #      5   180521
+STATE000; CALL ADClamp                                       #      6   180523
+STATE000; CALL Wait1ms                                       #      7   280523
+STATE000; RETURN CLevel1                                     #      8   280524
+Idling: # sequence
+STATE000; CALL wReset                                        #      0        2
+STATE000; CALL SynchedLineTransfer                           #      1    95003
+STATE000; CALL FastSerialOutputClocking(Pixels)              #      2    95126
+STATE000; CALL SerialReceiving                               #      3    95148
+STATE000; CALL wReset                                        #      4    95150
+STATE000; CALL Wait1us                                       #      5    95251
+STATE000; CALL wUnsetReset                                   #      6    95253
+STATE000; CALL GroundBLC                                     #      7    95255
+STATE000; CALL ADClamp                                       #      8    95257
+STATE000; CALL Wait1us                                       #      9    95358
+STATE000; CALL OpenBLC                                       #     10    95360
+STATE000; CALL ADClamp_                                      #     11    95362
+STATE000; RETURN Idling                                      #     12    95363
+DoExpose: # sequence
+STATE000; Expose--                                           #      1        2
+STATE000; CALL SetParallelExpose                             #      2        4
+STATE000; CALL DoShutter(20)                                 #      3 2002020205
+STATE000; GOTO WaitForReadout                                #      4 2002020206
+DoShutter: # sequence
+STATE000; if ShutterEnable CALL OpenShutter                  #      0        4
+STATE000; if exptime CALL MilliSec(1000)                     #      1 100001005
+STATE000; CALL wCloseShutter                                 #      2 100001007
+STATE000; if exptime CALL DoShutterDelay(shutdelay)          #      3 100101009
+STATE000; RETURN DoShutter                                   #      4 100101010
+OpenShutter: # sequence
+STATE000; if exptime CALL wOpenShutter                       #      0        2
+STATE000; RETURN OpenShutter                                 #      1        3
+MilliSec: # sequence
+STATE000; CALL Wait1ms                                       #      0   100000
+STATE000; RETURN MilliSec                                    #      1   100001
+DoShutterDelay: # sequence
+STATE000; CALL Wait1ms                                       #      0   100000
+STATE000; RETURN DoShutterDelay                              #      1   100001
+DoFlush: # sequence
+STATE000; CALL SerialReceiving                               #      0       22
+STATE000; if PSplit CALL SynchedLineTransfer(SplitLines)     #      1    95023
+STATE000; if PUp CALL ParallelUp(SplitLines)                 #      2   185025
+STATE000; if PDown CALL ParallelDown(SplitLines)             #      3   275027
+STATE000; if SSplit CALL SerialOutputClocking(Pixels)        #      4   275150
+STATE000; if SRight CALL RightSerialOutputClocking(Pixels)   #      5   275274
+STATE000; if SLeft CALL LeftSerialOutputClocking(Pixels)     #      6   275398
+STATE000; RETURN DoFlush                                     #      7   275399
+DoScienceReadout: # sequence
+STATE000; Readout--                                          #      1        2
+STATE000; CALL SetParallelTransfer                           #      2        4
+STATE000; CALL FastSerialOutputClocking(Pixels)              #      3      127
+STATE000; CALL SerialReceiving                               #      4      149
+STATE000; CALL wFrame                                        #      5      151
+STATE000; CALL ScienceRead(SplitLines)                       #      6    95515
+STATE000; CALL SerialReceiving                               #      7    95537
+STATE000; GOTO WaitForExpose                                 #      8    95538
+DoRoiScienceReadout: # sequence
+STATE000; RoiReadout--                                       #      1        2
+STATE000; CALL SerialReceiving                               #      2       24
+STATE000; CALL wFrame                                        #      3       26
+STATE000; CALL RoiScience(RoiLines)                          #      4   275414
+STATE000; if PSplit CALL SynchedLineTransfer(RemainingLines) #      5   370415
+STATE000; if PUp CALL ParallelUp(RemainingLines)             #      6   460417
+STATE000; if PDown CALL ParallelDown(RemainingLines)         #      7   550419
+STATE000; if SSplit CALL SerialOutputClocking(Pixels)        #      8   550542
+STATE000; if SRight CALL RightSerialOutputClocking(Pixels)   #      9   550666
+STATE000; if SLeft CALL LeftSerialOutputClocking(Pixels)     #     10   550790
+STATE000; RETURN DoRoiScienceReadout                         #     11   550791
+ScienceRead: # sequence
+STATE000; CALL SynchedLineTransfer                           #      0    95001
+STATE000; CALL wLine                                         #      1    95003
+STATE000; CALL FastSerialOutputClocking(Pixels)              #      2    95126
+STATE000; CALL SerialReceiving                               #      3    95148
+STATE000; CALL wReset                                        #      4    95150
+STATE000; CALL Wait1us                                       #      5    95251
+STATE000; CALL wUnsetReset                                   #      6    95253
+STATE000; CALL GroundBLC                                     #      7    95255
+STATE000; CALL ADClamp                                       #      8    95257
+STATE000; CALL Wait1us                                       #      9    95358
+STATE000; CALL OpenBLC                                       #     10    95360
+STATE000; CALL ADClamp_                                      #     11    95362
+STATE000; RETURN ScienceRead                                 #     12    95363
+RoiScience: # sequence
+STATE000; if PSplit CALL SynchedLineTransfer                 #      0    95001
+STATE000; if PUp CALL ParallelUp                             #      1   185003
+STATE000; if PDown CALL ParallelDown                         #      2   275005
+STATE000; CALL OpenBLC                                       #      3   275007
+STATE000; CALL ADClamp_                                      #      4   275009
+STATE000; CALL wLine                                         #      5   275011
+STATE000; if SSplit CALL SerialOutputClocking(Pixels)        #      6   275134
+STATE000; if SRight CALL RightSerialOutputClocking(Pixels)   #      7   275258
+STATE000; if SLeft CALL LeftSerialOutputClocking(Pixels)     #      8   275382
+STATE000; CALL GroundBLC                                     #      9   275384
+STATE000; CALL ADClamp                                       #     10   275386
+STATE000; RETURN RoiScience                                  #     11   275387
+Wait1ms: # waveform
+STATE000; STATE000(99997)                                    #  99997    99998
+STATE000; RETURN Wait1ms                                     #  99998    99999
+Wait1us: # waveform
+STATE000; STATE000(98)                                       #     98       99
+STATE000; RETURN Wait1us                                     #     99      100
+Wait25us: # waveform
+STATE000; STATE000(2498)                                     #   2498     2499
+STATE000; RETURN Wait25us                                    #   2499     2500
+OpenBLC: # waveform
+STATE001; RETURN OpenBLC                                     #      0        1
+GroundBLC: # waveform
+STATE002; RETURN GroundBLC                                   #      0        1
+SyncParallel: # waveform
+STATE003; STATE000(9999)                                     #   9999    10000
+STATE004; RETURN SyncParallel                                #  10000    10001
+wParallelInversion: # waveform
+STATE005; RETURN wParallelInversion                          #      0        1
+wAllSerialLow: # waveform
+STATE006; RETURN wAllSerialLow                               #      0        1
+SerialReceiving: # waveform
+STATE007; STATE000(19)                                       #     19       20
+STATE008; RETURN SerialReceiving                             #     20       21
+OldSerialOutputClocking: # waveform
+STATE009; STATE000(19)                                       #     19       20
+STATE008; STATE000(9)                                        #     29       30
+STATE010; STATE000(9)                                        #     39       40
+STATE011;                                                    #     40       41
+STATE012;                                                    #     41       42
+STATE013; STATE000(39)                                       #     81       82
+STATE014; STATE000(39)                                       #    121      122
+STATE015; RETURN OldSerialOutputClocking                     #    122      123
+SerialOutputClocking: # waveform
+STATE009; STATE000(19)                                       #     19       20
+STATE008; STATE000(9)                                        #     29       30
+STATE010; STATE000(9)                                        #     39       40
+STATE011;                                                    #     40       41
+STATE012;                                                    #     41       42
+STATE013; STATE000(39)                                       #     81       82
+STATE014; STATE000(38)                                       #    120      121
+STATE000; RETURN SerialOutputClocking                        #    121      122
+SlowSerialOutputClocking: # waveform
+STATE000; STATE000                                           #      1        2
+STATE012;                                                    #      2        3
+STATE013; STATE000(199)                                      #    202      203
+STATE016; STATE000(199)                                      #    402      403
+STATE017; STATE000(199)                                      #    602      603
+STATE008; STATE000(199)                                      #    802      803
+STATE018; STATE000(199)                                      #   1002     1003
+STATE019; STATE000(199)                                      #   1202     1203
+STATE020; STATE000(199)                                      #   1402     1403
+STATE011; STATE000(199)                                      #   1602     1603
+STATE021; STATE000(199)                                      #   1802     1803
+STATE022; STATE000(199)                                      #   2002     2003
+STATE023; STATE000(199)                                      #   2202     2203
+STATE015; RETURN SlowSerialOutputClocking                    #   2203     2204
+FastSerialOutputClocking: # waveform
+STATE009; STATE000(19)                                       #     19       20
+STATE008; STATE000(9)                                        #     29       30
+STATE010; STATE000(9)                                        #     39       40
+STATE011;                                                    #     40       41
+STATE012;                                                    #     41       42
+STATE013; STATE000(39)                                       #     81       82
+STATE014; STATE000(38)                                       #    120      121
+STATE000; RETURN FastSerialOutputClocking                    #    121      122
+SmoothSerialOutputClocking: # waveform
+STATE024;                                                    #      0        1
+STATE013; STATE000(9)                                        #     10       11
+STATE011; STATE000(28)                                       #     39       40
+STATE025; STATE000(30)                                       #     70       71
+STATE022; STATE000(8)                                        #     79       80
+STATE026; STATE000(40)                                       #    120      121
+STATE000; RETURN SmoothSerialOutputClocking                  #    121      122
+OverlapSerialOutputClocking: # waveform
+STATE016; STATE000(9)                                        #      9       10
+STATE017; STATE000(19)                                       #     29       30
+STATE008; STATE000(9)                                        #     39       40
+STATE027; STATE000(9)                                        #     49       50
+STATE020; STATE000(9)                                        #     59       60
+STATE011;                                                    #     60       61
+STATE012;                                                    #     61       62
+STATE013; STATE000(39)                                       #    101      102
+STATE021; STATE000(9)                                        #    111      112
+STATE028; STATE000(38)                                       #    150      151
+STATE000; RETURN OverlapSerialOutputClocking                 #    151      152
+DummySerialOutputClocking: # waveform
+STATE029; STATE000(19)                                       #     19       20
+STATE029; STATE000(9)                                        #     29       30
+STATE029; STATE000(9)                                        #     39       40
+STATE029;                                                    #     40       41
+STATE012;                                                    #     41       42
+STATE013; STATE000(39)                                       #     81       82
+STATE029; STATE000(38)                                       #    120      121
+STATE000; RETURN DummySerialOutputClocking                   #    121      122
+RawPixel: # waveform
+STATE000; STATE000(120)                                      #    120      121
+STATE000; RETURN RawPixel                                    #    121      122
+RightSerialOutputClocking: # waveform
+STATE030; STATE000(19)                                       #     19       20
+STATE008; STATE000(9)                                        #     29       30
+STATE031; STATE000(9)                                        #     39       40
+STATE011;                                                    #     40       41
+STATE012;                                                    #     41       42
+STATE013; STATE000(39)                                       #     81       82
+STATE032; STATE000(39)                                       #    121      122
+STATE015; RETURN RightSerialOutputClocking                   #    122      123
+wReset: # waveform
+STATE008; RETURN wReset                                      #      0        1
+wUnsetReset: # waveform
+STATE011; RETURN wUnsetReset                                 #      0        1
+LeftSerialOutputClocking: # waveform
+STATE033; STATE000(19)                                       #     19       20
+STATE008; STATE000(9)                                        #     29       30
+STATE034; STATE000(9)                                        #     39       40
+STATE011;                                                    #     40       41
+STATE012;                                                    #     41       42
+STATE013; STATE000(39)                                       #     81       82
+STATE035; STATE000(39)                                       #    121      122
+STATE015; RETURN LeftSerialOutputClocking                    #    122      123
+DoLineTransfer: # waveform
+STATE036; STATE000(9999)                                     #   9999    10000
+STATE037; STATE000(9999)                                     #  19999    20000
+STATE038; STATE000(9999)                                     #  29999    30000
+STATE039; STATE000(9999)                                     #  39999    40000
+STATE040; STATE000(9999)                                     #  49999    50000
+STATE041; STATE000(9999)                                     #  59999    60000
+STATE042; STATE000(9999)                                     #  69999    70000
+STATE043; STATE000(9999)                                     #  79999    80000
+STATE044; RETURN DoLineTransfer                              #  80000    80001
+SynchedLineTransfer: # waveform
+STATE000; STATE000(2499)                                     #   2499     2500
+STATE045; STATE000(9999)                                     #  12499    12500
+STATE046; STATE000(9999)                                     #  22499    22500
+STATE047; STATE000(9999)                                     #  32499    32500
+STATE048; STATE000(9999)                                     #  42499    42500
+STATE049; STATE000(9999)                                     #  52499    52500
+STATE050; STATE000(9999)                                     #  62499    62500
+STATE051; STATE000(9999)                                     #  72499    72500
+STATE052; STATE000(9999)                                     #  82499    82500
+STATE053; STATE000(9999)                                     #  92499    92500
+STATE054; STATE000(2498)                                     #  94998    94999
+STATE000; RETURN SynchedLineTransfer                         #  94999    95000
+SetParallelExpose: # waveform
+STATE055; RETURN SetParallelExpose                           #      0        1
+SetParallelTransfer: # waveform
+STATE056; RETURN SetParallelTransfer                         #      0        1
+DummyLineTransfer: # waveform
+STATE029; STATE000(9999)                                     #   9999    10000
+STATE029; STATE000(9999)                                     #  19999    20000
+STATE029; STATE000(9999)                                     #  29999    30000
+STATE029; STATE000(9999)                                     #  39999    40000
+STATE029; STATE000(9999)                                     #  49999    50000
+STATE029; STATE000(9999)                                     #  59999    60000
+STATE029; STATE000(9999)                                     #  69999    70000
+STATE029; STATE000(9999)                                     #  79999    80000
+STATE029; STATE000(9999)                                     #  89999    90000
+STATE029; RETURN DummyLineTransfer                           #  90000    90001
+IdleSynchedLineTransfer: # waveform
+STATE003; STATE000(9999)                                     #   9999    10000
+STATE004; STATE000(9999)                                     #  19999    20000
+STATE037; STATE000(9999)                                     #  29999    30000
+STATE038; STATE000(9999)                                     #  39999    40000
+STATE039; STATE000(9999)                                     #  49999    50000
+STATE040; STATE000(9999)                                     #  59999    60000
+STATE041; STATE000(9999)                                     #  69999    70000
+STATE042; STATE000(9999)                                     #  79999    80000
+STATE043; STATE000(9999)                                     #  89999    90000
+STATE044; RETURN IdleSynchedLineTransfer                     #  90000    90001
+ParallelUp: # waveform
+STATE003; STATE000(9999)                                     #   9999    10000
+STATE004; STATE000(9999)                                     #  19999    20000
+STATE057; STATE000(9999)                                     #  29999    30000
+STATE058; STATE000(9999)                                     #  39999    40000
+STATE059; STATE000(9999)                                     #  49999    50000
+STATE060; STATE000(9999)                                     #  59999    60000
+STATE061; STATE000(9999)                                     #  69999    70000
+STATE062; STATE000(9999)                                     #  79999    80000
+STATE063; STATE000(9999)                                     #  89999    90000
+STATE064; RETURN ParallelUp                                  #  90000    90001
+ParallelDown: # waveform
+STATE065; STATE000(9999)                                     #   9999    10000
+STATE066; STATE000(9999)                                     #  19999    20000
+STATE067; STATE000(9999)                                     #  29999    30000
+STATE068; STATE000(9999)                                     #  39999    40000
+STATE069; STATE000(9999)                                     #  49999    50000
+STATE070; STATE000(9999)                                     #  59999    60000
+STATE071; STATE000(9999)                                     #  69999    70000
+STATE072; STATE000(9999)                                     #  79999    80000
+STATE043; STATE000(9999)                                     #  89999    90000
+STATE044; RETURN ParallelDown                                #  90000    90001
+FauxLevel1: # waveform
+STATE073; STATE000                                           #      1        2
+STATE012;                                                    #      2        3
+STATE013; STATE000(252)                                      #    255      256
+STATE074; STATE000(254)                                      #    510      511
+STATE000; RETURN FauxLevel1                                  #    511      512
+FauxLevel2: # waveform
+STATE073; STATE000                                           #      1        2
+STATE012;                                                    #      2        3
+STATE013; STATE000(252)                                      #    255      256
+STATE075; STATE000(254)                                      #    510      511
+STATE000; RETURN FauxLevel2                                  #    511      512
+FauxLevel3: # waveform
+STATE073; STATE000                                           #      1        2
+STATE012;                                                    #      2        3
+STATE013; STATE000(252)                                      #    255      256
+STATE076; STATE000(254)                                      #    510      511
+STATE000; RETURN FauxLevel3                                  #    511      512
+FauxLevel4: # waveform
+STATE073; STATE000                                           #      1        2
+STATE012;                                                    #      2        3
+STATE013; STATE000(252)                                      #    255      256
+STATE077; STATE000(254)                                      #    510      511
+STATE000; RETURN FauxLevel4                                  #    511      512
+FauxLevel5: # waveform
+STATE073; STATE000                                           #      1        2
+STATE012;                                                    #      2        3
+STATE013; STATE000(252)                                      #    255      256
+STATE078; STATE000(254)                                      #    510      511
+STATE000; RETURN FauxLevel5                                  #    511      512
+FauxLevel6: # waveform
+STATE073; STATE000                                           #      1        2
+STATE012;                                                    #      2        3
+STATE013; STATE000(252)                                      #    255      256
+STATE079; STATE000(254)                                      #    510      511
+STATE000; RETURN FauxLevel6                                  #    511      512
+FauxLevel7: # waveform
+STATE073; STATE000                                           #      1        2
+STATE012;                                                    #      2        3
+STATE013; STATE000(252)                                      #    255      256
+STATE080; STATE000(254)                                      #    510      511
+STATE000; RETURN FauxLevel7                                  #    511      512
+FauxLevel8: # waveform
+STATE073; STATE000                                           #      1        2
+STATE012;                                                    #      2        3
+STATE013; STATE000(252)                                      #    255      256
+STATE081; STATE000(254)                                      #    510      511
+STATE000; RETURN FauxLevel8                                  #    511      512
+FauxToZero: # waveform
+STATE082; RETURN FauxToZero                                  #      0        1
+wOpenShutter: # waveform
+STATE083; RETURN wOpenShutter                                #      0        1
+wCloseShutter: # waveform
+STATE084; RETURN wCloseShutter                               #      0        1
+wFrame: # waveform
+STATE085; RETURN wFrame                                      #      0        1
+wLine: # waveform
+STATE086; RETURN wLine                                       #      0        1
+wLine_triggered: # waveform
+STATE083; STATE000(1999)                                     #   1999     2000
+STATE087; RETURN wLine_triggered                             #   2000     2001
+wPixel: # waveform
+STATE012;                                                    #      0        1
+STATE013; RETURN wPixel                                      #      1        2
+ADClamp: # waveform
+STATE088; RETURN ADClamp                                     #      0        1
+ADClamp_: # waveform
+STATE089; RETURN ADClamp_                                    #      0        1
+wDumpGateOn: # waveform
+STATE090; STATE000(999999)                                   # 999999  1000000
+STATE091; STATE000(999998)                                   # 1999998  1999999
+STATE000; RETURN wDumpGateOn                                 # 1999999  2000000
+wDumpGateOff: # waveform
+STATE092; STATE000(999999)                                   # 999999  1000000
+STATE093; STATE000(999998)                                   # 1999998  1999999
+STATE000; RETURN wDumpGateOff                                # 1999999  2000000
+wIdle: # waveform
+STATE000; RETURN wIdle                                       #      0        1

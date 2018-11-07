@@ -1,0 +1,858 @@
+/* -*- C -*- */
+/** ---------------------------------------------------------------------------
+ * @file   ztf_science.wav
+ * @brief  ZTF timing file, rules for waveform generation and scripting
+ *
+ * syntax (is case sensitive):
+ *
+ * WAVEFORM waveformlabel { rules }
+ *
+ * where rules (enclosed in curly braces) are as follows:
+ *
+ * [time]: [=timelabel] SET signallabel TO level;
+ *
+ * time: at least one time label is required, followed by colon
+ *       (if omitted then SET... lines are all at the same time as previous time)
+ *       arithmetic operations are allowed for time
+ *       units are allowed to follow numbers, E.G. ns, us, ms
+ *       ".+" means to add to the previous time
+ *
+ * =timelabel is an optional label for this time, which can be used elsewhere
+ *
+ * SET signallabel TO level; 
+ * is required and must end with a semi-colon
+ * signallabel and level can be defined anywhere
+ *
+ */
+
+#define clockfreq  100000000                      /* 100 MHz master clock frequency in Hz */
+#define sec        *(clockfreq)                   /* clock cycles per second   */
+#define ms         *(clockfreq/1000)              /* clock cycles per millisec */
+#define us         *(clockfreq/1000000)           /* clock cycles per microsec */
+#define ns         *(clockfreq/10000000)          /* clock cycles per nanosecond */
+#define clicks	   *(clockfreq/100000000)	  /* clock cycles per nanosecond */
+
+/* Timing defines */
+/* Generic timing parameters */
+#define DAVEYO 25 us
+
+#define TICK	      #eval 1 clicks		  /* 10 nsec */
+#define 1ms	      #eval 99999 clicks	  /* 999 usec */
+#define 1us           #eval 1 us
+#define 2us           #eval 2 us
+#define 20us          #eval 20 us
+#define 25us          #eval 25 us
+#define 10ms          #eval 10 ms
+#define 10us          #eval 10 us
+
+/* Science timing parameters */
+#define TDRT	      #eval 100  us		  /* 25 usec */
+#define TOI           #eval 100  us		  /* Science parallel time slice */
+
+#define TDX           #eval 10  clicks            /*  20 nsec */
+#define TWDX          #eval 10  clicks		  /*  400 nsec */
+#define TR1           40                          /* Time delay after serial phase 1 100 ns */
+#define TR3	      40		          /* Time delay after serial phase 3 800 ns */
+#define S2TORESET     #eval 20  clicks            /* serial 2 phase to reset timing */
+
+#define RGDELAY       #eval 4   us		  /*  4 usec */
+#define RGWIDTH       #eval 2   us		  /*  2 usec */
+
+#define SC2WIDTH      30
+
+
+/* Smooth pixel clocking */
+#define T_ScienceSmoothPixel 122 /*#eval 1us*/
+#define Rsettle 25 /* reset settling time */
+#define SWsettle 5 /* summing well settling time */
+#define T_ScienceSmoothPixel13 #eval T_ScienceSmoothPixel/3
+#define T_ScienceSmoothPixel23 #eval T_ScienceSmoothPixel/3*2
+#define SW_ScienceSmoothPixel  #eval (T_ScienceSmoothPixel + Rsettle - SWsettle)/2
+#define TRST 10
+
+/* Science timing fast parameters */
+/* Science timing parameters */
+#define FTDX           #eval 10 clicks            /*  100 nsec */
+#define FTWDX          #eval 10 clicks		  /*  100 nsec */
+#define FTR1           40 /*Time delay after serial phase 1 [x10ns]*/
+#define FTR3	       40 /*Time delay after serial phase 3 [x10ns]*/
+#define FS2TORESET     #eval 20 clicks            /* 200 nsec serial 2 phase to reset timing */
+#define OVERLAP        #eval 10 clicks            /* overlap the serial clocks by 100 ns */
+/* Guider timing parameters */
+#define PDELAY        #eval 20 us                 /* 20 usec used by Tim's Leach code		*/
+						  /* Use as a first approximation of		*/
+						  /* timing					*/
+#define SDELAY	      #eval 1 us		  /*  1 usec used by Tim's Leach Code		*/
+#define SWDELAY	      #eval 1.12 us		  /*  1.12 usec used by Tim's Leach code	*/
+
+/* Fake signal parameters */
+#define HALFPIX       #eval 256 clicks             /* 500 ns */
+
+
+/* Logical state defines */
+#define OPEN		    1 /* Real shutter opens when low 1 */
+#define CLOSE		    0 /* Real shutter closes when high 0 */
+#define High		    1
+#define Low		    0
+#define BLOpen		    0
+#define BLClose		    1
+#define BL_OSisclosed       0 /* True will ground the output source at the VIB */
+#define BLDOSisclosed       0 /* True will ground the dummy output source at the VIB */
+#define leftClamped         0 /* This is set if the Archon clamp is left clamped */
+#define PhiRHigh	    1   /* ZTF pin driver does not invert like the WaSP Pin Driver */
+#define PhiRLow		    0
+
+/* Logical state defines */
+#define HI		    1
+#define LO		    0
+
+
+WAVEFORM Wait1ms {
+ 1ms:			RETURN;
+}
+
+WAVEFORM Wait1us {
+ DAVEYO:			RETURN;
+}
+
+WAVEFORM Wait25us {
+  +26 us+2:                RETURN;
+}
+
+WAVEFORM OpenBLC {
+ 0:			SET BLC_OS   TO BL_OSisclosed;
+			SET BLC_DOS  TO BLDOSisclosed;
+}
+
+WAVEFORM GroundBLC {
+ 0:			SET BLC_OS   TO BLClose;
+			SET BLC_DOS  TO BLClose;
+}
+
+WAVEFORM SyncParallel {
+ 0:			SET CD3     TO _PAR_CLOCK_HIGH, FAST;
+			SET CD4     TO _PAR_CLOCK_HIGH, FAST;
+                        SET CD2     TO _PAR_CLOCK_HIGH, FAST;
+                        SET CD1     TO _PAR_CLOCK_LOW, FAST;
+ .+TDRT:		SET CD3     TO _PAR_CLOCK_HIGH, FAST;
+			SET CD4     TO _PAR_CLOCK_HIGH, FAST;
+                        SET CD2     TO _PAR_CLOCK_LOW, FAST;
+                        SET CD1     TO _PAR_CLOCK_LOW, FAST;
+}
+
+WAVEFORM wParallelInversion {
+ 0:                     SET CD1     TO _PAR_CLOCK_IDLE_LOW, FAST;
+                        SET CD2     TO _PAR_CLOCK_IDLE_LOW, FAST;
+                        SET CD3     TO _PAR_CLOCK_IDLE_LOW, FAST;
+                        SET CD4     TO _PAR_CLOCK_IDLE_LOW, FAST;
+			SET AB1     TO _PAR_CLOCK_IDLE_LOW, FAST;
+                        SET AB2     TO _PAR_CLOCK_IDLE_LOW, FAST;
+                        SET AB3     TO _PAR_CLOCK_IDLE_LOW, FAST;
+                        SET AB4     TO _PAR_CLOCK_IDLE_LOW, FAST;
+}
+
+WAVEFORM wAllSerialLow {
+ 0:                     SET SClock1 TO _SER_CLOCK_LOW, FAST;
+                        SET SClock2 TO _SER_CLOCK_LOW, FAST;
+                        SET SClock3 TO _SER_CLOCK_LOW, FAST;
+}                        
+
+WAVEFORM SerialReceiving {
+ 0:			SET SClock2 TO _SER_CLOCK_RCV, FAST;
+			SET SClock1 TO _SER_CLOCK_RCV, FAST;
+ .+S2TORESET:		SET PhiR     TO PhiRHigh;
+}
+
+/* The waveform is spread out with no overlapping clocks */
+WAVEFORM OldSerialOutputClocking {
+ 0:			SET SClock2      TO _SER_CLOCK_LOW, FAST;
+			SET SClock1      TO _SER_CLOCK_HIGH, FAST;
+ .+S2TORESET:		SET PhiR         TO PhiRHigh;
+ .+TWDX:		SET SWClock      TO _SW_CLOCK_HIGH, FAST;
+			SET SClock3      TO _SER_CLOCK_HIGH, FAST;
+                	SET SClock1      TO _SER_CLOCK_LOW, FAST;
+ .+TDX:			SET PhiR         TO PhiRLow;
+ .+TICK:		SET PIXEL        TO High;
+ .+TICK:		SET PIXEL        TO Low;
+			SET FRAME        TO Low;
+			SET LINE         TO Low;
+ .+TR3:			SET SWClock      TO _SW_CLOCK_LOW, FAST;
+			SET SClock3      TO _SER_CLOCK_LOW, FAST;
+			SET SClock2      TO _SER_CLOCK_HIGH, FAST;
+ .+TR1:			SET NOP          TO Low;
+}
+
+WAVEFORM SerialOutputClocking {
+  0:    =resetreset   SET PhiR          TO PhiRHigh;
+                      SET SClock2       TO _SER_CLOCK_LOW, FAST;
+ .+TWDX:              SET SWClock       TO _SW_CLOCK_HIGH, FAST;
+                      SET SClock3       TO _SER_CLOCK_HIGH, FAST;
+                      SET SClock1       TO _SER_CLOCK_LOW, FAST;
+ .+TDX:               SET PhiR          TO PhiRLow;
+ .+TICK:              SET PIXEL         TO High;
+ .+TICK:              SET PIXEL         TO Low;
+                      SET FRAME         TO Low;
+                      SET LINE          TO Low;
+ .+TR3: =chargelevel  SET SWClock       TO _SW_CLOCK_LOW, FAST;
+                      SET SClock3       TO _SER_CLOCK_LOW, FAST;
+                      SET SClock2       TO _SER_CLOCK_HIGH, FAST;
+ .+SC2WIDTH: = dmz    SET SClock1       TO _SER_CLOCK_HIGH, FAST;
+                      SET SClock2       TO _SER_CLOCK_LOW, FAST;
+ chargelevel+TR1:     RETURN;
+}
+
+
+/* No overlapping clocks */
+WAVEFORM SlowSerialOutputClocking {
+ 2:                     SET PIXEL        To High;
+ .+TICK:                SET PIXEL        TO Low;
+			SET FRAME        TO Low;
+			SET LINE         TO Low;
+ .+2us:                 SET SClock1      TO _SER_CLOCK_HIGH, FAST;
+ .+2us:     		SET SClock2      TO _SER_CLOCK_LOW, FAST;
+ .+2us: 		SET PhiR         TO PhiRHigh;
+ .+2us: 		SET SWClock      TO _SW_CLOCK_HIGH, FAST;
+ .+2us:			SET SClock3      TO _SER_CLOCK_HIGH, FAST;
+ .+2us:               	SET SClock1      TO _SER_CLOCK_LOW, FAST;
+ .+2us:			SET PhiR         TO PhiRLow;
+ .+2us:			SET SClock2      TO _SER_CLOCK_HIGH, FAST;
+ .+2us:			SET SWClock      TO _SW_CLOCK_LOW, FAST;
+ .+2us:			SET SClock3      TO _SER_CLOCK_LOW, FAST;
+ .+2us:			SET NOP          TO Low;
+}
+
+/* Correct pixel speed */
+WAVEFORM FastSerialOutputClocking {
+   0:			SET SClock2      TO _SER2_CLOCK_LOW, FAST;
+			SET SClock1      TO _SER1_CLOCK_HIGH, FAST;
+ .+FS2TORESET:		SET PhiR         TO PhiRHigh;
+ .+FTWDX:		SET SWClock      TO _SW_CLOCK_HIGH, FAST;
+			SET SClock3      TO _SER3_CLOCK_HIGH, FAST;
+             	        SET SClock1      TO _SER1_CLOCK_LOW, FAST;
+ .+FTDX:		SET PhiR         TO PhiRLow;
+ .+TICK:		SET PIXEL        TO High;
+ .+TICK:		SET PIXEL        TO Low;
+			SET FRAME        TO Low;
+			SET LINE         TO Low;
+ .+FTR3:		SET SWClock      TO _SW_CLOCK_LOW, FAST;
+			SET SClock3      TO _SER3_CLOCK_LOW, FAST;
+			SET SClock2      TO _SER2_CLOCK_HIGH, FAST;
+ .+FTR1:		RETURN;
+}
+
+WAVEFORM SmoothSerialOutputClocking {
+ 0: 			SET PhiR 	TO PhiRHigh;
+			SET SClock1 	TO _SER_CLOCK_LOW, SLOW;
+			SET SClock3 	TO _SER_CLOCK_HIGH, SLOW;
+			SET SWClock     TO _SW_CLOCK_HIGH, FAST;
+			SET PIXEL        TO High;
+.+TICK:			SET PIXEL        TO Low;
+			SET FRAME        TO Low;
+			SET LINE         TO Low;
+.+TRST: 		SET PhiR 	TO PhiRLow;
+T_ScienceSmoothPixel13: SET SClock2 	TO _SER_CLOCK_HIGH, SLOW;
+			SET SClock3 	TO _SER_CLOCK_LOW, SLOW;
+SW_ScienceSmoothPixel: 	SET SWClock      TO _SW_CLOCK_LOW, FAST;
+T_ScienceSmoothPixel23: SET SClock2 	TO _SER_CLOCK_LOW, SLOW;
+			SET SClock1 	TO _SER_CLOCK_HIGH, SLOW;
+T_ScienceSmoothPixel:	RETURN;
+}
+
+
+/* Overlapped Phases */
+WAVEFORM OverlapSerialOutputClocking {
+   0:			SET SClock1      TO _SER_CLOCK_HIGH, FAST;
+  .+OVERLAP:            SET SClock2      TO _SER_CLOCK_LOW, FAST;
+ .+FS2TORESET:		SET PhiR         TO PhiRHigh;
+ .+FTWDX:		SET SWClock      TO _SW_CLOCK_HIGH, FAST;
+			SET SClock3      TO _SER_CLOCK_HIGH, FAST;
+ .+OVERLAP:           	SET SClock1      TO _SER_CLOCK_LOW, FAST;
+ .+FTDX:		SET PhiR         TO PhiRLow;
+ .+TICK:		SET PIXEL        TO High;
+ .+TICK:		SET PIXEL        TO Low;
+			SET FRAME        TO Low;
+			SET LINE         TO Low;
+ .+FTR3:                SET SClock2      TO _SER_CLOCK_HIGH, FAST;
+ .+OVERLAP:             SET SWClock      TO _SW_CLOCK_LOW, FAST;
+			SET SClock3      TO _SER_CLOCK_LOW, FAST;
+ .+FTR1:		RETURN;
+}
+
+
+/* Slowed pixel */
+WAVEFORM SerialOutputClocking {
+   0:			SET SClock2      TO _SER_CLOCK_LOW, FAST;
+			SET SClock1      TO _SER_CLOCK_HIGH, FAST;
+ .+S2TORESET:		SET PhiR         TO PhiRHigh;
+ .+TWDX:		SET SWClock      TO _SW_CLOCK_HIGH, FAST;
+			SET SClock3      TO _SER_CLOCK_HIGH, FAST;
+             	        SET SClock1      TO _SER_CLOCK_LOW, FAST;
+ .+TDX:		        SET PhiR         TO PhiRLow;
+ .+TICK:		SET PIXEL        TO High;
+ .+TICK:		SET PIXEL        TO Low;
+			SET FRAME        TO Low;
+			SET LINE         TO Low;
+ .+TR3:		        SET SWClock      TO _SW_CLOCK_LOW, FAST;
+			SET SClock3      TO _SER_CLOCK_LOW, FAST;
+			SET SClock2      TO _SER_CLOCK_HIGH, FAST;
+ .+TR1:		        RETURN;
+}
+
+
+WAVEFORM DummySerialOutputClocking {
+ 0:			SET NOP      TO High;
+ .+FS2TORESET:		SET NOP      TO High;
+ .+FTWDX:		SET NOP      TO High;
+ .+FTDX:		SET NOP      TO High;
+ .+TICK:		SET PIXEL    TO High;
+ .+TICK:                SET PIXEL    TO Low;
+                        SET FRAME    TO Low;
+                        SET LINE     TO Low;
+ .+FTR3: 		SET NOP      TO High;
+ .+FTR1:        	RETURN;
+} 
+
+/* No overlapping clocks */
+/*WAVEFORM RawPixel {
+/* 2:                     SET PIXEL        To High;
+/* .+TICK:                SET PIXEL        TO Low;
+/*			SET FRAME        TO Low;
+/*			SET LINE         TO Low;
+/* .+2us:                 SET SClock1      TO _SER_CLOCK_HIGH, FAST;
+/* .+2us:     		SET SClock2      TO _SER_CLOCK_LOW, FAST;
+/* .+2us: 		SET PhiR         TO PhiRHigh;
+/* .+2us: 		SET SWClock      TO _SW_CLOCK_HIGH, FAST;
+/* .+2us:			SET SClock3      TO _SER_CLOCK_HIGH, FAST;
+/* .+2us:               	SET SClock1      TO _SER_CLOCK_LOW, FAST;
+/* .+2us:			SET PhiR         TO PhiRLow;
+/* .+2us:			SET SClock2      TO _SER_CLOCK_HIGH, FAST;
+/* .+2us:			SET SWClock      TO _SW_CLOCK_LOW, FAST;
+/* .+2us:			SET SClock3      TO _SER_CLOCK_LOW, FAST;
+/* .+2us:			SET NOP          TO Low;
+/*}
+/**/
+
+/*WAVEFORM RawPixel {
+/* 0:			SET NOP      TO High;
+/*  /*  .+OVERLAP:            SET NOP      TO High;*/
+/* .+FS2TORESET:		SET NOP      TO High;
+/* .+FTWDX:		SET NOP      TO High;
+/* .+FTDX:	        SET NOP      TO High;
+/* .+TICK:		SET PIXEL    TO High;
+/* .+TICK:                SET PIXEL    TO Low;
+/*                        SET FRAME    TO Low;
+/*                        SET LINE     TO Low;
+/* .+FTR3:                SET NOP      TO High;
+/*  /* .+OVERLAP:             SET NOP      TO High;*/
+/* .+FTR1:  		RETURN;
+/*} 
+/**/
+
+WAVEFORM RawPixel {
+  T_ScienceSmoothPixel:           RETURN;
+}
+
+
+WAVEFORM RightSerialOutputClocking {
+ 0:			SET RightSClock2      TO _SER_CLOCK_LOW, FAST;
+			SET RightSClock1      TO _SER_CLOCK_HIGH, FAST;
+ .+FS2TORESET:		SET PhiR              TO PhiRHigh;
+ .+FTWDX:		SET SWClock           TO _SW_CLOCK_HIGH, FAST;
+			SET RightSClock3      TO _SER_CLOCK_HIGH, FAST;
+			SET RightSClock1      TO _SER_CLOCK_LOW, FAST;
+ .+FTDX:		SET PhiR              TO PhiRLow;
+ .+TICK:		SET PIXEL             TO High;
+ .+TICK:		SET PIXEL             TO Low;
+			SET FRAME             TO Low;
+			SET LINE              TO Low;
+ .+FTR3:		SET SWClock           TO _SW_CLOCK_LOW, FAST;
+			SET RightSClock3      TO _SER_CLOCK_LOW, FAST;
+			SET RightSClock2      TO _SER_CLOCK_HIGH, FAST;
+ .+FTR1:		SET NOP               TO Low;
+}
+
+WAVEFORM wReset {
+ 0:                     SET PhiR              TO PhiRHigh;
+}
+
+WAVEFORM wUnsetReset {
+ 0:                     SET PhiR              TO PhiRLow;
+}
+
+
+WAVEFORM LeftSerialOutputClocking {
+ 0:			SET LeftSClock2       TO _SER_CLOCK_LOW, FAST;
+			SET LeftSClock1       TO _SER_CLOCK_HIGH, FAST;
+ .+FS2TORESET:		SET PhiR              TO PhiRHigh;
+ .+FTWDX:		SET SWClock           TO _SW_CLOCK_HIGH, FAST;
+			SET LeftSClock3       TO _SER_CLOCK_HIGH, FAST;
+			SET LeftSClock1       TO _SER_CLOCK_LOW, FAST;
+ .+FTDX:		SET PhiR              TO PhiRLow;
+ .+TICK:		SET PIXEL             TO High;
+ .+TICK:		SET PIXEL             TO Low;
+			SET FRAME             TO Low;
+			SET LINE              TO Low;
+ .+FTR3:		SET SWClock           TO _SW_CLOCK_LOW, FAST;
+			SET LeftSClock3       TO _SER_CLOCK_LOW, FAST;
+			SET LeftSClock2       TO _SER_CLOCK_HIGH, FAST;
+ .+FTR1:		SET NOP               TO Low;
+}
+
+
+WAVEFORM DoLineTransfer {
+ 0:			SET CD3     TO _PAR_CLOCK_HIGH, FAST;
+			SET AB4     TO _PAR_CLOCK_LOW, FAST;
+			SET CD4     TO _PAR_CLOCK_HIGH, FAST;
+			SET AB3     TO _PAR_CLOCK_HIGH, FAST;
+			SET CD2     TO _PAR_CLOCK_LOW, FAST;
+			SET AB1     TO _PAR_CLOCK_LOW, FAST;
+			SET CD1     TO _PAR_CLOCK_LOW, FAST;
+			SET AB2     TO _PAR_CLOCK_HIGH, FAST;
+ .+TOI:			SET AB4     TO _PAR_CLOCK_HIGH, FAST;
+			SET CD1     TO _PAR_CLOCK_HIGH, FAST;
+			SET TGClock TO _TG_CLOCK_HIGH, FAST;
+ .+TOI:			SET CD3     TO _PAR_CLOCK_LOW, FAST;
+			SET AB2     TO _PAR_CLOCK_LOW, FAST;
+ .+TOI:			SET CD2     TO _PAR_CLOCK_HIGH, FAST;
+			SET AB1     TO _PAR_CLOCK_HIGH, FAST;
+ .+TOI:			SET CD4     TO _PAR_CLOCK_LOW, FAST;
+			SET AB3     TO _PAR_CLOCK_LOW, FAST;
+ .+TOI:			SET CD3     TO _PAR_CLOCK_HIGH, FAST;
+			SET AB2     TO _PAR_CLOCK_HIGH, FAST;
+ .+TOI:			SET AB4     TO _PAR_CLOCK_LOW, FAST;
+			SET CD1     TO _PAR_CLOCK_LOW, FAST;
+			SET TGClock TO _TG_CLOCK_LOW, FAST;
+ .+TOI:			SET AB3     TO _PAR_CLOCK_HIGH, FAST;
+ .+TOI:			SET AB1     TO _PAR_CLOCK_LOW, FAST;
+}
+
+
+/* Data sheet Parallel Transfer */
+/*WAVEFORM SynchedLineTransfer {
+/* +TDRT:      		SET CD3     TO _PAR_CLOCK_HIGH, FAST;
+/*			SET CD4     TO _PAR_CLOCK_HIGH, FAST;
+/*                      SET CD2     TO _PAR_CLOCK_HIGH, FAST;
+/*                      SET CD1     TO _PAR_CLOCK_LOW, FAST;
+/* .+TOI: 		SET CD3     TO _PAR_CLOCK_HIGH, FAST;
+/*			SET CD4     TO _PAR_CLOCK_HIGH, FAST;
+/*                      SET CD2     TO _PAR_CLOCK_LOW, FAST;
+/*                      SET CD1     TO _PAR_CLOCK_LOW, FAST;
+/* .+TOI:		SET AB4     TO _PAR_CLOCK_HIGH, FAST;
+/*			SET CD1     TO _PAR_CLOCK_HIGH, FAST;
+/*			SET TGClock TO _TG_CLOCK_HIGH, FAST;
+/* .+TOI:		SET CD3     TO _PAR_CLOCK_LOW, FAST;
+/*			SET AB2     TO _PAR_CLOCK_LOW, FAST;
+/* .+TOI:		SET CD2     TO _PAR_CLOCK_HIGH, FAST;
+/*			SET AB1     TO _PAR_CLOCK_HIGH, FAST;
+/* .+TOI:		SET CD4     TO _PAR_CLOCK_LOW, FAST;
+/*			SET AB3     TO _PAR_CLOCK_LOW, FAST;
+/* .+TOI:		SET CD3     TO _PAR_CLOCK_HIGH, FAST;
+/*			SET AB2     TO _PAR_CLOCK_HIGH, FAST;
+/* .+TOI:		SET AB4     TO _PAR_CLOCK_LOW, FAST;
+/*			SET CD1     TO _PAR_CLOCK_LOW, FAST;
+/*			SET TGClock TO _TG_CLOCK_LOW, FAST;
+/* .+TOI:		SET AB3     TO _PAR_CLOCK_HIGH, FAST;
+/* .+TOI:		SET AB1     TO _PAR_CLOCK_LOW, FAST;
+/* .+TOI:               RETURN; /* We need a 25 us delay between the end of a parallel and begin serial */
+/*}
+/**/
+
+/* Tim Parallel Transfer */
+WAVEFORM SynchedLineTransfer {
+25us:			SET CD1     TO _PAR_CLOCK_LOW, SLOW;
+			SET CD2     TO _PAR_CLOCK_HIGH, SLOW;
+                        SET CD3     TO _PAR_CLOCK_HIGH, SLOW;
+                        SET CD4     TO _PAR_CLOCK_HIGH, SLOW;
+			SET AB4     TO _PAR_CLOCK_HIGH, SLOW;
+			SET AB3     TO _PAR_CLOCK_HIGH, SLOW;
+			SET AB2     TO _PAR_CLOCK_HIGH, SLOW;
+			SET AB1     TO _PAR_CLOCK_LOW, SLOW;
+			SET TGClock TO _TG_CLOCK_LOW, SLOW;
+.+TDRT:			SET TGClock TO _TG_CLOCK_HIGH, SLOW;
+.+TOI:			SET CD2     TO _PAR_CLOCK_LOW, SLOW;
+			SET AB2     TO _PAR_CLOCK_LOW, SLOW;
+ .+TOI:			SET CD1     TO _PAR_CLOCK_HIGH, SLOW;
+			SET AB1     TO _PAR_CLOCK_HIGH, SLOW;
+.+TOI:			SET CD3     TO _PAR_CLOCK_LOW, SLOW;
+			SET AB3     TO _PAR_CLOCK_LOW, SLOW;
+ .+TOI:			SET CD2     TO _PAR_CLOCK_HIGH, SLOW;
+			SET AB2     TO _PAR_CLOCK_HIGH, SLOW;			
+.+TOI:			SET CD4     TO _PAR_CLOCK_LOW, SLOW;
+			SET AB4     TO _PAR_CLOCK_LOW, SLOW;
+			SET TGClock TO _TG_CLOCK_LOW, SLOW;
+.+TOI:			SET CD3     TO _PAR_CLOCK_HIGH, SLOW;
+			SET AB3     TO _PAR_CLOCK_HIGH, SLOW;
+.+TOI:			SET CD1     TO _PAR_CLOCK_LOW, SLOW;
+			SET AB1     TO _PAR_CLOCK_LOW, SLOW;			
+			
+.+TOI:                  SET CD4     TO _PAR_CLOCK_HIGH, SLOW;
+                        SET AB4     TO _PAR_CLOCK_HIGH, SLOW;
+.+25us:                 RETURN;
+}
+/**/
+
+WAVEFORM SetParallelExpose {
+  0:			SET CD1     TO _PAR_CLOCK_EXP_LOW, SLOW;
+			SET CD2     TO _PAR_CLOCK_EXP_HIGH, SLOW;
+                        SET CD3     TO _PAR_CLOCK_EXP_HIGH, SLOW;
+                        SET CD4     TO _PAR_CLOCK_EXP_HIGH, SLOW;
+			SET AB4     TO _PAR_CLOCK_EXP_HIGH, SLOW;
+			SET AB3     TO _PAR_CLOCK_EXP_HIGH, SLOW;
+			SET AB2     TO _PAR_CLOCK_EXP_HIGH, SLOW;
+			SET AB1     TO _PAR_CLOCK_EXP_LOW, SLOW;
+ 
+}
+
+WAVEFORM SetParallelTransfer {
+0:			SET CD1     TO _PAR_CLOCK_LOW, SLOW;
+			SET CD2     TO _PAR_CLOCK_HIGH, SLOW;
+                        SET CD3     TO _PAR_CLOCK_HIGH, SLOW;
+                        SET CD4     TO _PAR_CLOCK_HIGH, SLOW;
+			SET AB4     TO _PAR_CLOCK_HIGH, SLOW;
+			SET AB3     TO _PAR_CLOCK_HIGH, SLOW;
+			SET AB2     TO _PAR_CLOCK_HIGH, SLOW;
+			SET AB1     TO _PAR_CLOCK_LOW, SLOW;
+}
+
+/*WAVEFORM InvSynchedLineTransfer {
+/*0:			SET CD1     TO _INVPAR_CLOCK_LOW, SLOW;
+/*			SET CD2     TO _INVPAR_CLOCK_HIGH, SLOW;
+/*                        SET CD3     TO _INVPAR_CLOCK_HIGH, SLOW;
+/*                        SET CD4     TO _INVPAR_CLOCK_HIGH, SLOW;
+/*			SET AB4     TO _INVPAR_CLOCK_HIGH, SLOW;
+/*			SET AB3     TO _INVPAR_CLOCK_HIGH, SLOW;
+/*			SET AB2     TO _INVPAR_CLOCK_HIGH, SLOW;
+/*			SET AB1     TO _INVPAR_CLOCK_LOW, SLOW;
+/*			SET TGClock TO _TG_CLOCK_LOW, SLOW;
+/*.+TDRT:			SET TGClock TO _TG_CLOCK_HIGH, SLOW;
+/*.+TOI:			SET CD2     TO _INVPAR_CLOCK_LOW, SLOW;
+/*			SET AB2     TO _INVPAR_CLOCK_LOW, SLOW;
+/* .+TOI:			SET CD1     TO _INVPAR_CLOCK_HIGH, SLOW;
+/*			SET AB1     TO _INVPAR_CLOCK_HIGH, SLOW;
+/*.+TOI:			SET CD3     TO _INVPAR_CLOCK_LOW, SLOW;
+/*			SET AB3     TO _INVPAR_CLOCK_LOW, SLOW;
+/* .+TOI:			SET CD2     TO _INVPAR_CLOCK_HIGH, SLOW;
+/*			SET AB2     TO _INVPAR_CLOCK_HIGH, SLOW;			
+/*.+TOI:			SET CD4     TO _INVPAR_CLOCK_LOW, SLOW;
+/*			SET AB4     TO _INVPAR_CLOCK_LOW, SLOW;
+/*			SET TGClock TO _TG_CLOCK_LOW, SLOW;
+/*.+TOI:			SET CD3     TO _INVPAR_CLOCK_HIGH, SLOW;
+/*			SET AB3     TO _INVPAR_CLOCK_HIGH, SLOW;
+/*.+TOI:			SET CD1     TO _INVPAR_CLOCK_LOW, SLOW;
+/*			SET AB1     TO _INVPAR_CLOCK_LOW, SLOW;			
+/*			
+/*.+TOI:                  SET CD4     TO _INVPAR_CLOCK_HIGH, SLOW;
+/*                        SET AB4     TO _INVPAR_CLOCK_HIGH, SLOW;
+/*}
+*/
+
+
+WAVEFORM DummyLineTransfer {
+ 0:                     SET NOP     TO High;
+  .+TDRT:               SET NOP     TO High;
+  .+TOI:                SET NOP     TO High;
+  .+TOI:                SET NOP     TO High;
+  .+TOI:                SET NOP     TO High;
+  .+TOI:                SET NOP     TO High;
+  .+TOI:                SET NOP     TO High;
+  .+TOI:                SET NOP     TO High;
+  .+TOI:                SET NOP     TO High;
+  .+TOI:                SET NOP     TO High;
+}
+
+/* used by nullClocking and .... */
+WAVEFORM IdleSynchedLineTransfer {
+ 0:			SET CD3     TO _PAR_CLOCK_IDLE_HIGH, FAST;
+			SET CD4     TO _PAR_CLOCK_IDLE_HIGH, FAST;
+                        SET CD2     TO _PAR_CLOCK_IDLE_HIGH, FAST;
+                        SET CD1     TO _PAR_CLOCK_IDLE_LOW, FAST;
+ .+TDRT:		SET CD3     TO _PAR_CLOCK_IDLE_HIGH, FAST;
+			SET CD4     TO _PAR_CLOCK_IDLE_HIGH, FAST;
+                        SET CD2     TO _PAR_CLOCK_IDLE_LOW, FAST;
+                        SET CD1     TO _PAR_CLOCK_IDLE_LOW, FAST;
+ .+TOI:			SET AB4     TO _PAR_CLOCK_IDLE_HIGH, FAST;
+			SET CD1     TO _PAR_CLOCK_IDLE_HIGH, FAST;
+			SET TGClock TO _TG_CLOCK_HIGH, FAST;
+ .+TOI:			SET CD3     TO _PAR_CLOCK_IDLE_LOW, FAST;
+			SET AB2     TO _PAR_CLOCK_IDLE_LOW, FAST;
+ .+TOI:			SET CD2     TO _PAR_CLOCK_IDLE_HIGH, FAST;
+			SET AB1     TO _PAR_CLOCK_IDLE_HIGH, FAST;
+ .+TOI:			SET CD4     TO _PAR_CLOCK_IDLE_LOW, FAST;
+			SET AB3     TO _PAR_CLOCK_IDLE_LOW, FAST;
+ .+TOI:			SET CD3     TO _PAR_CLOCK_IDLE_HIGH, FAST;
+			SET AB2     TO _PAR_CLOCK_IDLE_HIGH, FAST;
+ .+TOI:			SET AB4     TO _PAR_CLOCK_IDLE_LOW, FAST;
+			SET CD1     TO _PAR_CLOCK_IDLE_LOW, FAST;
+			SET TGClock TO _TG_CLOCK_LOW, FAST;
+ .+TOI:			SET AB3     TO _PAR_CLOCK_IDLE_HIGH, FAST;
+ .+TOI:			SET AB1     TO _PAR_CLOCK_IDLE_LOW, FAST;
+}
+
+
+/* Up is defined as toward G-H amplifiers */
+WAVEFORM ParallelUp {
+0:			SET CD3     TO _PAR_CLOCK_HIGH, FAST;
+			SET CD4     TO _PAR_CLOCK_HIGH, FAST;
+                        SET CD2     TO _PAR_CLOCK_HIGH, FAST;
+                        SET CD1     TO _PAR_CLOCK_LOW, FAST;
+ .+TDRT:		SET CD3     TO _PAR_CLOCK_HIGH, FAST;
+			SET CD4     TO _PAR_CLOCK_HIGH, FAST;
+                        SET CD2     TO _PAR_CLOCK_LOW, FAST;
+                        SET CD1     TO _PAR_CLOCK_LOW, FAST;
+ .+TOI:			SET AB1     TO _PAR_CLOCK_HIGH, FAST; /* reverse sub AB1 for AB4 */
+			SET CD1     TO _PAR_CLOCK_HIGH, FAST;
+			SET TGClock TO _TG_CLOCK_HIGH, FAST;
+ .+TOI:			SET CD3     TO _PAR_CLOCK_LOW, FAST;
+			SET AB3     TO _PAR_CLOCK_LOW, FAST; /* reverse sub AB3 for AB2 */
+ .+TOI:			SET CD2     TO _PAR_CLOCK_HIGH, FAST;
+			SET AB4     TO _PAR_CLOCK_HIGH, FAST;/* reverse sub AB4 for AB1 */
+ .+TOI:			SET CD4     TO _PAR_CLOCK_LOW, FAST;
+			SET AB2     TO _PAR_CLOCK_LOW, FAST; /* reverse sub AB2 for AB3 */
+ .+TOI:			SET CD3     TO _PAR_CLOCK_HIGH, FAST;
+			SET AB3     TO _PAR_CLOCK_HIGH, FAST;/* reverse sub AB3 for AB2 */
+ .+TOI:			SET AB1     TO _PAR_CLOCK_LOW, FAST; /* reverse sub AB1 for AB4 */
+			SET CD1     TO _PAR_CLOCK_LOW, FAST;
+			SET TGClock TO _TG_CLOCK_LOW, FAST;
+ .+TOI:			SET AB2     TO _PAR_CLOCK_HIGH, FAST;/* reverse sub AB2 for AB3 */
+ .+TOI:			SET AB4     TO _PAR_CLOCK_LOW, FAST; /* reverse sub AB4 for AB1 */
+}
+
+/* Down is defined as toward E-F amplifiers */
+WAVEFORM ParallelDown {
+ 0:			SET CD2     TO _PAR_CLOCK_HIGH, FAST;/* reverse sub CD2 for CD3 */
+                        SET CD1     TO _PAR_CLOCK_HIGH, FAST;/* reverse sub CD1 for CD4 */
+                        SET CD3     TO _PAR_CLOCK_HIGH, FAST;/* reverse sub CD3 for CD2 */
+                        SET CD4     TO _PAR_CLOCK_LOW, FAST; /* reverse sub CD4 for CD1 */
+ .+TDRT:		SET CD2     TO _PAR_CLOCK_HIGH, FAST;/* reverse sub CD2 for CD3 */
+			SET CD1     TO _PAR_CLOCK_HIGH, FAST;/* reverse sub CD1 for CD4 */
+                        SET CD3     TO _PAR_CLOCK_LOW, FAST; /* reverse sub CD3 for CD2 */
+                        SET CD4     TO _PAR_CLOCK_LOW, FAST; /* reverse sub CD4 for CD1 */
+ .+TOI:			SET AB4     TO _PAR_CLOCK_HIGH, FAST;
+			SET CD4     TO _PAR_CLOCK_HIGH, FAST;/* reverse sub CD4 for CD1 */
+			SET TGClock TO _TG_CLOCK_HIGH, FAST;
+ .+TOI:			SET CD2     TO _PAR_CLOCK_LOW, FAST; /* reverse sub CD2 for CD3 */
+			SET AB2     TO _PAR_CLOCK_LOW, FAST;
+ .+TOI:			SET CD3     TO _PAR_CLOCK_HIGH, FAST;/* reverse sub CD3 for CD2 */
+			SET AB1     TO _PAR_CLOCK_HIGH, FAST;
+ .+TOI:			SET CD1     TO _PAR_CLOCK_LOW, FAST; /* reverse sub CD1 for CD4 */
+			SET AB3     TO _PAR_CLOCK_LOW, FAST;
+ .+TOI:			SET CD2     TO _PAR_CLOCK_HIGH, FAST;/* reverse sub CD2 for CD3 */
+			SET AB2     TO _PAR_CLOCK_HIGH, FAST;
+ .+TOI:			SET AB4     TO _PAR_CLOCK_LOW, FAST;
+			SET CD4     TO _PAR_CLOCK_LOW, FAST; /* reverse sub CD4 for CD1 */
+			SET TGClock TO _TG_CLOCK_LOW, FAST;
+ .+TOI:			SET AB3     TO _PAR_CLOCK_HIGH, FAST;
+ .+TOI:			SET AB1     TO _PAR_CLOCK_LOW, FAST;
+}
+
+  
+ 
+
+/* This waveform will create a simulated CCD signal of an       *
+ * amplitude determined by the CDS of RstLevel and SigLevel.    *
+ * The waveform must also start the taking of data by flipping  *
+ * the pixel control signal                                     *
+*/
+
+WAVEFORM FauxLevel1 {
+ 2:      		SET PIXEL        TO High;
+ .+TICK:		SET PIXEL        TO Low;
+			SET FRAME        TO Low;
+			SET LINE         TO Low;
+ 0:                     SET FauxSigP     TO _RST_LEVELP, FAST;
+                        SET FauxSigN     TO _RST_LEVELN, FAST;
+  .+HALFPIX:            SET FauxSigP     TO _SIG_LEVEL1P, FAST;
+                        SET FauxSigN     TO _SIG_LEVEL1N, FAST;
+  .+HALFPIX:            RETURN;
+}
+
+WAVEFORM FauxLevel2 {
+ 2:      		SET PIXEL        TO High;
+ .+TICK:		SET PIXEL        TO Low; 
+			SET FRAME        TO Low;
+			SET LINE         TO Low;
+ 0:                     SET FauxSigP     TO _RST_LEVELP, FAST;
+                        SET FauxSigN     TO _RST_LEVELN, FAST;
+  .+HALFPIX:            SET FauxSigP     TO _SIG_LEVEL2P, FAST;
+                        SET FauxSigN     TO _SIG_LEVEL2N, FAST;
+  .+HALFPIX:            RETURN;
+}
+
+WAVEFORM FauxLevel3 {
+ 2:     		SET PIXEL        TO High;
+ .+TICK:		SET PIXEL        TO Low;
+			SET FRAME        TO Low;
+			SET LINE         TO Low;
+ 0:                     SET FauxSigP     TO _RST_LEVELP, FAST;
+                        SET FauxSigN     TO _RST_LEVELN, FAST;
+  .+HALFPIX:            SET FauxSigP     TO _SIG_LEVEL3P, FAST;
+                        SET FauxSigN     TO _SIG_LEVEL3N, FAST;
+  .+HALFPIX:            RETURN;
+}
+
+WAVEFORM FauxLevel4 {
+ 2:     		SET PIXEL        TO High;
+ .+TICK:		SET PIXEL        TO Low;
+			SET FRAME        TO Low;
+			SET LINE         TO Low;
+ 0:                     SET FauxSigP     TO _RST_LEVELP, FAST;
+                        SET FauxSigN     TO _RST_LEVELN, FAST;
+  .+HALFPIX:            SET FauxSigP     TO _SIG_LEVEL4P, FAST;
+                        SET FauxSigN     TO _SIG_LEVEL4N, FAST;
+  .+HALFPIX:            RETURN;
+}
+
+WAVEFORM FauxLevel5 {
+ 2:     		SET PIXEL        TO High;
+ .+TICK:		SET PIXEL        TO Low;
+			SET FRAME        TO Low;
+			SET LINE         TO Low;
+ 0:                     SET FauxSigP     TO _RST_LEVELP, FAST;
+                        SET FauxSigN     TO _RST_LEVELN, FAST;
+  .+HALFPIX:            SET FauxSigP     TO _SIG_LEVEL5P, FAST;
+                        SET FauxSigN     TO _SIG_LEVEL5N, FAST;
+  .+HALFPIX:            RETURN;
+}
+
+WAVEFORM FauxLevel6 {
+ 2:     		SET PIXEL        TO High;
+ .+TICK:		SET PIXEL        TO Low;
+			SET FRAME        TO Low;
+			SET LINE         TO Low;
+ 0:                     SET FauxSigP     TO _RST_LEVELP, FAST;
+                        SET FauxSigN     TO _RST_LEVELN, FAST;
+  .+HALFPIX:            SET FauxSigP     TO _SIG_LEVEL6P, FAST;
+                        SET FauxSigN     TO _SIG_LEVEL6N, FAST;
+  .+HALFPIX:            RETURN;
+}
+
+WAVEFORM FauxLevel7 {
+ 2:     		SET PIXEL        TO High;
+ .+TICK:		SET PIXEL        TO Low;
+			SET FRAME        TO Low;
+			SET LINE         TO Low;
+ 0:                     SET FauxSigP     TO _RST_LEVELP, FAST;
+                        SET FauxSigN     TO _RST_LEVELN, FAST;
+  .+HALFPIX:            SET FauxSigP     TO _SIG_LEVEL7P, FAST;
+                        SET FauxSigN     TO _SIG_LEVEL7N, FAST;
+  .+HALFPIX:            RETURN;
+}
+
+WAVEFORM FauxLevel8 {
+ 2:     		SET PIXEL        TO High;
+ .+TICK:		SET PIXEL        TO Low;
+			SET FRAME        TO Low;
+			SET LINE         TO Low;
+ 0:                     SET FauxSigP     TO _RST_LEVELP, FAST;
+                        SET FauxSigN     TO _RST_LEVELN, FAST;
+  .+HALFPIX:            SET FauxSigP     TO _SIG_LEVEL8P, FAST;
+                        SET FauxSigN     TO _SIG_LEVEL8N, FAST;
+  .+HALFPIX:            RETURN;
+}
+
+
+WAVEFORM FauxToZero {
+ 0:                     SET FauxSigP      TO _FAUX_ZERO, FAST;
+                        SET FauxSigN      TO _FAUX_ZERO, FAST;
+}
+
+
+/*****************************************/
+/* Here are the control signal waveforms */
+/*****************************************/
+
+WAVEFORM wOpenShutter {
+ 0:			SET SHUTTER TO OPEN;
+}
+WAVEFORM wCloseShutter {
+ 0:			SET SHUTTER TO CLOSE;
+}
+WAVEFORM wFrame {
+ 0:			SET FRAME TO High;
+}
+WAVEFORM wLine {
+ 0:			SET LINE TO High;
+}
+WAVEFORM wLine_triggered {
+ 0:                     SET SHUTTER TO OPEN;
+ 2000:                  SET SHUTTER TO CLOSE;
+                        SET LINE TO High;
+
+}
+WAVEFORM wPixel {
+ 0:			SET PIXEL   TO High;
+ .+TICK:		SET PIXEL   TO Low;
+			SET FRAME   TO Low;
+			SET LINE    TO Low;
+}
+
+WAVEFORM ADClamp {
+ 0:			SET AD5     TO High;
+			SET AD6     TO High;
+			SET AD7     TO High;
+			SET AD8     TO High;
+}
+
+WAVEFORM ADClamp_ {
+ 0:			SET AD5     TO leftClamped;
+			SET AD6     TO leftClamped;
+			SET AD7     TO leftClamped;
+			SET AD8     TO leftClamped;
+}
+
+WAVEFORM wDumpGateOn {
+ 0:                     SET DG12    TO _DGHigh;
+  .+10ms:               SET DG34    TO _DGHigh;
+  .+10ms:               RETURN;
+}
+
+WAVEFORM wDumpGateOff {
+ 0:                     SET DG12    TO _DGLow;
+  .+10ms:               SET DG34    TO _DGLow;
+  .+10ms:               RETURN;
+}
+
+/* Magic board comm waveforms */
+// TXFRCLK is in signals
+/*#define HBIT 25
+/*
+/*WAVEFORM LatchEnable {
+/*0:         set TXFRCLK      to LO;
+/*           set LATCH_ENABLE to HI;
+/*.+ HBIT:   set TXFRCLK      to HI;
+/*.+ HBIT:   RETURN;
+/*}
+/*
+/*WAVEFORM LatchDisable {
+/*0:         set TXFRCLK      to LO;
+/*           set LATCH_ENABLE to LO;
+/*.+ HBIT:   set TXFRCLK      to HI;
+/*.+ HBIT:   RETURN;
+/*}
+/*
+/**//* pull up resistor makes hi signal lo bit and vice versa */
+/*
+/*WAVEFORM WriteLoBit {
+/*0:         set TXFRCLK to LO;
+/*           set SREGOUT to HI;
+/*.+ HBIT:   set TXFRCLK to HI;
+/*.+ HBIT:   set SREGOUT to LO;
+/*}
+/*
+/*WAVEFORM WriteHiBit {
+/*0:         set TXFRCLK to LO;
+/*           set SREGOUT to LO;
+/*.+ HBIT:   set TXFRCLK to HI;
+/*.+ HBIT:   set SREGOUT to HI;
+/*}
+/**/
+
+/*WAVEFORM wTrigHi {
+/* 0: SET TRIG TO HI;
+/*}
+/*WAVEFORM wTrigLo {
+/* 0: SET TRIG TO LO;
+/*}
+/**/
+WAVEFORM wIdle {
+}

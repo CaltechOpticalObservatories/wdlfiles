@@ -1,0 +1,246 @@
+/* -*- C -*- */
+/** ---------------------------------------------------------------------------
+ * @file     wasp.seq
+ * @brief    sequence file for WaSP
+ * @author   David Hale
+ * @date     2016-08-01
+ * @modified 2016-08-01 SK
+ *
+ */
+
+/** ---------------------------------------------------------------------------
+ * parameter definitions
+ * syntax: param paramname=value
+*/
+
+param Expose=0
+param Readout=0
+param ShutterEnable=1
+param shutterdelay=0
+
+param exptime=0
+param GReadout=0
+param FReadout=0
+param SReadout=0
+
+param Idle=1
+
+param GLines=_GLINES_PER_TAP
+param GPixels=_GPIXELS_PER_TAP
+
+
+param Abort=0
+
+param Delay_FrameStart=264013
+param Delay_PixelStart=5
+param Delay_LTStart=156
+
+param Guiding=0
+param GFrames=1
+param G_ROI_Height=100
+param G_ROI_Width=2093
+param G_PreFlush=512
+param G_PostFlush=1625
+param G_PixelPreFlush=0
+param G_PixelPostFlush=0
+  
+param SerialPrescan = _SERIALPRESCAN
+param SerialOverscan=_SERIALOVERSCAN
+param ParallelOverscan=_PARALLELOVERSCAN
+param ImageCols=_IMAGECOLS
+param ImageRows=_IMAGEROWS
+
+  
+  
+SEQUENCE Start {
+  FGSerialReceiving();  /* Put the serials into a known state   */
+  GFParallelSplit();    /* Put the parallels into a known state */
+  ADClamp_();
+  OpenBLC();
+}
+
+/** ---------------------------------------------------------------------------
+ * @fn     MAIN
+ * @brief  the main loop.  MAIN is implicitly an infinite loop.
+ *
+ */
+SEQUENCE StateZero {
+  Abort--;
+   if Expose GOTO DoExpose();     
+  if Idle Idling();                    
+  GOTO StateZero();
+}
+SEQUENCE DoExpose {
+  Expose--;
+  if !Guiding MilliSec(exptime);
+  if Guiding GOTO GuideSeq();
+  GOTO WaitForReadOut();
+}
+SEQUENCE WaitForReadOut {
+  if Readout GOTO DoSimultaneousReadOut();
+  if Abort GOTO StateZero();
+  GOTO WaitForReadOut();
+}
+
+/** ---------------------------------------------------------------------------
+ * @fn	    Idling
+ * @brief   Idle sequence to push one parallel line and read the full serial register
+ */
+SEQUENCE Idling {
+  OpenBLC();
+  ADClamp_();
+  GFParallelSplit();
+  GSerialReadRight_smooth(10); 
+  GroundBLC();
+  ADClamp();
+  return;
+}
+
+
+SEQUENCE OpenShutter {
+  if exptime wOpenShutter();
+  return;
+}
+
+SEQUENCE DoShutterDelay {
+  Wait1ms();
+  return;
+}
+
+SEQUENCE DoGuideReadout {
+  GReadout--;
+  
+  FGSerialReceiving();
+   MilliSec(exptime);
+  Wait1us();
+  GroundBLC();
+  ADClamp();
+  Wait1us();
+  OpenBLC();
+  ADClamp_();
+  wFrame();
+  DoGuider(GLines);
+  GOTO StateZero();
+}
+
+SEQUENCE DoGuider {
+  GParallelTopOnly();            
+  wLine();
+  
+  GuideSerialReadRightTop(GPixels);
+  /*PulseTest(GPixels);*/
+  GSerialReceiving();
+  Wait1us();
+  GroundBLC();
+  ADClamp();
+  Wait1us();
+  OpenBLC();
+  ADClamp_();
+  return;
+}
+
+SEQUENCE DoFocusReadout {
+  Readout--;
+  wOpenShutter();
+  MilliSec(exptime);
+  wCloseShutter();
+  wFrame();
+  DoFocus(GLines);
+  GOTO StateZero();
+}
+
+SEQUENCE DoSimultaneousReadOut {
+  Readout--;
+  Wait10ns(Delay_FrameStart); /*extra Delay*/
+  FGSerialReceiving();
+  Wait1us();
+  GroundBLC();
+  ADClamp();
+  Wait1us();
+  OpenBLC();
+  ADClamp_();
+  wFrame();
+  DoSimultaneousFocus(GLines); /*a bit more than ScienceLines/3*/
+  GOTO StateZero();
+}
+
+SEQUENCE DoSimultaneousFocus { 
+  GFParallelSplit();
+  Wait10ns(Delay_PixelStart);
+ 
+  wLine();
+   GSerialReadRight_smooth(GPixels); /*SciencePixels*2*3+1*interline */
+  /* PulseTest(GPixels);*/
+  FGSerialReceiving();
+  Wait1us();
+  GroundBLC();
+  ADClamp();
+  Wait1us();
+  OpenBLC();
+  ADClamp_();
+  Wait10ns(Delay_LTStart);
+  return;
+}
+SEQUENCE DoFocus {
+  FParallelSplit();
+  OpenBLC();
+  ADClamp_();
+  wLine();
+  GSerialReadRight_smooth(GPixels); /*3 lines of Science an2 Science Line Transfers *//* same, so these don't matter whether we are reading */
+  FGSerialReceiving();
+  Wait1us();
+  GroundBLC();
+  ADClamp();
+  Wait1us();
+    OpenBLC();                 
+  ADClamp_();
+  return;
+}
+
+SEQUENCE GuideSeq {
+  Guiding--;
+  DoGuiding(GFrames);
+  GOTO WaitForReadOut();
+}
+
+SEQUENCE DoGuiding{
+  GSerialReceiving();
+  MilliSec(exptime);
+  Wait1us();
+  GroundBLC();
+  ADClamp();
+  Wait1us();
+  OpenBLC();
+  ADClamp_();
+  GParallelTopOnly(G_PreFlush);
+  GuideSerialReadRightTop(2040); /*Clean up register*/
+  wFrame();
+  GuideRowROI(G_ROI_Height);
+  GParallelTopOnly(G_PostFlush);
+  GuideSerialReadRightTop(2040); /*Clean up register*/
+  return;
+}
+
+SEQUENCE GuideRowROI{
+  GSerialReceiving();
+  GParallelTopOnly();
+  GSerial2to3();
+  wLine();
+  GuidePixelFlush(G_PixelPreFlush);
+  GuideSerialReadRightTop_smooth(G_ROI_Width);
+  GuidePixelFlush(G_PixelPostFlush);
+  FGSerialReceiving();
+  Wait1us(10);
+  GroundBLC();
+  ADClamp();
+  Wait1us();
+  OpenBLC();
+  ADClamp_();
+  return;
+}
+
+SEQUENCE MilliSec {
+  Wait1ms();	/* This is a placeholder 1ms routine - Need to fix up */
+  if Abort GOTO StateZero(); /* This abort here is a bit suspect.  The stack isn't cleared of the return when this happens */
+  return;
+}

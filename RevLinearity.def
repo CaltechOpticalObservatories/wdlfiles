@@ -1,0 +1,153 @@
+/** -*- C -*- ---------------------------------------------------------------------------
+ * use "#define" to define user macros used within the Archon files,
+ * i.e. within the .script, .states, .cds, or .modules files
+ * Do not edit or remove the following line.
+ */
+
+/** ---------------------------------------------------------------------------
+ * Various configuration modes
+ */
+#define _SER_CLOCKING_DIR        FORWARD /* FORWARD | REVERSE */
+#define _SER_OUTPUT_CLOCKING     NORMAL  /* NORMAL | PATTERN */
+
+#define _SER_PATTERN_PIXELS_REAL 2       /* Num real pixels to clock */
+#define _SER_PATTERN_PIXELS_NOP  2       /* Num dummy pixels */
+
+#define _HOLD_BLACK_LEVEL_CLAMP  NONE    /* POS | NEG | BOTH | NONE -- "NONE" is fully differential */
+
+#define _SHDEL                   0       /* microseconds to delay before readout to allow shutter to close */
+
+/** ---------------------------------------------------------------------------
+ * CDS-Deinterlace options
+ */
+#define _CDS_WIDTH               10  /* width of each CDS integration compoent in clocks */
+#define _SKIP_LINES               0 /*0*/
+#define _SERIALPRESCAN           50
+#define _SERIALOVERSCAN         150 
+#define _PARALLELOVERSCAN        0
+#defeval _IMAGEROWS              #eval 76  /* Value from CCD data sheet (quadrant) */
+#defeval _IMAGECOLS              #eval 6144/2  /* Value from CCD data sheet (quadrant) */
+#defeval _IDLE_LINES             #eval _SKIP_LINES + _IMAGEROWS
+
+#defeval _BIN_LINES               76  /* Number of binned parallels, decremented for each "line" read */
+
+#define _RAW_LINES               2
+#defeval _CDS_LINES_PER_TAP          2 /*#eval _IMAGEROWS + _PARALLELOVERSCAN - _SKIP_LINES*/
+#defeval _CDS_PIXELS_PER_TAP         2 /*#eval _IMAGECOLS + _SERIALPRESCAN + _SERIALOVERSCAN*/ /*3272*/ /*3072*/
+
+#defeval _LINES_PER_TAP    #eval _IMAGEROWS + _PARALLELOVERSCAN - _SKIP_LINES
+
+#defeval _PIXELS_PER_TAP   #eval _IMAGECOLS + _SERIALPRESCAN + _SERIALOVERSCAN /*3272*/ /*3072*/
+
+#define _FIRST_RESET_SAMPLE      33 /*45 */  /*66 */
+#define _LAST_RESET_SAMPLE       43 /*74 */  /*86 */
+#define _FIRST_VIDEO_SAMPLE      76 /*110*/  /*152*/
+#define _LAST_VIDEO_SAMPLE       86 /*120*/  /*172*/
+#define _ARCHON_SAMPLE_MODE        1     /* 0=16bit, 1=32bit  */
+#define _ARCHON_FRAMEMODE          2     /* 0=top, 1=bottom, 2=split */
+#define _ARCHON_FRAMEBUFS          1     /* 0=3x512MB, 1=2x768MB, I.E. "BIGBUF" */
+
+#define _RAW_ENABLE                0 /* 0=no, 1=yes */
+#define _RAW_STARTLINE             0     /* first line of raw data, 0-65535 */
+#define _RAW_ENDLINE              10     /* last line of raw data, 0-65535 */
+#define _RAW_STARTPIXEL            0
+#define _RAW_SAMPLES           25600
+#define _RAW_SELECT               15 /* AD channel for raw data capture, 0-15 */
+
+/** ---------------------------------------------------------------------------
+ * Define clock voltage levels here (units are Volts)
+ */
+/* ____________________
+ * Clock voltage and the biases will be hard coded for the parallel low clock, 
+ * but calculated for the other clocks.  This is due to the data sheet advising
+ * bias and clock levels with respect to parallel clock level low               */
+
+/* Clocks */
+#define _SER_CLOCK_LOW       0.0
+#define _SER1_CLOCK_LOW      0.0
+#define _SER2_CLOCK_LOW      0.0
+#define _SER3_CLOCK_LOW      0.0
+#define _SER1_CLOCK_HIGH    12.0 /* 9.0*/
+#define _SER2_CLOCK_HIGH    12.0 /*10.0*/
+#define _SER3_CLOCK_HIGH    12.0 /*12.5*/
+#define _SER_CLOCK_HIGH    12.0 /*10.0*/
+#define _SER_CLOCK_RCV     12.0 /*10.0*/
+
+#define _PAR_CLOCK_IDLE_LOW   -8.0
+#define _PAR_CLOCK_IDLE_HIGH   2.0
+#define _PAR_CLOCK_EXP_LOW     0.0
+#define _PAR_CLOCK_EXP_HIGH   10.0
+#define _PAR_CLOCK_LOW       -8.0 /*0.0*/
+#define _PAR_CLOCK_HIGH       2.0 /*10.0*/
+#define _PAR_CLOCK_HIGHEST    2.0
+
+#define _TG_CLOCK_LOW      -8 /*0*/
+#define _TG_CLOCK_HIGH     11 /*10*/
+
+#define _SW_CLOCK_LOW       0.0
+#define _SW_CLOCK_HIGH     12.0 /*10.0*/
+
+/* Biases */
+#defeval _RESET_DRAIN      #eval _PAR_CLOCK_LOW+18
+#define _OUTPUT_GATE       #eval _PAR_CLOCK_LOW +  2.5
+#define _DUMP_DRAIN        #eval _PAR_CLOCK_LOW + 25
+#define _DUMP_GATE         #eval _PAR_CLOCK_LOW +  0
+#define _OUTPUT_DRAIN      #eval _PAR_CLOCK_LOW + 30
+
+
+/** ---------------------------------------------------------------------------
+ * Define Levels for the Faux Signal we are creating (units are Volts)
+ */
+#define _RST_LEVELP              0.1
+#define _RST_LEVELN             -0.1
+
+#define _SIG_LEVEL1P            -0.40
+#define _SIG_LEVEL1N             0.40
+
+#define _SIG_LEVEL2P            -0.35
+#define _SIG_LEVEL2N             0.35
+
+#define _SIG_LEVEL3P            -0.30
+#define _SIG_LEVEL3N             0.30
+
+#define _SIG_LEVEL4P            -0.25
+#define _SIG_LEVEL4N             0.25
+
+#define _SIG_LEVEL5P            -0.20
+#define _SIG_LEVEL5N             0.20
+
+#define _SIG_LEVEL6P            -0.15
+#define _SIG_LEVEL6N             0.15
+
+#define _SIG_LEVEL7P            -0.10
+#define _SIG_LEVEL7N             0.10
+
+#define _SIG_LEVEL8P            -0.05
+#define _SIG_LEVEL8N             0.05
+
+#define _FAUX_ZERO               0.0
+
+
+/** ---------------------------------------------------------------------------
+ * Define clock slew rates here
+ * units are Volts per microsecond, range from 0.001 to 1000
+ */
+#define _I_PHI_SLEW_FAST     10
+#define _I_PHI_SLEW_SLOW      1
+#define _R_PHI_SLEW_FAST    500
+#define _R_PHI_SLEW_SLOW      1
+#define _TG_PHI_SLEW_FAST   500
+#define _TG_PHI_SLEW_SLOW   100
+#define _SW_PHI_SLEW_FAST   500
+#define _SW_PHI_SLEW_SLOW   100
+
+/** ---------------------------------------------------------------------------
+ * Define bias voltage levels
+ * units are Volts
+ */
+#define _RDH_INCValue           17
+#define _RDH_DECValue           16
+
+/* Create a dump gate high level */
+#define _DGHigh                 12
+#define _DGLow                   0

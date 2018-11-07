@@ -1,0 +1,554 @@
+/* -*- C -*- */
+/** ---------------------------------------------------------------------------
+ * @file     ztf_science.seq
+ * @brief    sequence file for ZTF
+ * @author   Stephen Kaye
+ * @date     2016-04-07
+ * @modified 2016-04-07 SK
+ *
+ */
+
+/** ---------------------------------------------------------------------------
+ * parameter definitions
+ * syntax: param paramname=value
+*/
+
+param exptime=0 
+param Expose=0
+param Readout=0
+param TrigLowThisLine=1
+param ShutterEnable=1
+param RoiReadout=0
+param shutterdelay=_SHDEL
+param SweepCount=0
+param SerialPrescan=_SERIALPRESCAN
+param SerialOverscan=_SERIALOVERSCAN
+param ParallelOverscan=_PARALLELOVERSCAN
+param ImageCols=_IMAGECOLS
+param ImageRows=_IMAGEROWS
+param SplitLines=_BIN_LINES
+param BinnedLines=_BIN_LINES
+param Lines=_LINES_PER_TAP
+param Pixels=_PIXELS_PER_TAP
+param IdleLines=_IDLE_LINES
+param FullPixels=6244
+param ST=19
+param RGH=30
+param RGL=30
+param SWH=30
+param SWL=30
+param SHP=30
+param SHD=30
+param FauxFlag=0
+param FauxPixels=_PIXELS_PER_TAP
+param FauxLines=_LINES_PER_TAP
+param PartialLines=385
+param MedLines=385
+param LowLines=385
+param ZeroLines=385
+param rev=0
+param RoiLineStart=0
+param RoiLines=0
+param RemainingLines=0
+param PSplit=1
+param PUp=0
+param PDown=0
+param SSplit=0
+param SRight=0
+param SLeft=0
+param NotFast=0
+param GoFast=1
+#define defIdleLines #eval _LINES_PER_TAP*2
+#define SingleSerial #eval _PIXELS_PER_TAP*2
+
+/** ---------------------------------------------------------------------------
+ * @fn     MAIN
+ * @brief  the main loop.  MAIN is implicitly an infinite loop.
+ *
+ */
+SEQUENCE Start {
+  wCloseShutter();
+  SerialReceiving();      /* Put serials at nominal voltages   */
+  SynchedLineTransfer();  /* Put parallels at nominal voltages */
+
+  /* Start with a reset of the sense node and clamping to that level */
+  wReset();
+  Wait1us();
+  wUnsetReset();
+  GroundBLC();
+  ADClamp();
+  Wait1us();
+  OpenBLC();
+  ADClamp_();
+
+  /*wDumpGateOn();*/
+  /*wParallelInversion();*/
+  /*wDumpGateOff();*/           /* suppresses the waffle pattern */
+  Idling(IdleLines);                 /* clears the residual badness */
+}
+
+SEQUENCE WaitForExpose {
+  Idling();
+  if Expose DoExpose();
+  GOTO WaitForExpose();
+}
+
+SEQUENCE WaitForReadout {
+  if Readout DoScienceReadout();
+  /*if Readout DoFauxSignal();*/
+  GOTO WaitForReadout();
+}
+
+/** ---------------------------------------------------------------------------
+ * @fn	    DoFauxSignal
+ * @brief   Sequence which makes a fake CCD signal, and also starts a conversion of the signal
+ *          The conversion will fill up a small frame to begin testing and then a full
+ *          science frame for simulation purposes.
+ */
+
+SEQUENCE DoFauxSignal {
+  FauxFlag--;
+  Readout--;
+  wFrame(); /* Start the frame counter */
+  FauxRead();
+  FauxToZero();
+  GOTO WaitForExpose();
+}
+
+SEQUENCE FauxRead {
+  DoLevel1(PartialLines);
+  DoLevel2(PartialLines);
+  DoLevel3(PartialLines);
+  DoLevel4(PartialLines);
+  DoLevel5(PartialLines);
+  DoLevel6(PartialLines);
+  DoLevel7(PartialLines);
+  DoLevel8(PartialLines);
+
+  /* wLine(); */
+  /*  FauxHighSignal(FauxPixels); */
+  /* GroundBLC(); */
+     /* ADClamp(); */
+  /* Wait1ms(); */
+  /*ADClamp_(); */
+  return;
+}
+
+SEQUENCE DoLevel1 {
+  DoLineTransfer();
+  wLine();
+  FauxLevel1(FauxPixels);
+  Wait1ms();
+  GroundBLC();
+  ADClamp();
+  Wait1ms();
+  OpenBLC();
+  ADClamp_();
+  return;
+}
+
+SEQUENCE DoLevel2 {
+  DoLineTransfer();
+  wLine();
+  FauxLevel2(FauxPixels);
+  Wait1ms();
+  GroundBLC();
+  ADClamp();
+  Wait1ms();
+  OpenBLC();
+  ADClamp_();
+  return;
+}
+
+SEQUENCE DoLevel3 {
+  DoLineTransfer();
+  wLine();
+  FauxLevel3(FauxPixels);
+  GroundBLC();
+  ADClamp();
+  Wait1ms();
+  OpenBLC();
+  ADClamp_();
+  return;
+}
+
+SEQUENCE DoLevel4 {
+  DoLineTransfer();
+  wLine();
+  FauxLevel4(FauxPixels);
+  GroundBLC();
+  ADClamp();
+  Wait1ms();
+  OpenBLC();
+  ADClamp_();
+  return;
+}
+
+SEQUENCE DoLevel5 {
+  DoLineTransfer();
+  wLine();
+  FauxLevel5(FauxPixels);
+  GroundBLC();
+  ADClamp();
+  Wait1ms();
+  OpenBLC();
+  ADClamp_();
+  return;
+}
+
+SEQUENCE DoLevel6 {
+  DoLineTransfer();
+  wLine();
+  FauxLevel6(FauxPixels);
+  GroundBLC();
+  ADClamp();
+  Wait1ms();
+  OpenBLC();
+  ADClamp_();
+  return;
+}
+
+SEQUENCE DoLevel7 {
+  DoLineTransfer();
+  wLine();
+  FauxLevel7(FauxPixels);
+  GroundBLC();
+  ADClamp();
+  Wait1ms();
+  OpenBLC();
+  ADClamp_();
+  return;
+}
+
+SEQUENCE DoLevel8 {
+  DoLineTransfer();
+  wLine();
+  FauxLevel8(FauxPixels);
+  GroundBLC();
+  ADClamp();
+  Wait1ms();
+  OpenBLC();
+  ADClamp_();
+  return;
+}
+
+SEQUENCE DoClampedInput {
+  Expose--;
+  GroundBLC();
+  wFrame(); /* Start the frame counter */
+  ClampedRead();
+  FauxToZero();
+  return;
+}
+
+SEQUENCE ClampedRead {
+  CLevel1(SplitLines);
+  /* wLine(); */
+  /*  FauxHighSignal(FauxPixels); */
+  /* GroundBLC(); */
+     /* ADClamp(); */
+  /* Wait1ms(); */
+  /*ADClamp_(); */
+  return;
+}
+
+SEQUENCE CLevel1 {
+  DoLineTransfer();
+  /*  OpenBLC(); */
+  ADClamp_();  /* Unclamp the controller since we want the VIB noise */
+  wLine();
+  FauxLevel1(FauxPixels);
+  Wait1ms();
+  GroundBLC();
+  ADClamp();
+  Wait1ms();
+  return;
+}
+
+
+
+
+/** ---------------------------------------------------------------------------
+ * @fn	    Idling
+ * @brief   Idle sequence to push one parallel line and read the full serial register
+ */
+SEQUENCE Idling {
+  wReset();                       /* Turn on reset to take away any charge to the sense node */
+  SynchedLineTransfer(); /* Idle... to invert parallel shifting */
+  FastSerialOutputClocking(Pixels); /* Clock out any charge swept into the serial */
+  SerialReceiving();
+
+  /* Do a reset sequence */
+  wReset();
+  Wait1us();
+  wUnsetReset();
+  GroundBLC();
+  ADClamp();
+  Wait1us();
+  OpenBLC();
+  ADClamp_();
+
+  return;
+}
+
+/** ---------------------------------------------------------------------------
+ * @fn     DoExpose
+ * @brief  start an exposure
+ *
+ */
+SEQUENCE DoExpose {
+  Expose--;
+  SetParallelExpose();
+  if exptime wOpenShutter();
+  if exptime MilliSec(exptime);
+  wCloseShutter();
+  /*if exptime DoShutterDelay(500);*/
+  GOTO WaitForReadout(); 
+}
+
+SEQUENCE MilliSec {
+  Wait1ms();	/* This is a placeholder 1ms routine - Need to fix up */
+  return;
+}
+
+SEQUENCE DoShutterDelay {
+  Wait1ms();
+  return;
+}
+
+SEQUENCE DoFlush {
+  SerialReceiving();
+  if PSplit SynchedLineTransfer(SplitLines);
+  if PUp ParallelUp(SplitLines);
+  if PDown ParallelDown(SplitLines);
+
+  if SSplit SerialOutputClocking(Pixels);
+  if SRight RightSerialOutputClocking(Pixels);
+  if SLeft  LeftSerialOutputClocking(Pixels);
+
+  return;
+  /* GOTO MAIN; */
+}
+
+SEQUENCE DoScienceReadout {
+  Readout--;
+
+  SetParallelTransfer();
+  FastSerialOutputClocking(Pixels); /* initial sweepout ?PHM? */
+  SerialReceiving();
+
+  wFrame();
+  ScienceRead();
+  SerialReceiving();   /* Put serial clocks in ready for charge state after readout */
+  GOTO WaitForExpose();
+}
+
+SEQUENCE DoRoiScienceReadout {
+  RoiReadout--;
+  SerialReceiving();
+
+  wFrame();
+  RoiScience(RoiLines);  /* Read the number of interesting lines */
+  if PSplit SynchedLineTransfer(RemainingLines); /* Flush out the remaining lines */
+  if PUp ParallelUp(RemainingLines);
+  if PDown ParallelDown(RemainingLines);
+
+  if SSplit SerialOutputClocking(Pixels);
+  if SRight RightSerialOutputClocking(Pixels);
+  if SLeft  LeftSerialOutputClocking(Pixels);
+
+}
+ 
+SEQUENCE ScienceRead {
+  SynchedLineTransfer(2);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(3);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(4);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(5);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(6);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(7);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(8);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(9);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(10);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(11);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(12);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(13);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(14);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(15);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(16);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(17);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(18);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(19);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(20);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(21);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(22);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(23);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(24);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(25);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(26);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(27);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(28);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(29);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(30);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(31);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(32);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(33);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(34);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(35);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(36);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(37);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(38);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(39);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(40);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(41);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(42);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(43);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(44);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(45);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(46);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(47);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(48);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(49);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(50);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(51);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(52);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(53);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(54);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(55);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(56);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(57);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(58);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(59);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(60);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(61);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(62);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(63);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(64);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(65);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(66);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(67);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(68);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(69);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(70);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(71);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(72);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(73);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(74);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(75);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(76);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(77);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  SynchedLineTransfer(78);  /* Parallel shift by the parallel binning factor */
+  FinishRead();
+  return;
+}
+
+SEQUENCE FinishRead {
+  wLine();
+  FastSerialOutputClocking(Pixels);
+  SerialReceiving();  /* This puts phase 1 and 2 high and reset gate high */
+  /* Need a final reset so that we clamp on a reset level and not
+     on a charge signal level */
+  wReset();
+  Wait1us();
+  wUnsetReset();
+  GroundBLC();
+  ADClamp();
+  Wait1us();
+  OpenBLC();
+  ADClamp_();
+  return;
+}
+
+
+SEQUENCE RoiScience {
+  if PSplit SynchedLineTransfer();
+  if PUp ParallelUp();
+  if PDown ParallelDown();
+  OpenBLC();
+  ADClamp_();
+  wLine();
+
+  if SSplit SerialOutputClocking(Pixels);
+  if SRight RightSerialOutputClocking(Pixels);
+  if SLeft  LeftSerialOutputClocking(Pixels);
+
+  GroundBLC();
+  ADClamp();
+  return;
+}
+

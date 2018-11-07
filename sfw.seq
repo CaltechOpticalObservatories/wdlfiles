@@ -1,0 +1,162 @@
+/* -*- C -*- */
+/** ---------------------------------------------------------------------------
+ * @file     rampIllum.seq
+ * @brief    sequence test file for ZTF - the iVib illumination will
+ *           be turned on during readout to provide a ramped
+ *           illumniation.  This will be used for linearity plots.
+ *           Note the illumination will no cross zero for the first
+ *           lines in the image.
+ * @author   Stephen Kaye
+ * @date     2016-03-13
+ * @modified 2016-03-13 SK (created)
+ *
+ */
+
+/** ---------------------------------------------------------------------------
+ * parameter definitions
+ * syntax: param paramname=value
+*/
+
+param exptime=0
+param Expose=0
+param Readout=0
+param shutterdelay=_SHDEL
+param SweepCount=0
+param SerialPrescan=_SERIALPRESCAN
+param SerialOverscan=_SERIALOVERSCAN
+param ParallelOverscan=_PARALLELOVERSCAN
+param ImageCols=_IMAGECOLS
+param ImageRows=_IMAGEROWS
+param SplitLines=_LINES_PER_TAP
+param Lines=_LINES_PER_TAP
+param Pixels=_PIXELS_PER_TAP
+param SkipLines=_SKIP_LINES
+param IdleLines=_IDLE_LINES
+
+
+/** ---------------------------------------------------------------------------
+ * @fn     MAIN
+ * @brief  the main loop.  MAIN is implicitly an infinite loop.
+ *
+ */
+SEQUENCE Start {
+  /* Start with a reset of the sense node and clamping to that level */
+  wReset();
+  Wait1us();
+  wUnsetReset();
+  GroundBLC();
+  ADClamp();
+  Wait1us();
+  OpenBLC();
+  ADClamp_();
+
+  /*wDumpGateOn();*/        /* maybe unnecessary  dump gates switched in Idling now 2/24/17 */
+  /*wParallelInversion();*/
+  /*wDumpGateOff();*/       /* suppresses the waffle pattern */
+  Idling();             /* clears the residual badness */
+}
+
+SEQUENCE WaitForExpose {
+  Idling();
+  if Expose DoExpose();
+  GOTO WaitForExpose();
+}
+
+SEQUENCE WaitForReadout {
+  if Readout DoScienceReadout();
+  GOTO WaitForReadout();
+}
+
+/** ---------------------------------------------------------------------------
+ * @fn	    Idling
+ * @brief   Idle sequence to push one parallel line and read the full serial register
+ */
+SEQUENCE Idling {
+  wDumpGateOn();
+  wReset();
+  SynchedLineTransfer(IdleLines); /* Idle... to invert parallel shifting */
+  wAllSerialLow();                /* After charge is shifted into the serials, collapse the serial clocks */
+  Wait25us();                     /* Wait 25us until we can turn off dump gate */
+  wDumpGateOff();                 /* Turn off dump gate */
+  Wait25us();                     /* Wait 25us until serials can go high again */
+  FastSerialOutputClocking(Pixels);  /* Clock out any charge swept into the serial */
+  SerialReceiving();              /* Send serials back to nominal state */
+  /* Do a clamp sequence */
+  wReset();
+  Wait1us();
+  wUnsetReset();
+  GroundBLC();
+  ADClamp();
+  Wait1us();
+  OpenBLC();
+  ADClamp_();
+
+  return;
+}
+
+/** ---------------------------------------------------------------------------
+ * @fn     DoExpose
+ * @brief  start an exposure
+ *
+ */
+SEQUENCE DoExpose {
+  Expose--;
+  if exptime wOpenShutter();
+  if exptime MilliSec(exptime);
+  if exptime wCloseShutter();
+  GOTO WaitForReadout(); 
+}
+
+SEQUENCE MilliSec {
+  Wait1ms();	/* This is a placeholder 1ms routine - Need to fix up */
+  return;
+}
+
+SEQUENCE DoShutterDelay {
+  Wait1ms();
+  return;
+}
+
+SEQUENCE DoScienceReadout {
+  Readout--;
+  wDumpGateOn();
+  LinesToIgnore(SkipLines);
+  Wait25us();                     /* Wait 25us until serials can go high again */  
+  wDumpGateOff();                 /* Turn off dump gate */
+  Wait25us();                     /* Wait 25us until serials can go high again */
+  SerialReceiving();                /* Get ready to receive the charge from parallels */
+
+  wFrame();
+  ScienceRead(SplitLines);
+  GOTO WaitForExpose();
+  /* return; */
+}
+
+SEQUENCE ScienceRead {
+  SynchedLineTransfer();
+  wLine();
+  /* Just use one readout speed */
+  FastSerialOutputClocking(Pixels);
+  SerialReceiving();
+  /* Need a final reset so that we clamp on a reset level and not
+     on a charge signal level */
+  wReset();
+  Wait1us();
+  wUnsetReset();
+  GroundBLC();
+  ADClamp();
+  Wait1us();
+  OpenBLC();
+  ADClamp_();
+
+  return;
+}
+
+SEQUENCE LinesToIgnore {
+  SynchedLineTransfer();         /* Idle... to invert parallel shifting */
+  wAllSerialLow();               /* After charge is shifted into the serials, collapse the serial clocks */
+  Wait25us();
+  SerialReceiving();
+  Wait25us();
+  return;
+}
