@@ -94,6 +94,8 @@ SEQUENCE WaitForExpose {
   if Expose DoExpose();
   Idling();
   /*wCloseShutter();*/ /* For ramped illumination */
+  /*DoScienceReadout();*/  /***/
+  /*return;*/              /***/
   GOTO WaitForExpose();
 }
 
@@ -145,7 +147,7 @@ SEQUENCE DoExpose {
   wOutAmpsHigh();  /* Turn amplifiers back on for readout */
   if exptime DoShutterDelay(shutdelay);
   /*DoScienceReadout();*/
-  /*return;*/
+    /*return;*/
   GOTO WaitForReadout();
 }
 
@@ -207,6 +209,7 @@ SEQUENCE DoScienceReadout {
   SerialReceiving();   /* Put serial clocks in ready for charge state after readout */                                                               /*   0.21 us*/
   /*return;*/
   wOutAmpsLow();  /* Turn the amps down when in idle */
+  /*return;*/   /***/
   GOTO WaitForExpose();                                          /*   0.01 us?*/
 }
 
@@ -254,6 +257,7 @@ SEQUENCE LineOutA {
 
 SEQUENCE ReadLineConcurrently {
   LoadSerialRegister();
+  InitialClock2Low();       /* After receiving charge get it under 1 phase */
   P23to34();                /* Charge under AB3,AB4   CD4,CD1 */
   TPixel(NumReads);
   P34to41();                /* Charge under AB4,AB1   CD1,CD2 */
