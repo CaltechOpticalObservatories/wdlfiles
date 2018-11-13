@@ -37,7 +37,7 @@
 /* Timing defines */
 /* Generic timing parameters */
 #define TICK	      #eval 1 clicks		  /* 10 nsec */
-#define 1ms	      #eval 99999 clicks	  /* 999 usec */
+#define 1ms	      #eval 99997 clicks	  /* 999 usec */
 #define 10ms          #eval 999999 clicks         /* 9999 usec */
 
 /* Science timing parameters */
@@ -214,7 +214,7 @@ WAVEFORM GSerial2to3{
 #define G_RGsettleT 100
 #define G_RefSamples 100
 #define G_SWsettleT 10
-#define G_SWslewT 20
+#define G_SWslewT 28
 #define G_PixelT 252
 #define G_Test 2000
 
