@@ -87,12 +87,15 @@ SEQUENCE Start {
   /*wParallelInversion();*/
   /*wDumpGateOff();*/           /* suppresses the waffle pattern */
   Idling(IdleLines);                 /* clears the residual badness */
+  wOutAmpsLow();  /* Turn off the on-chip amps before waiting for exposure */
 }
 
 SEQUENCE WaitForExpose {
   if Expose DoExpose();
   Idling();
   /*wCloseShutter();*/ /* For ramped illumination */
+  /*DoScienceReadout();*/  /***/
+  /*return;*/              /***/
   GOTO WaitForExpose();
 }
 
@@ -107,7 +110,7 @@ SEQUENCE WaitForReadout {
  * @brief   Idle sequence to push one parallel line and read the full serial register
  */
 SEQUENCE Idling {
-
+                 /*  wOutAmpsLow();*/
   ReadLineConcurrently();
 
   /*SynchedLineTransfer();*/ /* Idle... to invert parallel shifting */
@@ -135,14 +138,16 @@ SEQUENCE Idling {
  */
 SEQUENCE DoExpose {
   Expose--;
+  /* if exptime wOutAmpsLow(); */ /* Amps are off at this point anyway */
   SetParallelExpose();
   if ShutterEnable OpenShutter();      // don't even try to open shutter unless enabled
   if exptime MilliSec(exptime);
   wCloseShutter();
   /*wOpenShutter();*/ /* Just for a ramped illumination */
+  wOutAmpsHigh();  /* Turn amplifiers back on for readout */
   if exptime DoShutterDelay(shutdelay);
   /*DoScienceReadout();*/
-  /*return;*/
+    /*return;*/
   GOTO WaitForReadout();
 }
 
@@ -203,23 +208,25 @@ SEQUENCE DoScienceReadout {
   ScienceRead(SplitLines);                                       /*3257.65 us*/
   SerialReceiving();   /* Put serial clocks in ready for charge state after readout */                                                               /*   0.21 us*/
   /*return;*/
+  wOutAmpsLow();  /* Turn the amps down when in idle */
+  /*return;*/   /***/
   GOTO WaitForExpose();                                          /*   0.01 us?*/
 }
 
  
 SEQUENCE ScienceRead {
   /* Commented out due to concurrent clocking */
-  /*SynchedLineTransfer();*/  /* Parallel shift */
+  SynchedLineTransfer();  /* Parallel shift */
   
   wLine();
   /* Replaces SynchedLineTransfer for concurrent clocking */
-  ReadLineConcurrently();
+  /*ReadLineConcurrently();*/
 
   /* The first pixel is a junk pixel and then we get the dark pixels, not sure why */
   /* To avoid the junk pixel try putting in one PixelShift before reading pixels */
   /* PixelShift is the same as TPixel except no control signals, therefore, no conversion */
-  /*InitialClock2Low();
-    TPixel(Pixels);*/
+  InitialClock2Low();
+  TPixel(Pixels);
 
   SerialReceiving();  /* This puts phase 1 and 2 high and reset gate high */
   /* Need a final reset so that we clamp on a reset level and not
@@ -250,6 +257,7 @@ SEQUENCE LineOutA {
 
 SEQUENCE ReadLineConcurrently {
   LoadSerialRegister();
+  InitialClock2Low();       /* After receiving charge get it under 1 phase */
   P23to34();                /* Charge under AB3,AB4   CD4,CD1 */
   TPixel(NumReads);
   P34to41();                /* Charge under AB4,AB1   CD1,CD2 */
