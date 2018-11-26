@@ -15,7 +15,7 @@
 
 #define _HOLD_BLACK_LEVEL_CLAMP  NONE    /* POS | NEG | BOTH | NONE -- "NONE" is fully differential */
 
-#define _SHDEL                   500       /* microseconds to delay before readout to allow shutter to close */
+#define _SHDEL                   470       /* microseconds to delay before readout to allow shutter to close */  /* Add to 30 ms to turn the amps back on so we have a total delay time of 500 ms for shutter close */
 
 /** ---------------------------------------------------------------------------
  * CDS-Deinterlace options
@@ -42,8 +42,8 @@
 #define CDSWINDOW                18 /*20*/
 
 #define PixelT       84 /* Full pixel time */
-#define RGsettleT    32  /* Settling Time for the reset gate         350ns */ /* Static */ /* Used in CDS Window calculation */
-#define SWsettleT    32  /* Settling Time for charge dump            350ns */ /* Static */ /* Used in CDS Window calculation */
+#define RGsettleT    17 /*32*/  /* Settling Time for the reset gate         350ns */ /* Static */ /* Used in CDS Window calculation */
+#define SWsettleT    16 /*32*/  /* Settling Time for charge dump            350ns */ /* Static */ /* Used in CDS Window calculation */
 
 
 #define _FIRST_RESET_SAMPLE      #eval RGsettleT            /*#eval  _LAST_RESET_SAMPLE - CDSWINDOW*/
@@ -162,3 +162,7 @@
 /* Create a dump gate high level */
 #define _DGHigh                 12
 #define _DGLow                   0
+
+/* Create output drain high and low levels */                                   
+#define _ODHigh                30.5  /* This is the OD value */                 
+#define _ODLow                 15    /* This is the min of OD from data sheet */
