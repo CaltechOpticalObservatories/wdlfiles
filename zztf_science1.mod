@@ -79,22 +79,22 @@ SLOT 8 ad {
 }
 
 SLOT 9 hvbias {
-  HVLC 6  [19.269,0]; /* Reset Drain 3 F */
-  HVLC 7  [19.053,0]; /* Reset Drain 3 E */
-  HVLC 4  [19.451,0]; /* Reset Drain 3 H */
-  HVLC 5  [19.452,0]; /* Reset Drain 3 G */
-  HVLC 21 [19.120,0]; /* Reset Drain 1 F */
-  HVLC 19 [18.949,0]; /* Reset Drain 1 E */
-  HVLC 10 [19.155,0]; /* Reset Drain 1 H */
-  HVLC 23 [19.126,0]; /* Reset Drain 1 G */
-  HVLC 2  [19.176,0]; /* Reset Drain 4 F */
-  HVLC 3  [19.235,0]; /* Reset Drain 4 E */
-  HVLC 13 [18.982,0]; /* Reset Drain 4 H */
-  HVLC 1  [18.792,0]; /* Reset Drain 4 G */
-  HVLC 12 [18.863,0]; /* Reset Drain 2 F */
-  HVLC 11 [18.816,0]; /* Reset Drain 2 E */
-  HVLC 8  [18.959,0]; /* Reset Drain 2 H */
-  HVLC 9  [18.769,0]; /* Reset Drain 2 G */
+  HVLC 6  [18.906,0]; /* Reset Drain 3 F */
+  HVLC 7  [18.711,0]; /* Reset Drain 3 E */
+  HVLC 4  [19.127,0]; /* Reset Drain 3 H */
+  HVLC 5  [19.090,0]; /* Reset Drain 3 G */
+  HVLC 21 [18.743,0]; /* Reset Drain 1 F */
+  HVLC 19 [18.630,0]; /* Reset Drain 1 E */
+  HVLC 10 [18.817,0]; /* Reset Drain 1 H */
+  HVLC 23 [18.842,0]; /* Reset Drain 1 G */
+  HVLC 2  [18.664,0]; /* Reset Drain 4 F */
+  HVLC 3  [18.855,0]; /* Reset Drain 4 E */
+  HVLC 13 [18.618,0]; /* Reset Drain 4 H */
+  HVLC 1  [18.403,0]; /* Reset Drain 4 G */
+  HVLC 12 [18.483,0]; /* Reset Drain 2 F */
+  HVLC 11 [18.403,0]; /* Reset Drain 2 E */
+  HVLC 8  [18.586,0]; /* Reset Drain 2 H */
+  HVLC 9  [18.424,0]; /* Reset Drain 2 G */
   HVLC 14 [OutputGate,0];/* Output Gate CCD1 */
   HVLC 15 [OutputGate,0];/* Output Gate CCD2 */
   HVLC 16 [OutputGate,0];/* Output Gate CCD3 */
