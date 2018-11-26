@@ -74,6 +74,10 @@
 #define RDE1     9 : 19 /* Reset Drain amplifier E CCD 1                */
 #define RDF1     9 : 21 /* Reset Drain amplifier F CCD 1                */
 #define RDG1     9 : 23 /* Reset Drain amplifier G CCD 1                */
+#define OD4      9 : 27 /* Output Drain CCD #4                          */
+#define OD1      9 : 28 /* Output Drain CCD #1                          */
+#define OD2      9 : 29 /* Output Drain CCD #2                          */
+#define OD3      9 : 30 /* Output Drain CCD #3                          */
 
                 
 #define AB1	10 : 1 /* Science transfer gate				*/
