@@ -15,7 +15,7 @@
 
 #define _HOLD_BLACK_LEVEL_CLAMP  NONE    /* POS | NEG | BOTH | NONE -- "NONE" is fully differential */
 
-#define _SHDEL                   500       /* microseconds to delay before readout to allow shutter to close */
+#define _SHDEL                   470       /* miliseconds to delay before readout to allow shutter to close */ /* Add to 30 ms to turn the amps back on so we have a total delay time of 500 ms for shutter close */
 
 /** ---------------------------------------------------------------------------
  * CDS-Deinterlace options
@@ -23,8 +23,8 @@
 #define _CDS_WIDTH               10  /* width of each CDS integration compoent in clocks */
 #define _SKIP_LINES               0 /*0*/
 #define _SERIALPRESCAN           50
-#define _SERIALOVERSCAN          30 /*150*/
-#define _PARALLELOVERSCAN        0  /*100*/
+#define _SERIALOVERSCAN          150 /*30*/ /*150*/
+#define _PARALLELOVERSCAN        100 /* 0*/ /*100*/
 #defeval _IMAGEROWS              #eval 6160/2  /* Value from CCD data sheet (quadrant) */
 #defeval _IMAGECOLS              #eval 6144/2  /* Value from CCD data sheet (quadrant) */
 #defeval _IDLE_LINES             #eval _SKIP_LINES + _IMAGEROWS
@@ -43,8 +43,8 @@
 #define CDSWINDOW                 18 /*20*/
 
 #define PixelT       84 /* Full pixel time */
-#define RGsettleT    32  /* Settling Time for the reset gate 310ns */ /* Static */ /* Used in CDS Window calculation */ /* Shifted to 1 less from previous */
-#define SWsettleT    32  /* Settling Time for charge dump    310ns */ /* Static */ /* Used in CDS Window calculation */ /* Shifted to 1 less from previous */
+#define RGsettleT    17 /*32*/  /* Settling Time for the reset gate 310ns */ /* Static */ /* Used in CDS Window calculation */ /* Shifted to 1 less from previous */
+#define SWsettleT    16 /*32*/  /* Settling Time for charge dump    310ns */ /* Static */ /* Used in CDS Window calculation */ /* Shifted to 1 less from previous */
 
 
 
@@ -165,3 +165,7 @@
 /* Create a dump gate high level */
 #define _DGHigh                 12
 #define _DGLow                   0
+
+/* Create output drain high and low levels */
+#define _ODHigh                30.5  /* This is the OD value */
+#define _ODLow                 15    /* This is the min of OD from data sheet */
