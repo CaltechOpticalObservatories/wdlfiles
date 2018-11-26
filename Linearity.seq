@@ -85,7 +85,7 @@ SEQUENCE Start {
   /*wParallelInversion();*/
   /*wDumpGateOff();*/           /* suppresses the waffle pattern */
   Idling(IdleLines);                 /* clears the residual badness */
-  /*AmpOff();*/                    /* Turn off amplifiers now that idling is done */
+  wOutAmpsLow();                    /* Turn off amplifiers now that idling is done */
 }
 
 SEQUENCE WaitForExpose {
@@ -303,8 +303,8 @@ SEQUENCE DoExpose {
   SetParallelExpose();
   if exptime wOpenShutter();
   if exptime MilliSec(exptime);
-  /*AmpOn();*/                 /* Turn on amplifiers before we readout the CCD */
   wCloseShutter();
+  wOutAmpsHigh();                 /* Turn on amplifiers before we readout the CCD */
   if exptime DoShutterDelay(shutdelay);
   GOTO WaitForReadout(); 
 }
@@ -343,6 +343,7 @@ SEQUENCE DoScienceReadout {
   wFrame();
   ScienceRead(SplitLines);
   SerialReceiving();   /* Put serial clocks in ready for charge state after readout */
+  wOutAmpsLow();
   GOTO WaitForExpose();
 }
 
