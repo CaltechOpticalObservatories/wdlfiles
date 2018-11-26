@@ -936,6 +936,22 @@ WAVEFORM wDumpGateOff {
   .+10ms:               RETURN;
 }
 
+/* The new voltage doesn't take effect for about 10 ms */
+WAVEFORM wOutAmpsLow {
+ 0:                     SET OD1    TO _ODLow;
+ .+10ms:                SET OD2    TO _ODLow;
+ .+10ms:                SET OD3    TO _ODLow;
+ .+10ms:                SET OD4    TO _ODLow;
+}
+
+/* The new voltage doesn't take effect for about 10 ms */
+WAVEFORM wOutAmpsHigh {
+ 0:                     SET OD1    TO _ODHigh;
+ .+10ms:                SET OD2    TO _ODHigh;
+ .+10ms:                SET OD3    TO _ODHigh;
+ .+10ms:                SET OD4    TO _ODHigh;
+}
+
 /* Magic board comm waveforms */
 // TXFRCLK is in signals
 /*#define HBIT 25
