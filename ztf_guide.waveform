@@ -133,7 +133,7 @@ WAVEFORM GFParallelSplit { /*G is read to the UP direction*/
 			SET GA2T  TO _GPAR_CLOCK_HIGH, FAST;
 			SET GA3T  TO _GPAR_CLOCK_LOW, FAST;
                         SET GA1B TO 0,FAST;
-                        SET GA2B TO 0,FAST;
+                        SET GA2B TO -9,FAST;
                         SET GA3B TO -9,FAST;
  .+PDELAY:		SET GA1T  TO _GPAR_CLOCK_LOW, FAST;
  .+PDELAY:		SET GA3T  TO _GPAR_CLOCK_HIGH, FAST;
@@ -195,12 +195,23 @@ WAVEFORM GSerialReceiving {
  0:	  	        SET S1T  TO _GSER_CLOCK_LOW, SLOW;
                         SET S2T  TO _GSER_CLOCK_HIGH, SLOW;
                         SET S3T  TO _GSER_CLOCK_LOW, SLOW;
-                        SET S1B TO 0,FAST;
-                        SET S2B TO 0,FAST;
-                        SET S3B TO 0,FAST;
+                        SET S1B TO -9,FAST;
+                        SET S2B TO -9,FAST;
+                        SET S3B TO -9,FAST;
+                        SET SW TO -9,FAST;
 .+SDELAY:               SET RG        TO _RG_CLOCK_HIGH, FAST;
 }
 WAVEFORM GSerial2to3{
+ 0:	  	        SET S1T  TO _GSER_CLOCK_LOW, SLOW;
+                        SET S2T  TO _GSER_CLOCK_LOW, SLOW;
+                        SET S3T  TO _GSER_CLOCK_HIGH, SLOW;
+                        SET S1B TO 0,FAST;
+                        SET S2B TO 0,FAST;
+                        SET S3B TO 0,FAST;
+ 100:                   RETURN;
+}
+
+WAVEFORM GSerial3to2 {
  0:	  	        SET S1T  TO _GSER_CLOCK_LOW, SLOW;
                         SET S2T  TO _GSER_CLOCK_HIGH, SLOW;
                         SET S3T  TO _GSER_CLOCK_LOW, SLOW;
@@ -217,12 +228,11 @@ WAVEFORM GSerial2to3{
 #define G_SWslewT 28
 #define G_PixelT 252
 #define G_Test 2000
-
+#define G_PixelT_G 252
 WAVEFORM GSerialReadRight_smooth{
 #include ztf_guide_ReadPixelSTA.h
 }
 
-#define G_PixelT_G 400
 WAVEFORM GuideSerialReadRightTop_smooth{
   #include ztf_guide_ReadPixelSTA_G.h
 }
