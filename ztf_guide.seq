@@ -31,9 +31,9 @@ param GPixels=_GPIXELS_PER_TAP
 
 param Abort=0
 
-param Delay_FrameStart=264013
-param Delay_PixelStart=5
-param Delay_LTStart=156
+param Delay_FrameStart=264013  /*264013*/
+param Delay_PixelStart=5       /*5*/
+param Delay_LTStart=358        /*156*/
 
 param Guiding=0
 param GFrames=1
@@ -74,6 +74,7 @@ SEQUENCE DoExpose {
   Expose--;
   if !Guiding MilliSec(exptime);
   if Guiding GOTO GuideSeq();
+  if exptime DoShutterDelay(500);
   GOTO WaitForReadOut();
 }
 SEQUENCE WaitForReadOut {
@@ -89,8 +90,10 @@ SEQUENCE WaitForReadOut {
 SEQUENCE Idling {
   OpenBLC();
   ADClamp_();
+  /*FGSerialReceiving();*/
   GFParallelSplit();
-  GSerialReadRight_smooth(10); 
+  GSerialReadRight_smooth(10);
+  GSerialReceiving();
   GroundBLC();
   ADClamp();
   return;
@@ -165,11 +168,11 @@ SEQUENCE DoSimultaneousReadOut {
 }
 
 SEQUENCE DoSimultaneousFocus { 
-  GFParallelSplit();
+GFParallelSplit();
   Wait10ns(Delay_PixelStart);
- 
   wLine();
-   GSerialReadRight_smooth(GPixels); /*SciencePixels*2*3+1*interline */
+/*GuideSerialReadRightTop(GPixels);  */
+  GSerialReadRight_smooth(GPixels); /*SciencePixels*2*3+1*interline */
   /* PulseTest(GPixels);*/
   FGSerialReceiving();
   Wait1us();
