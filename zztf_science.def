@@ -23,8 +23,8 @@
 #define _CDS_WIDTH               10  /* width of each CDS integration compoent in clocks */
 #define _SKIP_LINES               0 /*0*/
 #define _SERIALPRESCAN           50
-#define _SERIALOVERSCAN          150 /*30*/ /*150*/
-#define _PARALLELOVERSCAN        100 /*0 */ /*100*/
+#define _SERIALOVERSCAN          30 /*150*/
+#define _PARALLELOVERSCAN        0  /*100*/
 #defeval _IMAGEROWS              #eval 6160/2  /* Value from CCD data sheet (quadrant) */
 #defeval _IMAGECOLS              #eval 6144/2  /* Value from CCD data sheet (quadrant) */
 #defeval _IDLE_LINES             #eval _SKIP_LINES + _IMAGEROWS
