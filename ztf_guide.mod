@@ -54,12 +54,12 @@ SLOT 9 hvbias {
   HVLC 6 [15,0];            /* RD Focus 1 UR         15V Nom */
   HVLC 7 [15,0];            /* RD Focus 1 BL         15V Nom */
   HVLC 8 [15,0];            /* RD Focus 1 BR         15V Nom */
-  HVLC 9 [1,0];             /* OTG Focus 2           -1V Nom, use 0V  */
+  HVLC 9 [0.2,0];             /* OTG Focus 2           -1V Nom, use 0V  */
   HVLC 10 [0,0];            /* HVB - extra high voltage */
   HVLC 11 [0,0];            /* HVA - extra high voltage */
-  HVLC 12 [1,0];            /* OTG Focus 1           -1V Nom, use 0V */
-  HVLC 13 [1,0];            /* OTG Focus 3           -1V Nom, use 0V */
-  HVLC 14 [1,0];            /* OTG Guider 4          -1V Nom, use 0V */
+  HVLC 12 [1.5,0];            /* OTG Focus 1           -1V Nom, use 0V */
+  HVLC 13 [1.5,0];            /* OTG Focus 3           -1V Nom, use 0V */
+  HVLC 14 [1.0,0];            /* OTG Guider 4          -1V Nom, use 0V */
   HVLC 15 [15,0];           /* RD Focus 3 BR         15V Nom */
   HVLC 16 [15,0];           /* RD Focus 3 BL         15V Nom */
   HVLC 17 [15,0];           /* RD Focus 3 UR         15V Nom */
@@ -70,12 +70,12 @@ SLOT 9 hvbias {
   HVLC 22 [15,0];           /* RD Focus 4 UR         15V Nom */
   HVLC 23 [24,0];           /* HV_XTRA - extra high voltage */
   HVLC 24 [24,1];            /* VBB Control            0V Nom, starts out HV off */
-  HVHC  1 [15,100,0,1];      /* Scupper Voltage 1 and 2    26 */
+  HVHC  1 [24,100,0,1];      /* Scupper Voltage 1 and 2    26 */
   HVHC  2 [24,100,0,1];     /* Output Drain Focus 2       27 */
   HVHC  3 [24,100,0,1];     /* Output Drain Focus 1       28 */
   HVHC  4 [24,100,0,1];     /* Output Drain Focus 3       29 */
   HVHC  5 [24,100,0,1];     /* Output Drain Guider 4      30 */
-  HVHC  6 [15,100,0,1];      /* Scupper Voltage 3 and 4    31 */
+  HVHC  6 [24,100,0,1];      /* Scupper Voltage 3 and 4    31 */
 }
 
 SLOT 10 driver {
