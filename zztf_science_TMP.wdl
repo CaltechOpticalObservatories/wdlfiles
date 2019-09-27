@@ -14,8 +14,10 @@ CALL Wait1us
 CALL OpenBLC
 CALL ADClamp_
 CALL Idling(IdleLines)
+CALL wOutAmpsLow
 
 sequence WaitForExpose:
+Abort--
 if Expose CALL DoExpose
 CALL Idling
 GOTO WaitForExpose
@@ -25,7 +27,6 @@ if Readout CALL DoScienceReadout
 GOTO WaitForReadout
 
 sequence Idling:
-CALL wOutAmpsLow
 CALL ReadLineConcurrently
 CALL SerialReceiving
 CALL wReset
@@ -40,14 +41,14 @@ RETURN Idling
 
 sequence DoExpose:
 Expose--
-if exptime CALL wOutAmpsLow
 CALL SetParallelExpose
 if ShutterEnable CALL OpenShutter
 if exptime CALL MilliSec(exptime)
 CALL wCloseShutter
-if exptime CALL wOutAmpsHigh
+CALL wOutAmpsHigh
 if exptime CALL DoShutterDelay(shutdelay)
-GOTO WaitForReadout
+CALL DoScienceReadout
+RETURN DoExpose
 
 sequence OpenShutter:
 if exptime CALL wOpenShutter
@@ -93,7 +94,8 @@ CALL ADClamp_
 CALL wFrame
 CALL ScienceRead(SplitLines)
 CALL SerialReceiving
-GOTO WaitForExpose
+CALL wOutAmpsLow
+RETURN DoScienceReadout
 
 sequence ScienceRead:
 CALL SynchedLineTransfer
@@ -124,6 +126,7 @@ RETURN LineOutA
 
 sequence ReadLineConcurrently:
 CALL LoadSerialRegister
+CALL InitialClock2Low
 CALL P23to34
 CALL TPixel(817)
 CALL P34to41
@@ -1445,7 +1448,7 @@ waveform fastTGa:
 1000 10 7 0
 1001 RETURN fastTGa
 
-waveform step1a.plot():
+waveform step1a:
 0 10 0 3.0
 0 10 1 0
 0 10 8 -8.0
@@ -1734,10 +1737,10 @@ waveform wOutAmpsLow:
 3000001 RETURN wOutAmpsLow
 
 waveform wOutAmpsHigh:
-0 9 27 31.0
-1000000 9 28 31.0
-2000000 9 29 31.0
-3000000 9 26 31.0
+0 9 27 30.5
+1000000 9 28 30.5
+2000000 9 29 30.5
+3000000 9 26 30.5
 3000001 RETURN wOutAmpsHigh
 
 waveform wIdle:
@@ -2226,7 +2229,7 @@ parameter Abort=0
 parameter TrigLowThisLine=1
 parameter ShutterEnable=1
 parameter RoiReadout=0
-parameter shutdelay=500
+parameter shutdelay=470
 parameter SweepCount=0
 parameter SerialPrescan=50
 parameter SerialOverscan=150

@@ -6,7 +6,7 @@ Abort=0
 TrigLowThisLine=1
 ShutterEnable=1
 RoiReadout=0
-shutdelay=500
+shutdelay=470
 SweepCount=0
 SerialPrescan=50
 SerialOverscan=150
@@ -59,37 +59,38 @@ STATE000; CALL ADClamp                                       #      7    50134
 STATE000; CALL Wait1us                                       #      8    50235
 STATE000; CALL OpenBLC                                       #      9    50237
 STATE000; CALL ADClamp_                                      #     10    50239
-STATE000; CALL Idling(IdleLines)                             #     11  3327338
+STATE000; CALL Idling(IdleLines)                             #     11   327437
+STATE000; CALL wOutAmpsLow                                   #     12  3327439
 WaitForExpose: # sequence
-STATE000; if Expose CALL DoExpose                            #      0  6200017
-STATE000; CALL Idling                                        #      1  9477116
-STATE000; GOTO WaitForExpose                                 #      2  9477117
+STATE000; Abort--                                            #      1        2
+STATE000; if Expose CALL DoExpose                            #      2  6255799
+STATE000; CALL Idling                                        #      3  6532997
+STATE000; GOTO WaitForExpose                                 #      4  6532998
 WaitForReadout: # sequence
-STATE000; if Readout CALL DoScienceReadout                   #      0    55780
-STATE000; GOTO WaitForReadout                                #      1    55781
+STATE000; if Readout CALL DoScienceReadout                   #      0  3055782
+STATE000; GOTO WaitForReadout                                #      1  3055783
 Idling: # sequence
-STATE000; CALL wOutAmpsLow                                   #      0  3000002
-STATE000; CALL ReadLineConcurrently                          #      1  3276861
-STATE000; CALL SerialReceiving                               #      2  3276883
-STATE000; CALL wReset                                        #      3  3276885
-STATE000; CALL Wait1us                                       #      4  3276986
-STATE000; CALL wUnsetReset                                   #      5  3276988
-STATE000; CALL GroundBLC                                     #      6  3276990
-STATE000; CALL ADClamp                                       #      7  3276992
-STATE000; CALL Wait1us                                       #      8  3277093
-STATE000; CALL OpenBLC                                       #      9  3277095
-STATE000; CALL ADClamp_                                      #     10  3277097
-STATE000; RETURN Idling                                      #     11  3277098
+STATE000; CALL ReadLineConcurrently                          #      0   276960
+STATE000; CALL SerialReceiving                               #      1   276982
+STATE000; CALL wReset                                        #      2   276984
+STATE000; CALL Wait1us                                       #      3   277085
+STATE000; CALL wUnsetReset                                   #      4   277087
+STATE000; CALL GroundBLC                                     #      5   277089
+STATE000; CALL ADClamp                                       #      6   277091
+STATE000; CALL Wait1us                                       #      7   277192
+STATE000; CALL OpenBLC                                       #      8   277194
+STATE000; CALL ADClamp_                                      #      9   277196
+STATE000; RETURN Idling                                      #     10   277197
 DoExpose: # sequence
 STATE000; Expose--                                           #      1        2
-STATE000; if exptime CALL wOutAmpsLow                        #      2  3000004
-STATE000; CALL SetParallelExpose                             #      3  3000006
-STATE000; if ShutterEnable CALL OpenShutter                  #      4  3000010
-STATE000; if exptime CALL MilliSec(exptime)                  #      5  3100011
-STATE000; CALL wCloseShutter                                 #      6  3100013
-STATE000; if exptime CALL wOutAmpsHigh                       #      7  6100015
-STATE000; if exptime CALL DoShutterDelay(shutdelay)          #      8  6200015
-STATE000; GOTO WaitForReadout                                #      9  6200016
+STATE000; CALL SetParallelExpose                             #      2        4
+STATE000; if ShutterEnable CALL OpenShutter                  #      3        8
+STATE000; if exptime CALL MilliSec(exptime)                  #      4   100009
+STATE000; CALL wCloseShutter                                 #      5   100011
+STATE000; CALL wOutAmpsHigh                                  #      6  3100013
+STATE000; if exptime CALL DoShutterDelay(shutdelay)          #      7  3200013
+STATE000; CALL DoScienceReadout                              #      8  6255795
+STATE000; RETURN DoExpose                                    #      9  6255796
 OpenShutter: # sequence
 STATE000; if exptime CALL wOpenShutter                       #      0        2
 STATE000; RETURN OpenShutter                                 #      1        3
@@ -129,7 +130,8 @@ STATE000; CALL ADClamp_                                      #     13     5327
 STATE000; CALL wFrame                                        #     14     5329
 STATE000; CALL ScienceRead(SplitLines)                       #     15    55756
 STATE000; CALL SerialReceiving                               #     16    55778
-STATE000; GOTO WaitForExpose                                 #     17    55779
+STATE000; CALL wOutAmpsLow                                   #     17  3055780
+STATE000; RETURN DoScienceReadout                            #     18  3055781
 ScienceRead: # sequence
 STATE000; CALL SynchedLineTransfer                           #      0    50001
 STATE000; CALL wLine                                         #      1    50003
@@ -157,15 +159,16 @@ STATE000; CALL FastSerialOutputClocking(PxByFour)            #      7     1420
 STATE000; RETURN LineOutA                                    #      8     1421
 ReadLineConcurrently: # sequence
 STATE000; CALL LoadSerialRegister                            #      0     2001
-STATE000; CALL P23to34                                       #      1     2086
-STATE000; CALL TPixel(817)                                   #      2    70715
-STATE000; CALL P34to41                                       #      3    70800
-STATE000; CALL TPixel(817)                                   #      4   139429
-STATE000; CALL P41to12                                       #      5   139514
-STATE000; CALL TPixel(817)                                   #      6   208143
-STATE000; CALL P12to23                                       #      7   208228
-STATE000; CALL TPixel(817)                                   #      8   276857
-STATE000; RETURN ReadLineConcurrently                        #      9   276858
+STATE000; CALL InitialClock2Low                              #      1     2102
+STATE000; CALL P23to34                                       #      2     2187
+STATE000; CALL TPixel(817)                                   #      3    70816
+STATE000; CALL P34to41                                       #      4    70901
+STATE000; CALL TPixel(817)                                   #      5   139530
+STATE000; CALL P41to12                                       #      6   139615
+STATE000; CALL TPixel(817)                                   #      7   208244
+STATE000; CALL P12to23                                       #      8   208329
+STATE000; CALL TPixel(817)                                   #      9   276958
+STATE000; RETURN ReadLineConcurrently                        #     10   276959
 DoRoiScienceReadout: # sequence
 STATE000; RoiReadout--                                       #      1        2
 STATE000; CALL SerialReceiving                               #      2       24
