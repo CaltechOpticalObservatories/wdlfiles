@@ -3,19 +3,19 @@
 
 
 #define	Iphi_slew_fast	100
-#define Iphi_slew_slow	 10 /*0.015*/ /* 10*/  /*10*/
+#define Iphi_slew_slow	0.018 /*0.025*/ /* 10*/  /*10*/
 /*#define Rphi_slew_fast	500 /* default value on 20170630 */
 /*#define Rphi_slew_slow	450 /* per experiments of 20170630 */
-#define Rphi_slew_fast	#eval (12*3*100)/PixelT + 30 /*500*/ /* 500 was too fast */
-#define Rphi_slew_slow	#eval (12*3*100)/PixelT /*35*/ /* 12V/340ns = 35 V/us */
+#define Rphi_slew_fast	#eval (14*3*100)/PixelT + 30 /*500*/ /* 500 was too fast */
+#define Rphi_slew_slow	#eval (14*3*100)/PixelT /*35*/ /* 12V/340ns = 35 V/us */
 #define TG_slew_fast	500
 #define TG_slew_slow	100
 #define SW_slew_fast	500 /*40*/ /* 500 was too fast changed on 07/07/2017 */
 #define SW_slew_slow	#eval (100*12)/(PixelT/2 + PixelT/6) + 3 /*20*/ /*100*/ /*20*/
 
-#define OutputDrain     30.5
+#define OutputDrain     31 /*30.5*/
 
-#define OutputGate      2.5
+#define OutputGate      1.5 /*2.5*/ /*2.5*/
 
 #define ResetDrain      18.5
 #define Brown           19
@@ -79,22 +79,22 @@ SLOT 8 ad {
 }
 
 SLOT 9 hvbias {
-  HVLC 6  [18.790,0]; /* Reset Drain 3 F */
-  HVLC 7  [18.798,0]; /* Reset Drain 3 E */
-  HVLC 4  [18.781,0]; /* Reset Drain 3 H */
-  HVLC 5  [18.703,0]; /* Reset Drain 3 G */
-  HVLC 21 [18.778,0]; /* Reset Drain 1 F */
-  HVLC 19 [18.791,0]; /* Reset Drain 1 E */
-  HVLC 10 [18.625,0]; /* Reset Drain 1 H */
-  HVLC 23 [18.807,0]; /* Reset Drain 1 G */
-  HVLC 2  [19.031,0]; /* Reset Drain 4 F */
-  HVLC 3  [18.859,0]; /* Reset Drain 4 E */
-  HVLC 13 [18.956,0]; /* Reset Drain 4 H */
-  HVLC 1  [19.006,0]; /* Reset Drain 4 G */
-  HVLC 12 [18.634,0]; /* Reset Drain 2 F */
-  HVLC 11 [18.429,0]; /* Reset Drain 2 E */
-  HVLC 8  [18.707,0]; /* Reset Drain 2 H */
-  HVLC 9  [18.660,0]; /* Reset Drain 2 G */
+  HVLC 6  [19.0,0]; /* Reset Drain 3 F */
+  HVLC 7  [19.0,0]; /* Reset Drain 3 E */
+  HVLC 4  [19.0,0]; /* Reset Drain 3 H */
+  HVLC 5  [19.0,0]; /* Reset Drain 3 G */
+  HVLC 21 [19.0,0]; /* Reset Drain 1 F */
+  HVLC 19 [19.0,0]; /* Reset Drain 1 E */
+  HVLC 10 [19.0,0]; /* Reset Drain 1 H */
+  HVLC 23 [19.0,0]; /* Reset Drain 1 G */
+  HVLC 2  [19.0,0]; /* Reset Drain 4 F */
+  HVLC 3  [19.0,0]; /* Reset Drain 4 E */
+  HVLC 13 [19.0,0]; /* Reset Drain 4 H */
+  HVLC 1  [19.0,0]; /* Reset Drain 4 G */
+  HVLC 12 [19.3,0]; /* Reset Drain 2 F */
+  HVLC 11 [19.0,0]; /* Reset Drain 2 E */
+  HVLC 8  [19.2,0]; /* Reset Drain 2 H */
+  HVLC 9  [19.0,0]; /* Reset Drain 2 G */
   HVLC 14 [OutputGate,0];/* Output Gate CCD1 */
   HVLC 15 [OutputGate,0];/* Output Gate CCD2 */
   HVLC 16 [OutputGate,0];/* Output Gate CCD3 */

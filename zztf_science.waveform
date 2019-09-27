@@ -555,13 +555,25 @@ WAVEFORM SetParallelExposeUneven {
 
 WAVEFORM SetParallelTransfer {
 0:			SET CD1     TO _PAR_CLOCK_LOW,  FAST;
+			SET AB4     TO _PAR_CLOCK_LOW,  FAST;
+/*.+1ms:*/  		SET AB3     TO _PAR_CLOCK_HIGH, FAST;
+			SET AB2     TO _PAR_CLOCK_HIGH, FAST;
+			SET AB1     TO _PAR_CLOCK_HIGH, FAST;
 			SET CD2     TO _PAR_CLOCK_HIGH, FAST;
                         SET CD3     TO _PAR_CLOCK_HIGH, FAST;
                         SET CD4     TO _PAR_CLOCK_HIGH, FAST;
+
+}
+
+WAVEFORM SetPTwoPhaseTransfer {
+  0:			SET CD1     TO _PAR_CLOCK_LOW,  FAST;
+			SET CD2     TO _PAR_CLOCK_LOW, FAST;
 			SET AB4     TO _PAR_CLOCK_LOW,  FAST;
+			SET AB1     TO _PAR_CLOCK_LOW, FAST;
+/*.+1ms:*/                SET CD3     TO _PAR_CLOCK_HIGH, FAST;
+                        SET CD4     TO _PAR_CLOCK_HIGH, FAST;
 			SET AB3     TO _PAR_CLOCK_HIGH, FAST;
 			SET AB2     TO _PAR_CLOCK_HIGH, FAST;
-			SET AB1     TO _PAR_CLOCK_HIGH, FAST;
 }
 
 WAVEFORM SetParallelExpose {
@@ -587,6 +599,19 @@ WAVEFORM SetParallelTransferConcurrent {
 			SET AB1     TO _PAR_CLOCK_HIGH, FAST;
  .+TOI:                 SET CD2     TO _PAR_CLOCK_LOW,  FAST;
                         SET AB1     TO _PAR_CLOCK_LOW,  FAST; /* charge under CD3,CD4 and AB2,AB3 */
+}  /* We are now ready for the Load Serial */
+
+WAVEFORM TwoPhaseStorageExp {
+ 0:			SET CD1     TO _PAR_CLOCK_EXP_LOW,  FAST;
+			SET CD2     TO _PAR_CLOCK_EXP_HIGH, FAST;
+                        SET CD3     TO _PAR_CLOCK_EXP_HIGH, FAST;
+                        SET CD4     TO _PAR_CLOCK_EXP_HIGH, FAST;
+			SET AB4     TO _PAR_CLOCK_EXP_LOW,  FAST;
+			SET AB3     TO _PAR_CLOCK_EXP_HIGH, FAST;
+			SET AB2     TO _PAR_CLOCK_EXP_HIGH, FAST;
+			SET AB1     TO _PAR_CLOCK_EXP_HIGH, FAST;
+ .+TOI:                 SET CD2     TO _PAR_CLOCK_EXP_LOW,  FAST;
+                        SET AB1     TO _PAR_CLOCK_EXP_LOW,  FAST; /* charge under CD3,CD4 and AB2,AB3 */
 }  /* We are now ready for the Load Serial */
 
 
@@ -997,8 +1022,8 @@ WAVEFORM wOutAmpsHigh {
 WAVEFORM wIdle {
 }
 
-#define TGwidth    10us
-#define TGsettle   10us
+#define TGwidth    20us /* was 10us */
+#define TGsettle   20us /* was 10us */
 #define BLCwidth   1000
 #define BLCsettle  1000
 #define ADCclampT  1000
@@ -1020,6 +1045,16 @@ WAVEFORM LoadSerialRegister {
  TGwidth:                     SET TGClock   TO _TG_CLOCK_LOW, SLOW;
  .+TGsettle:                  RETURN;
 }
+
+/*WAVEFORM SetTGHigh {
+ 0:                           SET TGClock   TO _TG_CLOCK_HIGH, SLOW;
+ TGwidth:                     RETURN;
+}
+
+WAVEFORM SetTGLow {
+ 0:                           SET TGClock   TO _TG_CLOCK_LOW, SLOW;
+ TGsettle:                    RETURN;
+ }*/
 
 
 
@@ -1077,8 +1112,7 @@ WAVEFORM P41to12 {
 }
 
 WAVEFORM P12to23 {
- 0:                          SET P3 TO _PAR_CLOCK_HIGH, SLOW;  /* AB3, CD4 */
+ 0:                          SET P3 TO _PAR_LASTGATE_HIGH, SLOW;  /* AB3, CD4 */
                              SET P1 TO _PAR_CLOCK_LOW, SLOW;   /* AB1, CD2 */
                              #include ReadPixel.h
 }
-

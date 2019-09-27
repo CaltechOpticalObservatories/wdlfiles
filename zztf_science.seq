@@ -83,10 +83,8 @@ SEQUENCE Start {
   OpenBLC();
   ADClamp_();
 
-  /*wDumpGateOn();*/
-  /*wParallelInversion();*/
-  /*wDumpGateOff();*/           /* suppresses the waffle pattern */
   Idling(IdleLines);                 /* clears the residual badness */
+  Idling(IdleLines);
   wOutAmpsLow();  /* Turn off the on-chip amps before waiting for exposure */
 }
 
@@ -94,6 +92,7 @@ SEQUENCE WaitForExpose {
   Abort--;
   if Expose DoExpose();
   Idling();
+  
   /*wCloseShutter();*/ /* For ramped illumination */
   /*DoScienceReadout();*/  /***/
   /*return;*/              /***/
@@ -141,15 +140,25 @@ SEQUENCE DoExpose {
   Expose--;
   /* if exptime wOutAmpsLow(); */ /* Amps are off at this point anyway */
   SetParallelExpose();
+  /*wOutAmpsHigh();*/
   if ShutterEnable OpenShutter();      // don't even try to open shutter unless enabled
   if exptime MilliSec(exptime);
   wCloseShutter();
   /*wOpenShutter();*/ /* Just for a ramped illumination */
-  wOutAmpsHigh();  /* Turn amplifiers back on for readout */
+  
+  wOutAmpsHigh(); /***/  /* Turn amplifiers back on for readout */
+  /*SetParallelTransfer();*/ /***/  /* These two lines are for shift then squeeze */
+  /*SetParallelTransferConcurrent();*/ /***/  /* These two lines are for shift then squeeze */
+  /* The following two lines are for squeeze then shift */
+  TwoPhaseStorageExp(); /* With EXP clock levels store charge under two phases */
+  SetPTwoPhaseTransfer();  /* Set to clocking voltage levels */
   if exptime DoShutterDelay(shutdelay);
-  DoScienceReadout();
-  return;
-  /*GOTO WaitForReadout();*/
+
+  /* Clamp the signals now and will unclamp just before reading out */
+
+  /*DoScienceReadout();    ***
+    return;*/             /***/
+  GOTO WaitForReadout();
 }
 
 SEQUENCE OpenShutter {
@@ -159,6 +168,13 @@ SEQUENCE OpenShutter {
 
 SEQUENCE MilliSec {
   Wait1ms();	/* This is a placeholder 1ms routine - Need to fix up */
+  
+  /*Wait1us(500);*/
+  /*SetParallelTransfer();*/    /* Got to clocking levels */ /***/
+  /*SetParallelTransferConcurrent();*/ /* Squeeze to two phases */ /***/
+  /*SynchedLineTransferNEW();*/ /* Do a line transfer */ /***/
+  /*SynchedLineTransferNEW();*/ /* Do a line transfer */ /***/
+  /*SetParallelExpose();*/ /* Go back to exposure levels */ /***/
   if Abort GOTO DoAbort();  /* This is the test for an abort  */
   return;
 }
@@ -169,7 +185,13 @@ SEQUENCE DoAbort {
 }
 
 SEQUENCE DoShutterDelay {
-  Wait1ms();
+  Wait1ms();  /***/
+  /*Wait1us(500);*/ /***/
+  /*SetParallelTransfer();*/    /* Got to clocking levels */ /***/
+  /*SetParallelTransferConcurrent();*/ /* Squeeze to two phases */ /***/
+  /*SynchedLineTransferNEW();*/ /* Do a line transfer */ /***/
+  /*SynchedLineTransferNEW();*/ /* Do a line transfer */ /***/
+  /*SetParallelExpose();*/ /* Go back to exposure levels */ /***/
   return;
 }
 
@@ -188,9 +210,10 @@ SEQUENCE DoFlush {
 }
 
 SEQUENCE DoScienceReadout {
+  /*wOpenShutter();*/
   Readout--;                                                     /*   0.01us*/
-  SetParallelTransfer();                                         /*   0.01 us*/
-  SetParallelTransferConcurrent();  /* Move Integrated charge to AB3 and CD4 here */
+  /*SetParallelTransfer();*/                                         /*   0.01 us*/
+  /*SetParallelTransferConcurrent();*/  /* Move Integrated charge to AB3 and CD4 here */
   TPixel(Pixels); /* initial serial sweepout */
   SerialReceiving();                                             /*   0.21 us*/
 
@@ -209,9 +232,13 @@ SEQUENCE DoScienceReadout {
   ScienceRead(SplitLines);                                       /*3257.65 us*/
   SerialReceiving();   /* Put serial clocks in ready for charge state after readout */                                                               /*   0.21 us*/
   /*return;*/
-  wOutAmpsLow();  /* Turn the amps down when in idle */
-  return;   /***/
-  /*GOTO WaitForExpose();*/                                          /*   0.01 us?*/
+  /* Clamp before turning amp off */
+  /*GroundBLC();*/    /* Is this correct order for BLC and ADC clamp, does order matter? */
+  /*ADClamp();*/
+  
+  wOutAmpsLow(); /***/  /* Turn the amps down when in idle */
+  /*return;*/   /***/
+  GOTO WaitForExpose();                                          /*   0.01 us?*/
 }
 
  
