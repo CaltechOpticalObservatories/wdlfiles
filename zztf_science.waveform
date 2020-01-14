@@ -120,6 +120,11 @@ WAVEFORM Wait1us {
 WAVEFORM Wait25us {
   +25us:                RETURN;
 }
+/* For Shutter test */
+/*WAVEFORM Wait10ns{
+ 1: RETURN;
+ }*/
+/* End for shutter test */
 
 WAVEFORM OpenBLC {
  0:			SET BLC_OS   TO BL_OSisclosed;
@@ -570,11 +575,71 @@ WAVEFORM SetPTwoPhaseTransfer {
 			SET CD2     TO _PAR_CLOCK_LOW, FAST;
 			SET AB4     TO _PAR_CLOCK_LOW,  FAST;
 			SET AB1     TO _PAR_CLOCK_LOW, FAST;
-/*.+1ms:*/                SET CD3     TO _PAR_CLOCK_HIGH, FAST;
+                        SET CD3     TO _PAR_CLOCK_HIGH, FAST;
                         SET CD4     TO _PAR_CLOCK_HIGH, FAST;
 			SET AB3     TO _PAR_CLOCK_HIGH, FAST;
 			SET AB2     TO _PAR_CLOCK_HIGH, FAST;
 }
+
+/* This is to try to suppress the SFW trailing charge */
+WAVEFORM DitherTwoPhaseExp {
+ 0:                    SET CD2      TO _PAR_CLOCK_EXP_LOW, FAST; /* Now under CD 3,4 */
+                       SET AB3      TO _PAR_CLOCK_EXP_LOW, FAST; /* Now under AB 1,2 */
+}
+
+WAVEFORM DitherTwoPhaseTransfer {
+ 0:			SET CD1     TO _PAR_CLOCK_LOW,  FAST;
+			SET CD2     TO _PAR_CLOCK_LOW,  FAST;
+			SET AB3     TO _PAR_CLOCK_LOW,  FAST; /* AB3 */
+			SET AB4     TO _PAR_CLOCK_LOW,  FAST;
+                        SET CD3     TO _PAR_CLOCK_HIGH, FAST;
+                        SET CD4     TO _PAR_CLOCK_HIGH, FAST;
+			SET AB1     TO _PAR_CLOCK_HIGH, FAST; /* AB1 */
+			SET AB2     TO _PAR_CLOCK_HIGH, FAST;
+}
+
+/* Try slowing down the transition steps to ~ 1ms to check for loading on clock */
+/*WAVEFORM DitherOtherHalf {
+/* 0:                    SET AB3      TO _PAR_CLOCK_HIGH, FAST; /* Now under AB 1,2,3 */
+/*                       SET CD2      TO _PAR_CLOCK_HIGH, FAST; /* Now under CD 2,3,4 */
+/* .+25us:               SET AB1      TO _PAR_CLOCK_LOW,  FAST; /* Now under AB 2,3   */
+/*                       SET CD4      TO _PAR_CLOCK_LOW,  FAST; /* Now under CD 2,3   */
+/* .+25us:               SET CD1      TO _PAR_CLOCK_HIGH, FAST; /* Now under CD 1,2,3 */
+/* .+25us:               SET CD3      TO _PAR_CLOCK_LOW,  FAST; /* Now under CD 1,2   */
+/*  /*.+25us:               SET AB4      TO _PAR_CLOCK_HIGH, FAST;*/ /* Now under AB 2,3,4,TG */
+/*  /*.+25us:               SET AB2      TO _PAR_CLOCK_LOW,  FAST;*/ /* Now under AB 3,4,TG*/
+/*}*/
+
+
+WAVEFORM DitherOtherHalf {
+ 0:                    SET CD2      TO _PAR_CLOCK_HIGH, FAST; /* Now under CD 2,3,4 */
+                       SET AB3      TO _PAR_CLOCK_HIGH, FAST; /* Now under AB 1,2,3 */
+ .+TOI:               SET CD4      TO _PAR_CLOCK_LOW,  FAST; /* Now under CD 2,3   */
+                       SET AB1      TO _PAR_CLOCK_LOW,  FAST; /* Now under AB 2,3   */
+ .+TOI:               SET CD1      TO _PAR_CLOCK_HIGH, FAST; /* Now under CD 1,2,3 */
+                       SET AB4      TO _PAR_CLOCK_HIGH, FAST; /* Now under AB 2,3,4,TG */
+ .+TOI:               SET CD3      TO _PAR_CLOCK_LOW,  FAST; /* Now under CD 1,2   */
+                       SET AB2      TO _PAR_CLOCK_LOW,  FAST; /* Now under AB 3,4,TG*/
+}
+
+/*WAVEFORM ReadyForReadout {
+/* 0:                    SET AB2      TO _PAR_CLOCK_HIGH, FAST;  /* Now under AB 2,3,4 */
+/*                       SET CD3      TO _PAR_CLOCK_HIGH, FAST;  /* Now under CD 1,2,3 */  
+/* .+25us:               SET AB4      TO _PAR_CLOCK_LOW,  FAST;  /* Now under AB 2,3   */
+/*                       SET CD1      TO _PAR_CLOCK_LOW,  FAST;  /* Now under CD 2,3   */
+/* .+25us:               SET CD4      TO _PAR_CLOCK_HIGH, FAST;  /* Now under CD 2,3,4 */
+/* .+25us:               SET CD2      TO _PAR_CLOCK_LOW,  FAST;  /* Now under CD 3,4   */
+/*}*/
+
+WAVEFORM ReadyForReadout {
+ 0:                    SET CD3      TO _PAR_CLOCK_HIGH, FAST;  /* Now under CD 1,2,3 */
+                       SET AB2      TO _PAR_CLOCK_HIGH, FAST;  /* Now under AB 2,3,4 */
+ .+TOI:               SET CD1      TO _PAR_CLOCK_LOW,  FAST;  /* Now under CD 2,3   */
+                       SET AB4      TO _PAR_CLOCK_LOW,  FAST;  /* Now under AB 2,3   */
+ .+TOI:               SET CD4      TO _PAR_CLOCK_HIGH, FAST;  /* Now under CD 2,3,4 */
+ .+TOI:               SET CD2      TO _PAR_CLOCK_LOW,  FAST;  /* Now under CD 3,4   */
+}
+
 
 WAVEFORM SetParallelExpose {
   0:			SET CD1     TO _PAR_CLOCK_EXP_LOW,  FAST;
@@ -1035,6 +1100,7 @@ WAVEFORM wIdle {
 /* Parameterized timing */
 #define RefSamples   #eval PixelT/2  /* Half pixel time, when charge is dumped on sense node */
 #define RGT          8  /* Width of the reset gate pulse               200ns */ /* Static */
+#define RGT1         7
 #define SWslewT       3  /* Want SW to go high ASAP so minimize this     30ns */ /* Static, but use for SW slow slew */
 
 

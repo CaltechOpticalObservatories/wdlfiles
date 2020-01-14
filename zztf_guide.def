@@ -1,0 +1,136 @@
+/* -*- C -*- */
+/** ---------------------------------------------------------------------------
+ * use "#define" to define user macros used within the Archon files,
+ * i.e. within the .script, .states, .cds, or .modules files
+ * Do not edit or remove the following line.
+ */
+
+/** ---------------------------------------------------------------------------
+ * Various configuration modes
+ */
+#define _SHDEL                 0       /* microseconds to delay before readout to allow shutter to close */
+
+/** ---------------------------------------------------------------------------
+ * Configuration Modes for the Guider and Focus chips
+ */
+
+#define _GSER_CLOCK_DIR          RIGHT    /* SPLIT, LEFT, or RIGHT */
+#define _GPAR_CLOCK_DIR          UP       /* SPLIT, UP, or DOWN */
+#define _FPAR_CLOCK_DIR          UP       /* SPLIT, UP, or DOWN */
+
+
+/** ---------------------------------------------------------------------------
+ * CDS-Deinterlace options
+ */
+
+/* Break up the lines and pixels into prescan and overscan */
+#define _SKIP_LINES              0
+#define _SERIALPRESCAN           8  /* 8 extended prescan pixels on data sheet */
+#define _SERIALOVERSCAN         21  /* could be whatever number we want */
+#define _PARALLELOVERSCAN        0  /* 100 overscan */
+#define _IMAGEROWS            1540  /*1540*/  /* Number of rows in the active area, split */
+#define _IMAGECOLS            2064 /*2064*/ /*full number of columns 2093*//*2093*/  /* Number of columns in the active area */
+
+#defeval _LINES_PER_TAP        #eval _IMAGEROWS + _PARALLELOVERSCAN - _SKIP_LINES   /*1132*/
+#defeval _PIXELS_PER_TAP       #eval _IMAGECOLS + _SERIALPRESCAN + _SERIALOVERSCAN /*2172*/
+/*
+#define _LINES_PER_TAP          1132
+#define _PIXELS_PER_TAP         2172
+*/
+#define _FIRST_RESET_SAMPLE     75 
+#define _LAST_RESET_SAMPLE      80 
+#define _FIRST_VIDEO_SAMPLE     240
+#define _LAST_VIDEO_SAMPLE      245 
+#define _ARCHON_SAMPLE_MODE        1     /* 0=16bit, 1=32bit  */
+#define _ARCHON_FRAMEMODE          2     /* 0=top, 1=bottom, 2=split */
+#define _ARCHON_FRAMEBUFS          0     /* 0=3x512MB, 1=2x768MB, I.E. "BIGBUF" */
+
+#define _RAW_ENABLE                0     /* 0=no, 1=yes */
+#define _RAW_STARTLINE            50     /* first line of raw data, 0-65535 */
+#define _RAW_ENDLINE             100     /* last line of raw data, 0-65535 */
+#define _RAW_STARTPIXEL            0     /* first pixel of raw data, 0-65535 */
+#define _RAW_SAMPLES           10240     /* number of raw samples per line, 1024*(0-65535) */
+#define _RAW_SELECT                0     /* AD channel for raw data capture, 0-15 */
+
+/** ---------------------------------------------------------------------------
+ * Guider CDS-Deinterlace options
+ */
+#define _GLINES_PER_TAP           _LINES_PER_TAP  /*1540*//*1540 */
+#define _GPIXELS_PER_TAP          _PIXELS_PER_TAP /*2093*//*2093*/ 
+#define _GFIRST_RESET_SAMPLE       30
+#define _GLAST_RESET_SAMPLE        40
+#define _GFIRST_VIDEO_SAMPLE       80
+#define _GLAST_VIDEO_SAMPLE        90
+#define _GARCHON_SAMPLE_MODE        1     /* 0=16bit, 1=32bit  */
+#define _GARCHON_FRAMEMODE          0     /* 0=top, 1=bottom, 2=split */
+#define _GARCHON_FRAMEBUFS          0     /* 0=3x512MB, 1=2x768MB, I.E. "BIGBUF" */
+
+#define _GLINES_BIN_PER_TAP       516
+#define _GPIXELS_BIN_PER_TAP     1036
+
+#define _GRAW_ENABLE                0     /* 0=no, 1=yes */
+#define _GRAW_STARTLINE          2000     /* first line of raw data, 0-65535 */
+#define _GRAW_ENDLINE            2050     /* last line of raw data, 0-65535 */
+#define _GRAW_STARTPIXEL            0     /* first pixel of raw data, 0-65535 */
+#define _GRAW_SAMPLES           10240     /* number of raw samples per line, 1024*(0-65535) */
+#define _GRAW_SELECT                4     /* AD channel for raw data capture, 0-15 */
+
+/** ---------------------------------------------------------------------------
+ * Define guider clock voltage levels here (units are Volts)
+ */
+#define _GSER_CLOCK_LOW    -5.0
+#define _GSER_CLOCK_HIGH    8  /* Make these 8 for better sharpness */
+#define _GSER_CLOCK_RCV     8  /* Make these 8 for better sharpness */
+
+#define _GPAR_CLOCK_LOW    -9.0
+#define _GPAR_CLOCK_HIGH    2.0
+
+#define _GRG_CLOCK_LOW     -2.0
+#define _GRG_CLOCK_HIGH     10.0
+
+#define _GSW_CLOCK_LOW     -7
+#define _GSW_CLOCK_HIGH     5  /* Need to make this higher with GSER_CLOCK_HIGH? */
+
+#define _RG_CLOCK_HIGH	    10.0
+#define _RG_CLOCK_LOW	   -2.0
+
+
+/** ---------------------------------------------------------------------------
+ * Define clock slew rates here
+ * units are Volts per microsecond, range from 0.001 to 1000
+ */
+
+
+
+
+/** ---------------------------------------------------------------------------
+ * Define Levels for the Faux Signal we are creating (units are Volts)
+ */
+#define _RST_LEVELP              0.1
+#define _RST_LEVELN             -0.1
+
+#define _SIG_LEVEL1P            -0.40
+#define _SIG_LEVEL1N             0.40
+
+#define _SIG_LEVEL2P            -0.35
+#define _SIG_LEVEL2N             0.35
+
+#define _SIG_LEVEL3P            -0.30
+#define _SIG_LEVEL3N             0.30
+
+#define _SIG_LEVEL4P            -0.25
+#define _SIG_LEVEL4N             0.25
+
+#define _SIG_LEVEL5P            -0.20
+#define _SIG_LEVEL5N             0.20
+
+#define _SIG_LEVEL6P            -0.15
+#define _SIG_LEVEL6N             0.15
+
+#define _SIG_LEVEL7P            -0.10
+#define _SIG_LEVEL7N             0.10
+
+#define _SIG_LEVEL8P            -0.05
+#define _SIG_LEVEL8N             0.05
+
+#define _FAUX_ZERO               0.0
