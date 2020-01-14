@@ -89,7 +89,6 @@ SEQUENCE Start {
 }
 
 SEQUENCE WaitForExpose {
-  Abort--;
   if Expose DoExpose();
   Idling();
   
