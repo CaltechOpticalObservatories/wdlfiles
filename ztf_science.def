@@ -15,7 +15,7 @@
 
 #define _HOLD_BLACK_LEVEL_CLAMP  NONE    /* POS | NEG | BOTH | NONE -- "NONE" is fully differential */
 
-#define _SHDEL                   470       /* miliseconds to delay before readout to allow shutter to close */ /* Add to 30 ms to turn the amps back on so we have a total delay time of 500 ms for shutter close */
+#define _SHDEL                   70 /*70*/       /* miliseconds to delay before readout to allow shutter to close */ /* Add to 30 ms to turn the amps back on so we have a total delay time of 500 ms for shutter close */
 
 /** ---------------------------------------------------------------------------
  * CDS-Deinterlace options
@@ -24,7 +24,7 @@
 #define _SKIP_LINES               0 /*0*/
 #define _SERIALPRESCAN           50
 #define _SERIALOVERSCAN          30 /*150*/
-#define _PARALLELOVERSCAN        0  /*100*/
+#define _PARALLELOVERSCAN         0 /*100*/
 #defeval _IMAGEROWS              #eval 6160/2  /* Value from CCD data sheet (quadrant) */
 #defeval _IMAGECOLS              #eval 6144/2  /* Value from CCD data sheet (quadrant) */
 #defeval _IDLE_LINES             #eval _SKIP_LINES + _IMAGEROWS
@@ -42,15 +42,15 @@
 
 #define CDSWINDOW                 18 /*20*/
 
-#define PixelT       84 /* Full pixel time */
+#define PixelT       99 /* Full pixel time */
 #define RGsettleT    17 /*32*/  /* Settling Time for the reset gate 310ns */ /* Static */ /* Used in CDS Window calculation */ /* Shifted to 1 less from previous */
 #define SWsettleT    16 /*32*/  /* Settling Time for charge dump    310ns */ /* Static */ /* Used in CDS Window calculation */ /* Shifted to 1 less from previous */
 
 
 
-#define _FIRST_RESET_SAMPLE      #eval RGsettleT              /*#eval _LAST_RESET_SAMPLE - CDSWINDOW */
+#define _FIRST_RESET_SAMPLE      /*#eval RGsettleT*/ #eval PixelT/2 - 1 - 20 /*#eval _LAST_RESET_SAMPLE - CDSWINDOW */
 #define _LAST_RESET_SAMPLE       #eval PixelT/2 - 1           /*50*/ /* Shifted to 2 less sample from previous */
-#define _FIRST_VIDEO_SAMPLE      #eval PixelT/2 - 1 + SWsettleT   /*#eval _LAST_VIDEO_SAMPLE - CDSWINDOW*/
+#define _FIRST_VIDEO_SAMPLE      /*#eval PixelT/2 - 1 + SWsettleT*/ #eval PixelT -2 - 20 /*#eval _LAST_VIDEO_SAMPLE - CDSWINDOW*/
 #define _LAST_VIDEO_SAMPLE       #eval PixelT - 2             /*100*/ /* Shifted to 2 less sample from previous */
 
 #define _ARCHON_SAMPLE_MODE        1     /* 0=16bit, 1=32bit  */
@@ -62,7 +62,7 @@
 #define _RAW_ENDLINE              10     /* last line of raw data, 0-65535 */
 #define _RAW_STARTPIXEL            0
 #define _RAW_SAMPLES           25600
-#define _RAW_SELECT               3 /* AD channel for raw data capture, 0-15 */
+#define _RAW_SELECT               0 /* AD channel for raw data capture, 0-15 */
 
 /** ---------------------------------------------------------------------------
  * Define clock voltage levels here (units are Volts)
@@ -73,34 +73,35 @@
  * bias and clock levels with respect to parallel clock level low               */
 
 /* Clocks */
-#define _SER_CLOCK_LOW       0.0
-#define _SER1_CLOCK_LOW      0.0
-#define _SER2_CLOCK_LOW      0.0
-#define _SER3_CLOCK_LOW      0.0
-#define _SER1_CLOCK_HIGH    12.0 /* 9.0*/
-#define _SER2_CLOCK_HIGH    12.0 /*10.0*/
-#define _SER3_CLOCK_HIGH    12.0 /*12.5*/
-#define _SER_CLOCK_HIGH    12.0 /*10.0*/
+#define _SER_CLOCK_LOW     -3.0
+#define _SER1_CLOCK_LOW    -3.0
+#define _SER2_CLOCK_LOW    -3.0
+#define _SER3_CLOCK_LOW    -3.0
+#define _SER1_CLOCK_HIGH    9.0 /* 9.0*/
+#define _SER2_CLOCK_HIGH    9.0 /*10.0*/
+#define _SER3_CLOCK_HIGH    9.0 /*12.5*/
+#define _SER_CLOCK_HIGH     9.0 /*10.0*/
 
-#define _SER_CLOCK_RCV     13.0 /*10.0*/
+#define _SER_CLOCK_RCV      9.0 /*10.0*/
 
-#define _PAR_CLOCK_IDLE_LOW   -8.0
-#define _PAR_CLOCK_IDLE_HIGH   3.0
+#define _PAR_CLOCK_IDLE_LOW   -7.8
+#define _PAR_CLOCK_IDLE_HIGH   2.6 /*3.0*/
 
 #define _PAR_CLOCK_EXP_LOW     0.0
 #define _PAR_CLOCK_EXP_HIGH   10.0
-#define _PAR_CLOCK_LOW        -8.0
-#define _PAR_CLOCK_HIGH        3.0
-#define _PAR_CLOCK_HIGHEST     3.0
+#define _PAR_CLOCK_LOW        -7.8
+#define _PAR_CLOCK_HIGH        2.6 /*3.0*/
+#define _PAR_CLOCK_HIGHEST     2.6 /*3.0*/
 
-#define _PAR_LASTGATE_HIGH    9.0
+#define _PAR_LASTGATE_HIGH    3.1
 
-#define _TG_CLOCK_LOW      -8.0
-#define _TG_CLOCK_HIGH      12.0
+#define _TG_CLOCK_LOW       -8.2 /* Tests show -8.2V helps eliminate spillage */
+#define _TG_CLOCK_HIGH       9.0
 
 #define _SW_CLOCK_LOW       0.0
 #define _SW_CLOCK_HIGH     12.0 /*10.0*/
 
+#define _SER_TRENCH_HIGH   5.0
 /* Biases */
 #defeval _RESET_DRAIN      #eval _PAR_CLOCK_LOW+18
 #define _OUTPUT_GATE       #eval _PAR_CLOCK_LOW +  2.5
@@ -167,5 +168,9 @@
 #define _DGLow                   0
 
 /* Create output drain high and low levels */
-#define _ODHigh                30.5  /* This is the OD value */
-#define _ODLow                 15    /* This is the min of OD from data sheet */
+#define _ODHigh                31  /* This is the OD value */
+#define _ODLow                 23    /* This is the min of OD from data sheet */
+
+/* Create output gate high and nominal levels */
+#define _gateOGHigh                5
+#define _gateOGNom                 1.5

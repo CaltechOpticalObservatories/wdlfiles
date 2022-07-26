@@ -69,6 +69,12 @@
 #define RDE2     9 : 11 /* Reset Drain amplifier E CCD 2                */
 #define RDF2     9 : 12 /* Reset Drain amplifier F CCD 2                */
 #define RDH4     9 : 13 /* Reset Drain amplifier H CCD 4                */
+/* New */
+#define OG1      9 : 14 /* Output gate CCD 1                            */
+#define OG2      9 : 15 /* Output gate CCD 2                            */
+#define OG3      9 : 16 /* Output gate CCD 3                            */
+#define OG4      9 : 17 /* Output gate CCD 4                            */
+/* End new */
 #define DG34     9 : 22 /* Dump gate for CCDs 3 and 4                   */
 #define DG12     9 : 24 /* Dump gate for CCDs 1 and 2                   */
 #define RDE1     9 : 19 /* Reset Drain amplifier E CCD 1                */

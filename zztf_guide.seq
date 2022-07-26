@@ -66,7 +66,7 @@ SEQUENCE Start {
   
   GroundBLC();
   ADClamp();
-  Wait1us();
+  Wait1us(10); /*Wait1us();*/
   OpenBLC();
   /*ADClamp_();*/ /* Comment in */
   /*OpenBLC();*/  /* Uncomment  */
@@ -115,6 +115,11 @@ SEQUENCE DoExpose {
   DoShutterDelay();
   
   if exptime DoShutterDelay(84); /**/
+
+  Wait1ms(30);      /* Delay time of wOG in science acf trench */
+  Wait1us();        /* Delay for trench commands */
+  Wait10ns(15);    /* Delay for trench commands */
+
 
   /* Comment out for triggered readout */
   DoSimultaneousReadOut();
@@ -213,10 +218,11 @@ SEQUENCE Idling {
   Wait1us();
   GroundBLC();
   ADClamp();
-  Wait1us();
+  Wait1us(10); /*Wait1us();*/
   OpenBLC();
   ADClamp_();
-  Wait10ns(358);
+  Wait10ns(452); /* 0.84us timing Wait10ns(358);*/
+  Wait1us(7); /* just for 1.11us timing */
   /*Wait1ms(2);
   Wait1us(583);
   Wait10ns(67);*/
@@ -242,7 +248,7 @@ SEQUENCE DoGuideReadout {
   Wait1us();
   GroundBLC();
   ADClamp();
-  Wait1us();
+  Wait1us(10); /*Wait1us();*/
   OpenBLC();
   ADClamp_();
   wFrame();
@@ -260,7 +266,7 @@ SEQUENCE DoGuider {
   Wait1us();
   GroundBLC();
   ADClamp();
-  Wait1us();
+  Wait1us(10); /*Wait1us();*/
   OpenBLC();
   ADClamp_();
   return;
@@ -280,7 +286,7 @@ SEQUENCE DoSimultaneousReadOut {
   Readout--;
   /*Wait10ns(265475);*/ /**/ /*extra Delay*/
   /*Wait10ns(Delay_FrameStart);*/  /* Number matches initial sweepout in science */
-  Wait10ns(264768);    /* Same timing as TPixel(3152) in science acf */
+  Wait10ns(312048); /* 0.84 timing Wait10ns(264768);*/    /* Same timing as TPixel(3152) in science acf */
   FGSerialReceiving(); /* This equals SerialReceiving */
   Wait10ns(5);
 
@@ -290,7 +296,7 @@ SEQUENCE DoSimultaneousReadOut {
 
   GroundBLC();
   ADClamp();
-  Wait1us();
+  Wait1us(10); /*Wait1us();*/
   OpenBLC();
   ADClamp_();
   
@@ -313,6 +319,9 @@ SEQUENCE DoSimultaneousReadOut {
   MilliSec(30);  /**/  /* Wait to match wOutAmpsHigh in science acf */
   Wait10ns(); /**/
   /* Comment out for triggered readout */
+  Wait1ms(30);      /* Delay time of wOG in science acf trench */
+  Wait10ns(96);    /* Delay for trench commands */
+
   return; /**/  /***/
   /* end comment out */
   /*GOTO StateZero();*/ /* uncomment for trig readout */
@@ -336,11 +345,12 @@ SEQUENCE DoSimultaneousFocus {
   /*Wait10ns();*/
   GroundBLC();
   ADClamp();
-  Wait1us();
+  Wait1us(19); /*Wait1us();*/ /* To keep at 2x pixel, needs 99 instead of 50*/
   OpenBLC();
   ADClamp_();
   /*Wait10ns(Delay_LTStart);*/
-  Wait10ns(358);
+  Wait1us(1);    /* just for 111 pix */
+  Wait10ns(632); /* normally 358 for 0.84 pix */
   return;
 }
 SEQUENCE DoFocus {
@@ -353,7 +363,7 @@ SEQUENCE DoFocus {
   Wait1us();
   GroundBLC();
   ADClamp();
-  Wait1us();
+  Wait1us(10); /*Wait1us();*/
     OpenBLC();                 
   ADClamp_();
   return;
@@ -371,7 +381,7 @@ SEQUENCE DoGuiding{
   Wait1us();
   GroundBLC();
   ADClamp();
-  Wait1us();
+  Wait1us(10); /*Wait1us();*/
   OpenBLC();
   ADClamp_();
   GParallelTopOnly(G_PreFlush);
@@ -395,7 +405,7 @@ SEQUENCE GuideRowROI{
   Wait1us(10);
   GroundBLC();
   ADClamp();
-  Wait1us();
+  Wait1us(10); /*Wait1us();*/
   OpenBLC();
   ADClamp_();
   return;

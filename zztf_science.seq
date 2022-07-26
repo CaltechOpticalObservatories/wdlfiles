@@ -79,28 +79,30 @@ SEQUENCE Start {
   wUnsetReset();
 
   /*GroundBLC();
-  Wait1us(100);
+  Wait1us(50);
   OpenBLC();
   ADClamp();
-  Wait1us(100);
+  Wait1us(50);
   ADClamp_();*/
 
   GroundBLC();
   ADClamp();
-  Wait1us();
+  Wait1us(10);
   OpenBLC();
   ADClamp_();
 
   Idling(); /*Idling(IdleLines);*/                 /* clears the residual badness */
   Idling(); /*Idling(IdleLines);*/
-  wOutAmpsLow();  /* Turn off the on-chip amps before waiting for exposure */
+  wOutAmpsLow(); /* smeared mode Leave amps on*/  /* Turn off the on-chip amps before waiting for exposure */
+  /*wOutAmpsHigh();*/ /* For smeared charge, leave the amps in high (on) state */
+  /*wOpenShutter();*/ /* This is for smeared charge Leave the shutter open for the full exposure */
 }
 
 SEQUENCE WaitForExpose {
   Abort--;
   /*if Expose GOTO DoExpose();*/
   if Expose DoExpose(); /* Use this for direct readout */
-  Idling();
+  Idling(); /* 3710 for charge smearing This keeps clocking charge while we're transferring data */
 
   /* This is only for a test shutter signal */
   /*wOpenShutter();
@@ -108,7 +110,7 @@ SEQUENCE WaitForExpose {
   wCloseShutter();*/
   /* End test shutter signal */
   
-  /*wCloseShutter();*/ /* For ramped illumination */
+  /*wCloseShutter();*/ /* chrage smearing For ramped illumination when all is done */
   /*DoScienceReadout();*/  /***/
   /*return;*/              /***/
   GOTO WaitForExpose();
@@ -134,26 +136,39 @@ SEQUENCE Idling {
   SerialReceiving();
 
   /* Do a reset sequence */
-  wReset();
-  Wait1us();
-  wUnsetReset();
+  /* Take this out to keep reset gate high */
+  wReset();      
+  Wait1us();     
+  wUnsetReset(); 
 
   /*GroundBLC();
-  Wait1us(100);
+  Wait1us(50);
   OpenBLC();
   ADClamp();
-  Wait1us(100);
+  Wait1us(50);
   ADClamp_();*/
 
   
   GroundBLC();
   ADClamp();
-  Wait1us();
+  Wait1us(10);
   OpenBLC();
   ADClamp_();
 
   return;
 }
+
+/** ---------------------------------------------------------------------------
+ * @fn     DoExpose for streaked readout
+ * @brief  start an exposure
+ *
+ */
+/*SEQUENCE DoExpose {
+/*  wOpenShutter();
+/*  Expose--;  /* Decrement the number of exposures */
+/*  DoScienceReadout();
+/*  return;
+/*}*/
 
 /** ---------------------------------------------------------------------------
  * @fn     DoExpose
@@ -190,9 +205,15 @@ SEQUENCE DoExpose {
   ReadyForReadout();         /* Get charge ready to read out           */
 
   /* This will disable the dump gate for proper readout */
-  /*wDumpGateOff();  */
+  /*wDumpGateOff();    */
   /*SerialReceiving(); */
   /* End disable the dump gate */
+  /* Disable trench, analog to disable dump gate */
+  /*wUnsetReset();     */ /* Reset off going back to readout mode */
+  /*wUnsetSW();        */
+  /*wOGNom();          */
+  /*SerialReceiving(); */
+  /* End analog to disable dump gate */
 
   /* Comment out for the shutter phase test */
   Wait1us(849);
@@ -200,7 +221,13 @@ SEQUENCE DoExpose {
   /*wIdle(54);*/    /* For dump gate included */
   if exptime DoShutterDelay(84);  /* Down to 64 when dump gate included */
 
-
+  /* Disable trench, analog to disable dump gate */
+  /* Keep trench mode until shutter is fully closed so disable here */
+  wUnsetReset();     /* Reset off going back to readout mode */
+  wUnsetSW();        
+  wOGNom();          
+  SerialReceiving(); 
+  /* End analog to disable dump gate */
   /* Clamp the signals now and will unclamp just before reading out */
   /* Comment out for triggered readout */
   DoScienceReadout();
@@ -217,6 +244,11 @@ SEQUENCE OpenShutter {
 
 SEQUENCE MilliSec {
   Wait1ms();	/* This is a placeholder 1ms routine - Need to fix up */
+
+  /*TPixel(3152);     */ /* Always clocking out to prevent backstreaming     */
+  /*wAllSerialHigh(); */ /* Make the serials high to collect charge */
+  /*Wait1us(100);     */
+  /*wAllSerialLow();  */ /* Force charge into the dump gate again */
 
   /* This section is for the shutter open/close test */
   /* make exptime = 3 seconds and we'll see where we are */
@@ -280,15 +312,15 @@ SEQUENCE DoScienceReadout {
   wUnsetReset();  /* Do we move this until the end of the BLC and ADC Clamps? */
 
   /*GroundBLC();
-  Wait1us(100);
+  Wait1us(50);
   OpenBLC();
   ADClamp();
-  Wait1us(100);
+  Wait1us(50);
   ADClamp_();*/
 
   GroundBLC();    /* Is this correct order for BLC and ADC clamp, does order matter? */
   ADClamp();
-  Wait1us();
+  Wait1us(10); /*Wait1us();*/
   OpenBLC();
   ADClamp_();
   
@@ -305,17 +337,26 @@ SEQUENCE DoScienceReadout {
   /*TPixel(3152);       */ /****/ /* For first line test */
   /*ScienceRead(3079);  */ /****/ /* For first line test */
   ScienceRead(3080); /****/ /* For first line test (commented out) */
+  /*ScienceRead(SplitLines);*/ /***/ /* This is just for the non-overlapping clocks */
   SerialReceiving();   /* Put serial clocks in ready for charge state after readout */                                                               /*   0.21 us*/
   /*return;*/
   /* Clamp before turning amp off */
   /*GroundBLC();*/    /* Is this correct order for BLC and ADC clamp, does order matter? */
   /*ADClamp();*/
-  
+
+  /* Don't turn Amps Off smear mode */
   wOutAmpsLow(); /***/  /* Turn the amps down when in idle */
   /* This will enable the dump gate */
-  /*wDumpGateOn();  */  /* Can take these out, they don't really help */
-  /*wAllSerialLow();*/  /* Can take these out, they don't really help */
+  /*wDumpGateOn();   */ /* Can take these out, they don't really help */
+  /*wAllSerialLow(); */ /* Can take these out, they don't really help */
   /* End enable the dump gate */
+  /* Enabling the trench. Analog to enabling the dump gate */
+  /* Don't do any trench stuff */
+  wReset();         
+  wsetSW();         
+  wAllSerialHigh(); 
+  wOGHigh();        
+  /* End enabling the trench. Analog to enabling dump gate */
   /* Comment out for triggered readout */
   return;   /***/
   /* end comment out */
@@ -334,8 +375,9 @@ SEQUENCE ScienceRead {
   /* The first pixel is a junk pixel and then we get the dark pixels, not sure why */
   /* To avoid the junk pixel try putting in one PixelShift before reading pixels */
   /* PixelShift is the same as TPixel except no control signals, therefore, no conversion */
-  /*InitialClock2Low();
-    TPixel(Pixels);*/
+  /*InitialClock2Low();*/
+  /*  TPixel(Pixels);*/
+  /*SlowSerialOutputClocking(Pixels);*/
 
   SerialReceiving();  /* This puts phase 1 and 2 high and reset gate high */
   /* Need a final reset so that we clamp on a reset level and not
@@ -345,9 +387,16 @@ SEQUENCE ScienceRead {
   wUnsetReset();  /* Do we move this until the end of the BLC and ADC Clamps? */
   GroundBLC();    /* Is this correct order for BLC and ADC clamp, does order matter? */
   ADClamp();
-  Wait1us();
+  Wait1us(10);
   OpenBLC();
   ADClamp_();
+
+  /*GroundBLC();
+  Wait1us(50);
+  OpenBLC();
+  ADClamp();
+  Wait1us(50);
+  ADClamp_();*/
 
   return;
 }

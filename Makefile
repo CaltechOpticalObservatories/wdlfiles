@@ -22,7 +22,7 @@
 
 GPP       = /usr/local/bin/gpp
 WDLPATH   = /home/ztf/Software/wdl
-ACFPATH   = /home/ztf/Software/acf
+ACFPATH   = /home/ztf/wdlfiles
 
 PLOT      = False   # show waveform plots by default, True | False
 GFLAGS    = +c "/*" "*/" +c "//" "\n" +c "\\\n" ""

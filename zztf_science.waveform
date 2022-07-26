@@ -164,6 +164,12 @@ WAVEFORM wAllSerialLow {
                         SET SClock3 TO _SER_CLOCK_LOW, FAST;
 }                        
 
+WAVEFORM wAllSerialHigh {
+ 0:                     SET SClock1 TO _SER_TRENCH_HIGH, FAST;
+                        SET SClock2 TO _SER_TRENCH_HIGH, FAST;
+                        SET SClock3 TO _SER_TRENCH_HIGH, FAST;
+}                        
+
 WAVEFORM SerialReceiving {
  0:			SET SClock2 TO _SER_CLOCK_RCV, FAST;
 			SET SClock1 TO _SER_CLOCK_RCV, FAST;
@@ -402,6 +408,13 @@ WAVEFORM wUnsetReset {
  0:                     SET PhiR              TO PhiRLow;
 }
 
+WAVEFORM wsetSW {
+ 0:                     SET SWClock           TO _SW_CLOCK_HIGH, FAST;
+}
+
+WAVEFORM wUnsetSW {
+ 0:                     SET SWClock           TO _SW_CLOCK_LOW, FAST;
+}
 
 WAVEFORM LeftSerialOutputClocking {
  0:			SET LeftSClock2       TO _SER_CLOCK_LOW, FAST;
@@ -1024,6 +1037,20 @@ WAVEFORM wDumpGateOff {
  0:                     SET DG12    TO _DGLow;
   .+10ms:               SET DG34    TO _DGLow;
   .+10ms:               RETURN;
+}
+
+WAVEFORM wOGHigh {
+ 0:                     SET OG1     TO _gateOGHigh;
+  .+10ms:               SET OG2     TO _gateOGHigh;
+  .+10ms:               SET OG3     TO _gateOGHigh;
+  .+10ms:               SET OG4     TO _gateOGHigh;
+}
+
+WAVEFORM wOGNom {
+ 0:                     SET OG1     TO _gateOGNom;
+  .+10ms:               SET OG2     TO _gateOGNom;
+  .+10ms:               SET OG3     TO _gateOGNom;
+  .+10ms:               SET OG4     TO _gateOGNom;
 }
 
 /* The new voltage doesn't take effect for about 10 ms */

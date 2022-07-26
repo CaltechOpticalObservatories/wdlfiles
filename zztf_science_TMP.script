@@ -6,17 +6,17 @@ Abort=0
 TrigLowThisLine=1
 ShutterEnable=1
 RoiReadout=0
-shutdelay=470
+shutdelay=70
 SweepCount=0
 SerialPrescan=50
-SerialOverscan=150
-ParallelOverscan=100
+SerialOverscan=30
+ParallelOverscan=0
 ImageCols=3072
 ImageRows=3080
-SplitLines=3180
-Lines=3180
-Pixels=3272
-PxByFour=818
+SplitLines=3080
+Lines=3080
+Pixels=3152
+PxByFour=788
 IdleLines=3080
 FullPixels=6244
 ST=19
@@ -27,8 +27,8 @@ SWL=30
 SHP=30
 SHD=30
 FauxFlag=0
-FauxPixels=3272
-FauxLines=3180
+FauxPixels=3152
+FauxLines=3080
 PartialLines=385
 MedLines=385
 LowLines=385
@@ -56,41 +56,38 @@ STATE000; CALL Wait1us                                       #      4    50128
 STATE000; CALL wUnsetReset                                   #      5    50130
 STATE000; CALL GroundBLC                                     #      6    50132
 STATE000; CALL ADClamp                                       #      7    50134
-STATE000; CALL Wait1us                                       #      8    50235
-STATE000; CALL OpenBLC                                       #      9    50237
-STATE000; CALL ADClamp_                                      #     10    50239
-STATE000; CALL Idling(IdleLines)                             #     11   327437
-STATE000; CALL wOutAmpsLow                                   #     12  3327439
+STATE000; CALL Wait1us(10)                                   #      8    51135
+STATE000; CALL OpenBLC                                       #      9    51137
+STATE000; CALL ADClamp_                                      #     10    51139
+STATE000; CALL Idling                                        #     11   368437
+STATE000; CALL Idling                                        #     12   685735
+STATE000; CALL wOutAmpsHigh                                  #     13  3685737
+STATE000; CALL wOpenShutter                                  #     14  3685739
 WaitForExpose: # sequence
 STATE000; Abort--                                            #      1        2
-STATE000; if Expose CALL DoExpose                            #      2  6255799
-STATE000; CALL Idling                                        #      3  6532997
-STATE000; GOTO WaitForExpose                                 #      4  6532998
+STATE000; if Expose CALL DoExpose                            #      2 980594150
+STATE000; CALL Idling(3710)                                  #      3 2157766021
+STATE000; GOTO WaitForExpose                                 #      4 2157766022
 WaitForReadout: # sequence
-STATE000; if Readout CALL DoScienceReadout                   #      0  3055782
-STATE000; GOTO WaitForReadout                                #      1  3055783
+STATE000; if Readout CALL DoScienceReadout                   #      0 980594142
+STATE000; GOTO WaitForReadout                                #      1 980594143
 Idling: # sequence
-STATE000; CALL ReadLineConcurrently                          #      0   276960
-STATE000; CALL SerialReceiving                               #      1   276982
-STATE000; CALL wReset                                        #      2   276984
-STATE000; CALL Wait1us                                       #      3   277085
-STATE000; CALL wUnsetReset                                   #      4   277087
-STATE000; CALL GroundBLC                                     #      5   277089
-STATE000; CALL ADClamp                                       #      6   277091
-STATE000; CALL Wait1us                                       #      7   277192
-STATE000; CALL OpenBLC                                       #      8   277194
-STATE000; CALL ADClamp_                                      #      9   277196
-STATE000; RETURN Idling                                      #     10   277197
+STATE000; CALL ReadLineConcurrently                          #      0   316160
+STATE000; CALL SerialReceiving                               #      1   316182
+STATE000; CALL wReset                                        #      2   316184
+STATE000; CALL Wait1us                                       #      3   316285
+STATE000; CALL wUnsetReset                                   #      4   316287
+STATE000; CALL GroundBLC                                     #      5   316289
+STATE000; CALL ADClamp                                       #      6   316291
+STATE000; CALL Wait1us(10)                                   #      7   317292
+STATE000; CALL OpenBLC                                       #      8   317294
+STATE000; CALL ADClamp_                                      #      9   317296
+STATE000; RETURN Idling                                      #     10   317297
 DoExpose: # sequence
-STATE000; Expose--                                           #      1        2
-STATE000; CALL SetParallelExpose                             #      2        4
-STATE000; if ShutterEnable CALL OpenShutter                  #      3        8
-STATE000; if exptime CALL MilliSec(exptime)                  #      4   100009
-STATE000; CALL wCloseShutter                                 #      5   100011
-STATE000; CALL wOutAmpsHigh                                  #      6  3100013
-STATE000; if exptime CALL DoShutterDelay(shutdelay)          #      7  3200013
-STATE000; CALL DoScienceReadout                              #      8  6255795
-STATE000; RETURN DoExpose                                    #      9  6255796
+STATE000; CALL wOpenShutter                                  #      0        2
+STATE000; Expose--                                           #      2        4
+STATE000; CALL DoScienceReadout                              #      3 980594146
+STATE000; RETURN DoExpose                                    #      4 980594147
 OpenShutter: # sequence
 STATE000; if exptime CALL wOpenShutter                       #      0        2
 STATE000; RETURN OpenShutter                                 #      1        3
@@ -115,38 +112,37 @@ STATE000; if SLeft CALL LeftSerialOutputClocking(Pixels)     #      6   140398
 STATE000; RETURN DoFlush                                     #      7   140399
 DoScienceReadout: # sequence
 STATE000; Readout--                                          #      1        2
-STATE000; CALL SetParallelTransfer                           #      2        4
-STATE000; CALL SetParallelTransferConcurrent                 #      3     5006
-STATE000; CALL TPixel(Pixels)                                #      4     5091
-STATE000; CALL SerialReceiving                               #      5     5113
-STATE000; CALL wReset                                        #      6     5115
-STATE000; CALL Wait1us                                       #      7     5216
-STATE000; CALL wUnsetReset                                   #      8     5218
-STATE000; CALL GroundBLC                                     #      9     5220
-STATE000; CALL ADClamp                                       #     10     5222
-STATE000; CALL Wait1us                                       #     11     5323
-STATE000; CALL OpenBLC                                       #     12     5325
-STATE000; CALL ADClamp_                                      #     13     5327
-STATE000; CALL wFrame                                        #     14     5329
-STATE000; CALL ScienceRead(SplitLines)                       #     15    55756
-STATE000; CALL SerialReceiving                               #     16    55778
-STATE000; CALL wOutAmpsLow                                   #     17  3055780
-STATE000; RETURN DoScienceReadout                            #     18  3055781
+STATE000; CALL TPixel(3152)                                  #      2   312051
+STATE000; CALL SerialReceiving                               #      3   312073
+STATE000; CALL wReset                                        #      4   312075
+STATE000; CALL Wait1us                                       #      5   312176
+STATE000; CALL wUnsetReset                                   #      6   312178
+STATE000; CALL GroundBLC                                     #      7   312180
+STATE000; CALL ADClamp                                       #      8   312182
+STATE000; CALL Wait1us(10)                                   #      9   313183
+STATE000; CALL OpenBLC                                       #     10   313185
+STATE000; CALL ADClamp_                                      #     11   313187
+STATE000; CALL wFrame                                        #     12   313189
+STATE000; CALL ScienceRead(3080)                             #     13 977594110
+STATE000; CALL SerialReceiving                               #     14 977594132
+STATE000; CALL wReset                                        #     15 977594134
+STATE000; CALL wsetSW                                        #     16 977594136
+STATE000; CALL wAllSerialHigh                                #     17 977594138
+STATE000; CALL wOGHigh                                       #     18 980594140
+STATE000; RETURN DoScienceReadout                            #     19 980594141
 ScienceRead: # sequence
-STATE000; CALL SynchedLineTransfer                           #      0    50001
-STATE000; CALL wLine                                         #      1    50003
-STATE000; CALL InitialClock2Low                              #      2    50104
-STATE000; CALL TPixel(Pixels)                                #      3    50189
-STATE000; CALL SerialReceiving                               #      4    50211
-STATE000; CALL wReset                                        #      5    50213
-STATE000; CALL Wait1us                                       #      6    50314
-STATE000; CALL wUnsetReset                                   #      7    50316
-STATE000; CALL GroundBLC                                     #      8    50318
-STATE000; CALL ADClamp                                       #      9    50320
-STATE000; CALL Wait1us                                       #     10    50421
-STATE000; CALL OpenBLC                                       #     11    50423
-STATE000; CALL ADClamp_                                      #     12    50425
-STATE000; RETURN ScienceRead                                 #     13    50426
+STATE000; CALL wLine                                         #      0        2
+STATE000; CALL ReadLineConcurrently                          #      1   316162
+STATE000; CALL SerialReceiving                               #      2   316184
+STATE000; CALL wReset                                        #      3   316186
+STATE000; CALL Wait1us                                       #      4   316287
+STATE000; CALL wUnsetReset                                   #      5   316289
+STATE000; CALL GroundBLC                                     #      6   316291
+STATE000; CALL ADClamp                                       #      7   316293
+STATE000; CALL Wait1us(10)                                   #      8   317294
+STATE000; CALL OpenBLC                                       #      9   317296
+STATE000; CALL ADClamp_                                      #     10   317298
+STATE000; RETURN ScienceRead                                 #     11   317299
 LineOutA: # sequence
 STATE000; CALL fastTGa                                       #      0     1002
 STATE000; CALL FastSerialOutputClocking(PxByFour)            #      1     1105
@@ -158,17 +154,17 @@ STATE000; CALL step3a                                        #      6     1317
 STATE000; CALL FastSerialOutputClocking(PxByFour)            #      7     1420
 STATE000; RETURN LineOutA                                    #      8     1421
 ReadLineConcurrently: # sequence
-STATE000; CALL LoadSerialRegister                            #      0     2001
-STATE000; CALL InitialClock2Low                              #      1     2102
-STATE000; CALL P23to34                                       #      2     2187
-STATE000; CALL TPixel(817)                                   #      3    70816
-STATE000; CALL P34to41                                       #      4    70901
-STATE000; CALL TPixel(817)                                   #      5   139530
-STATE000; CALL P41to12                                       #      6   139615
-STATE000; CALL TPixel(817)                                   #      7   208244
-STATE000; CALL P12to23                                       #      8   208329
-STATE000; CALL TPixel(817)                                   #      9   276958
-STATE000; RETURN ReadLineConcurrently                        #     10   276959
+STATE000; CALL LoadSerialRegister                            #      0     4001
+STATE000; CALL InitialClock2Low                              #      1     4102
+STATE000; CALL P23to34                                       #      2     4202
+STATE000; CALL TPixel(787)                                   #      3    82116
+STATE000; CALL P34to41                                       #      4    82216
+STATE000; CALL TPixel(787)                                   #      5   160130
+STATE000; CALL P41to12                                       #      6   160230
+STATE000; CALL TPixel(787)                                   #      7   238144
+STATE000; CALL P12to23                                       #      8   238244
+STATE000; CALL TPixel(787)                                   #      9   316158
+STATE000; RETURN ReadLineConcurrently                        #     10   316159
 DoRoiScienceReadout: # sequence
 STATE000; RoiReadout--                                       #      1        2
 STATE000; CALL SerialReceiving                               #      2       24
@@ -214,351 +210,386 @@ wParallelInversion: # waveform
 STATE005; RETURN wParallelInversion                          #      0        1
 wAllSerialLow: # waveform
 STATE006; RETURN wAllSerialLow                               #      0        1
+wAllSerialHigh: # waveform
+STATE007; RETURN wAllSerialHigh                              #      0        1
 SerialReceiving: # waveform
-STATE007; STATE000(19)                                       #     19       20
-STATE008; RETURN SerialReceiving                             #     20       21
+STATE008; STATE000(19)                                       #     19       20
+STATE009; RETURN SerialReceiving                             #     20       21
 OldSerialOutputClocking: # waveform
-STATE009; STATE000(19)                                       #     19       20
-STATE008; STATE000(9)                                        #     29       30
-STATE010; STATE000(9)                                        #     39       40
-STATE011;                                                    #     40       41
-STATE012;                                                    #     41       42
-STATE013; STATE000(59)                                       #    101      102
-STATE014; STATE000(59)                                       #    161      162
-STATE015; RETURN OldSerialOutputClocking                     #    162      163
+STATE010; STATE000(19)                                       #     19       20
+STATE009; STATE000(9)                                        #     29       30
+STATE011; STATE000(9)                                        #     39       40
+STATE012;                                                    #     40       41
+STATE013;                                                    #     41       42
+STATE014; STATE000(59)                                       #    101      102
+STATE015; STATE000(59)                                       #    161      162
+STATE016; RETURN OldSerialOutputClocking                     #    162      163
 SerialOutputClocking: # waveform
-STATE009; STATE000(19)                                       #     19       20
-STATE008; STATE000(9)                                        #     29       30
-STATE010; STATE000(9)                                        #     39       40
-STATE011;                                                    #     40       41
-STATE012;                                                    #     41       42
-STATE013; STATE000(59)                                       #    101      102
-STATE014; STATE000(58)                                       #    160      161
+STATE010; STATE000(19)                                       #     19       20
+STATE009; STATE000(9)                                        #     29       30
+STATE011; STATE000(9)                                        #     39       40
+STATE012;                                                    #     40       41
+STATE013;                                                    #     41       42
+STATE014; STATE000(59)                                       #    101      102
+STATE015; STATE000(58)                                       #    160      161
 STATE000; RETURN SerialOutputClocking                        #    161      162
 SlowSerialOutputClocking: # waveform
 STATE000; STATE000                                           #      1        2
-STATE012;                                                    #      2        3
-STATE013; STATE000(199)                                      #    202      203
-STATE016; STATE000(199)                                      #    402      403
-STATE017; STATE000(199)                                      #    602      603
-STATE008; STATE000(199)                                      #    802      803
-STATE018; STATE000(199)                                      #   1002     1003
-STATE019; STATE000(199)                                      #   1202     1203
-STATE020; STATE000(199)                                      #   1402     1403
-STATE011; STATE000(199)                                      #   1602     1603
-STATE021; STATE000(199)                                      #   1802     1803
-STATE022; STATE000(199)                                      #   2002     2003
-STATE023; STATE000(199)                                      #   2202     2203
-STATE015; RETURN SlowSerialOutputClocking                    #   2203     2204
+STATE013;                                                    #      2        3
+STATE014; STATE000(199)                                      #    202      203
+STATE017; STATE000(199)                                      #    402      403
+STATE018; STATE000(199)                                      #    602      603
+STATE009; STATE000(199)                                      #    802      803
+STATE019; STATE000(199)                                      #   1002     1003
+STATE020; STATE000(199)                                      #   1202     1203
+STATE021; STATE000(199)                                      #   1402     1403
+STATE012; STATE000(199)                                      #   1602     1603
+STATE022; STATE000(199)                                      #   1802     1803
+STATE023; STATE000(199)                                      #   2002     2003
+STATE024; STATE000(199)                                      #   2202     2203
+STATE016; RETURN SlowSerialOutputClocking                    #   2203     2204
 FastSerialOutputClocking: # waveform
-STATE008; STATE000(9)                                        #      9       10
-STATE010; STATE000(9)                                        #     19       20
-STATE011;                                                    #     20       21
-STATE012;                                                    #     21       22
-STATE013; STATE000(29)                                       #     51       52
-STATE014; STATE000(29)                                       #     81       82
-STATE009; STATE000(18)                                       #    100      101
+STATE009; STATE000(9)                                        #      9       10
+STATE011; STATE000(9)                                        #     19       20
+STATE012;                                                    #     20       21
+STATE013;                                                    #     21       22
+STATE014; STATE000(29)                                       #     51       52
+STATE015; STATE000(29)                                       #     81       82
+STATE010; STATE000(18)                                       #    100      101
 STATE000; RETURN FastSerialOutputClocking                    #    101      102
 InlineSerialReceiving: # waveform
-STATE008; STATE000(9)                                        #      9       10
-STATE011; RETURN InlineSerialReceiving                       #     10       11
+STATE009; STATE000(9)                                        #      9       10
+STATE012; RETURN InlineSerialReceiving                       #     10       11
 SmoothSerialOutputClocking: # waveform
-STATE024;                                                    #      0        1
-STATE013; STATE000(9)                                        #     10       11
-STATE011; STATE000(28)                                       #     39       40
-STATE025; STATE000(30)                                       #     70       71
-STATE022; STATE000(8)                                        #     79       80
-STATE026; STATE000(40)                                       #    120      121
+STATE025;                                                    #      0        1
+STATE014; STATE000(9)                                        #     10       11
+STATE012; STATE000(28)                                       #     39       40
+STATE026; STATE000(30)                                       #     70       71
+STATE023; STATE000(8)                                        #     79       80
+STATE027; STATE000(40)                                       #    120      121
 STATE000; RETURN SmoothSerialOutputClocking                  #    121      122
 OverlapSerialOutputClocking: # waveform
-STATE016; STATE000(9)                                        #      9       10
-STATE017; STATE000(19)                                       #     29       30
-STATE008; STATE000(9)                                        #     39       40
-STATE027; STATE000(9)                                        #     49       50
-STATE020; STATE000(9)                                        #     59       60
-STATE011;                                                    #     60       61
-STATE012;                                                    #     61       62
-STATE013; STATE000(29)                                       #     91       92
-STATE021; STATE000(9)                                        #    101      102
-STATE028; STATE000(28)                                       #    130      131
+STATE017; STATE000(9)                                        #      9       10
+STATE018; STATE000(19)                                       #     29       30
+STATE009; STATE000(9)                                        #     39       40
+STATE028; STATE000(9)                                        #     49       50
+STATE021; STATE000(9)                                        #     59       60
+STATE012;                                                    #     60       61
+STATE013;                                                    #     61       62
+STATE014; STATE000(29)                                       #     91       92
+STATE022; STATE000(9)                                        #    101      102
+STATE029; STATE000(28)                                       #    130      131
 STATE000; RETURN OverlapSerialOutputClocking                 #    131      132
 DummySerialOutputClocking: # waveform
-STATE029; STATE000(19)                                       #     19       20
-STATE029; STATE000(9)                                        #     29       30
-STATE029; STATE000(9)                                        #     39       40
-STATE029;                                                    #     40       41
-STATE012;                                                    #     41       42
-STATE013; STATE000(29)                                       #     71       72
-STATE029; STATE000(28)                                       #    100      101
+STATE030; STATE000(19)                                       #     19       20
+STATE030; STATE000(9)                                        #     29       30
+STATE030; STATE000(9)                                        #     39       40
+STATE030;                                                    #     40       41
+STATE013;                                                    #     41       42
+STATE014; STATE000(29)                                       #     71       72
+STATE030; STATE000(28)                                       #    100      101
 STATE000; RETURN DummySerialOutputClocking                   #    101      102
 RawPixel: # waveform
-STATE000; STATE000(82)                                       #     82       83
-STATE000; RETURN RawPixel                                    #     83       84
+STATE000; STATE000(97)                                       #     97       98
+STATE000; RETURN RawPixel                                    #     98       99
 RightSerialOutputClocking: # waveform
-STATE030; STATE000(19)                                       #     19       20
-STATE008; STATE000(9)                                        #     29       30
-STATE031; STATE000(9)                                        #     39       40
-STATE011;                                                    #     40       41
-STATE012;                                                    #     41       42
-STATE013; STATE000(29)                                       #     71       72
-STATE032; STATE000(29)                                       #    101      102
-STATE015; RETURN RightSerialOutputClocking                   #    102      103
+STATE031; STATE000(19)                                       #     19       20
+STATE009; STATE000(9)                                        #     29       30
+STATE032; STATE000(9)                                        #     39       40
+STATE012;                                                    #     40       41
+STATE013;                                                    #     41       42
+STATE014; STATE000(29)                                       #     71       72
+STATE033; STATE000(29)                                       #    101      102
+STATE016; RETURN RightSerialOutputClocking                   #    102      103
 wReset: # waveform
-STATE008; RETURN wReset                                      #      0        1
+STATE009; RETURN wReset                                      #      0        1
 wUnsetReset: # waveform
-STATE011; RETURN wUnsetReset                                 #      0        1
+STATE012; RETURN wUnsetReset                                 #      0        1
+wsetSW: # waveform
+STATE019; RETURN wsetSW                                      #      0        1
+wUnsetSW: # waveform
+STATE023; RETURN wUnsetSW                                    #      0        1
 LeftSerialOutputClocking: # waveform
-STATE033; STATE000(19)                                       #     19       20
-STATE008; STATE000(9)                                        #     29       30
-STATE034; STATE000(9)                                        #     39       40
-STATE011;                                                    #     40       41
-STATE012;                                                    #     41       42
-STATE013; STATE000(29)                                       #     71       72
-STATE035; STATE000(29)                                       #    101      102
-STATE015; RETURN LeftSerialOutputClocking                    #    102      103
+STATE034; STATE000(19)                                       #     19       20
+STATE009; STATE000(9)                                        #     29       30
+STATE035; STATE000(9)                                        #     39       40
+STATE012;                                                    #     40       41
+STATE013;                                                    #     41       42
+STATE014; STATE000(29)                                       #     71       72
+STATE036; STATE000(29)                                       #    101      102
+STATE016; RETURN LeftSerialOutputClocking                    #    102      103
 DoLineTransfer: # waveform
-STATE036; STATE000(4999)                                     #   4999     5000
-STATE037; STATE000(4999)                                     #   9999    10000
+STATE037; STATE000(4999)                                     #   4999     5000
+STATE038; STATE000(4999)                                     #   9999    10000
+STATE039; STATE000(4999)                                     #  14999    15000
+STATE040; STATE000(4999)                                     #  19999    20000
+STATE041; STATE000(4999)                                     #  24999    25000
+STATE042; STATE000(4999)                                     #  29999    30000
+STATE043; STATE000(4999)                                     #  34999    35000
+STATE044; STATE000(4999)                                     #  39999    40000
+STATE045; RETURN DoLineTransfer                              #  40000    40001
+SynchedLineTransfer: # waveform
+STATE000; STATE000(2499)                                     #   2499     2500
+STATE046; STATE000(4999)                                     #   7499     7500
+STATE047; STATE000(4999)                                     #  12499    12500
+STATE048; STATE000(4999)                                     #  17499    17500
+STATE049; STATE000(4999)                                     #  22499    22500
+STATE050; STATE000(4999)                                     #  27499    27500
+STATE051; STATE000(4999)                                     #  32499    32500
+STATE052; STATE000(4999)                                     #  37499    37500
+STATE053; STATE000(4999)                                     #  42499    42500
+STATE054; STATE000(4999)                                     #  47499    47500
+STATE055; STATE000(2498)                                     #  49998    49999
+STATE000; RETURN SynchedLineTransfer                         #  49999    50000
+SynchedLineTransferNEW: # waveform
+STATE000; STATE000(2499)                                     #   2499     2500
+STATE056; STATE000(4999)                                     #   7499     7500
+STATE047; STATE000(4999)                                     #  12499    12500
+STATE057; STATE000(4999)                                     #  17499    17500
+STATE058; STATE000(4999)                                     #  22499    22500
+STATE059; STATE000(4999)                                     #  27499    27500
+STATE060; STATE000(4999)                                     #  32499    32500
+STATE061; STATE000(4999)                                     #  37499    37500
+STATE062; STATE000(4999)                                     #  42499    42500
+STATE063; STATE000(4999)                                     #  47499    47500
+STATE064; STATE000(2498)                                     #  49998    49999
+STATE000; RETURN SynchedLineTransferNEW                      #  49999    50000
+SetParallelExposeUneven: # waveform
+STATE065; RETURN SetParallelExposeUneven                     #      0        1
+SetParallelTransfer: # waveform
+STATE066; RETURN SetParallelTransfer                         #      0        1
+SetPTwoPhaseTransfer: # waveform
+STATE037; RETURN SetPTwoPhaseTransfer                        #      0        1
+DitherTwoPhaseExp: # waveform
+STATE067; RETURN DitherTwoPhaseExp                           #      0        1
+DitherTwoPhaseTransfer: # waveform
+STATE068; RETURN DitherTwoPhaseTransfer                      #      0        1
+DitherOtherHalf: # waveform
+STATE069; STATE000(4999)                                     #   4999     5000
+STATE070; STATE000(4999)                                     #   9999    10000
+STATE071; STATE000(4999)                                     #  14999    15000
+STATE039; RETURN DitherOtherHalf                             #  15000    15001
+ReadyForReadout: # waveform
+STATE042; STATE000(4999)                                     #   4999     5000
+STATE072; STATE000(4999)                                     #   9999    10000
+STATE073; STATE000(4999)                                     #  14999    15000
+STATE074; RETURN ReadyForReadout                             #  15000    15001
+SetParallelExpose: # waveform
+STATE075; RETURN SetParallelExpose                           #      0        1
+SetParallelTransferConcurrent: # waveform
+STATE066; STATE000(4999)                                     #   4999     5000
+STATE076; RETURN SetParallelTransferConcurrent               #   5000     5001
+TwoPhaseStorageExp: # waveform
+STATE075; STATE000(4999)                                     #   4999     5000
+STATE077; RETURN TwoPhaseStorageExp                          #   5000     5001
+DummyLineTransfer: # waveform
+STATE030; STATE000(4999)                                     #   4999     5000
+STATE030; STATE000(4999)                                     #   9999    10000
+STATE030; STATE000(4999)                                     #  14999    15000
+STATE030; STATE000(4999)                                     #  19999    20000
+STATE030; STATE000(4999)                                     #  24999    25000
+STATE030; STATE000(4999)                                     #  29999    30000
+STATE030; STATE000(4999)                                     #  34999    35000
+STATE030; STATE000(4999)                                     #  39999    40000
+STATE030; STATE000(4999)                                     #  44999    45000
+STATE030; RETURN DummyLineTransfer                           #  45000    45001
+IdleSynchedLineTransfer: # waveform
+STATE003; STATE000(4999)                                     #   4999     5000
+STATE004; STATE000(4999)                                     #   9999    10000
 STATE038; STATE000(4999)                                     #  14999    15000
 STATE039; STATE000(4999)                                     #  19999    20000
 STATE040; STATE000(4999)                                     #  24999    25000
 STATE041; STATE000(4999)                                     #  29999    30000
 STATE042; STATE000(4999)                                     #  34999    35000
 STATE043; STATE000(4999)                                     #  39999    40000
-STATE044; RETURN DoLineTransfer                              #  40000    40001
-SynchedLineTransfer: # waveform
-STATE000; STATE000(2499)                                     #   2499     2500
-STATE045; STATE000(4999)                                     #   7499     7500
-STATE046; STATE000(4999)                                     #  12499    12500
-STATE047; STATE000(4999)                                     #  17499    17500
-STATE048; STATE000(4999)                                     #  22499    22500
-STATE049; STATE000(4999)                                     #  27499    27500
-STATE050; STATE000(4999)                                     #  32499    32500
-STATE051; STATE000(4999)                                     #  37499    37500
-STATE052; STATE000(4999)                                     #  42499    42500
-STATE053; STATE000(4999)                                     #  47499    47500
-STATE054; STATE000(2498)                                     #  49998    49999
-STATE000; RETURN SynchedLineTransfer                         #  49999    50000
-SynchedLineTransferNEW: # waveform
-STATE000; STATE000(2499)                                     #   2499     2500
-STATE055; STATE000(4999)                                     #   7499     7500
-STATE046; STATE000(4999)                                     #  12499    12500
-STATE056; STATE000(4999)                                     #  17499    17500
-STATE057; STATE000(4999)                                     #  22499    22500
-STATE058; STATE000(4999)                                     #  27499    27500
-STATE059; STATE000(4999)                                     #  32499    32500
-STATE060; STATE000(4999)                                     #  37499    37500
-STATE061; STATE000(4999)                                     #  42499    42500
-STATE062; STATE000(4999)                                     #  47499    47500
-STATE063; STATE000(2498)                                     #  49998    49999
-STATE000; RETURN SynchedLineTransferNEW                      #  49999    50000
-SetParallelExposeUneven: # waveform
-STATE064; RETURN SetParallelExposeUneven                     #      0        1
-SetParallelTransfer: # waveform
-STATE065; RETURN SetParallelTransfer                         #      0        1
-SetParallelExpose: # waveform
-STATE066; RETURN SetParallelExpose                           #      0        1
-SetParallelTransferConcurrent: # waveform
-STATE065; STATE000(4999)                                     #   4999     5000
-STATE067; RETURN SetParallelTransferConcurrent               #   5000     5001
-DummyLineTransfer: # waveform
-STATE029; STATE000(4999)                                     #   4999     5000
-STATE029; STATE000(4999)                                     #   9999    10000
-STATE029; STATE000(4999)                                     #  14999    15000
-STATE029; STATE000(4999)                                     #  19999    20000
-STATE029; STATE000(4999)                                     #  24999    25000
-STATE029; STATE000(4999)                                     #  29999    30000
-STATE029; STATE000(4999)                                     #  34999    35000
-STATE029; STATE000(4999)                                     #  39999    40000
-STATE029; STATE000(4999)                                     #  44999    45000
-STATE029; RETURN DummyLineTransfer                           #  45000    45001
-IdleSynchedLineTransfer: # waveform
-STATE003; STATE000(4999)                                     #   4999     5000
-STATE004; STATE000(4999)                                     #   9999    10000
-STATE037; STATE000(4999)                                     #  14999    15000
-STATE038; STATE000(4999)                                     #  19999    20000
-STATE039; STATE000(4999)                                     #  24999    25000
-STATE040; STATE000(4999)                                     #  29999    30000
-STATE041; STATE000(4999)                                     #  34999    35000
-STATE042; STATE000(4999)                                     #  39999    40000
-STATE043; STATE000(4999)                                     #  44999    45000
-STATE044; RETURN IdleSynchedLineTransfer                     #  45000    45001
+STATE044; STATE000(4999)                                     #  44999    45000
+STATE045; RETURN IdleSynchedLineTransfer                     #  45000    45001
 ParallelUp: # waveform
 STATE003; STATE000(4999)                                     #   4999     5000
 STATE004; STATE000(4999)                                     #   9999    10000
-STATE068; STATE000(4999)                                     #  14999    15000
-STATE069; STATE000(4999)                                     #  19999    20000
-STATE070; STATE000(4999)                                     #  24999    25000
-STATE071; STATE000(4999)                                     #  29999    30000
-STATE072; STATE000(4999)                                     #  34999    35000
-STATE073; STATE000(4999)                                     #  39999    40000
-STATE074; STATE000(4999)                                     #  44999    45000
-STATE075; RETURN ParallelUp                                  #  45000    45001
-ParallelDown: # waveform
-STATE076; STATE000(4999)                                     #   4999     5000
-STATE077; STATE000(4999)                                     #   9999    10000
 STATE078; STATE000(4999)                                     #  14999    15000
 STATE079; STATE000(4999)                                     #  19999    20000
 STATE080; STATE000(4999)                                     #  24999    25000
 STATE081; STATE000(4999)                                     #  29999    30000
 STATE082; STATE000(4999)                                     #  34999    35000
 STATE083; STATE000(4999)                                     #  39999    40000
-STATE043; STATE000(4999)                                     #  44999    45000
-STATE044; RETURN ParallelDown                                #  45000    45001
+STATE084; STATE000(4999)                                     #  44999    45000
+STATE085; RETURN ParallelUp                                  #  45000    45001
+ParallelDown: # waveform
+STATE086; STATE000(4999)                                     #   4999     5000
+STATE087; STATE000(4999)                                     #   9999    10000
+STATE088; STATE000(4999)                                     #  14999    15000
+STATE089; STATE000(4999)                                     #  19999    20000
+STATE090; STATE000(4999)                                     #  24999    25000
+STATE091; STATE000(4999)                                     #  29999    30000
+STATE092; STATE000(4999)                                     #  34999    35000
+STATE093; STATE000(4999)                                     #  39999    40000
+STATE044; STATE000(4999)                                     #  44999    45000
+STATE045; RETURN ParallelDown                                #  45000    45001
 fastTGa: # waveform
-STATE084; STATE000(999)                                      #    999     1000
-STATE085; RETURN fastTGa                                     #   1000     1001
+STATE094; STATE000(999)                                      #    999     1000
+STATE095; RETURN fastTGa                                     #   1000     1001
 step1a: # waveform
-STATE086; RETURN step1a                                      #      0        1
+STATE096; RETURN step1a                                      #      0        1
 step2a: # waveform
-STATE087; RETURN step2a                                      #      0        1
+STATE097; RETURN step2a                                      #      0        1
 step3a: # waveform
-STATE088; RETURN step3a                                      #      0        1
+STATE098; RETURN step3a                                      #      0        1
 FauxLevel1: # waveform
-STATE089; STATE000                                           #      1        2
-STATE012;                                                    #      2        3
-STATE013; STATE000(252)                                      #    255      256
-STATE090; STATE000(254)                                      #    510      511
+STATE099; STATE000                                           #      1        2
+STATE013;                                                    #      2        3
+STATE014; STATE000(252)                                      #    255      256
+STATE100; STATE000(254)                                      #    510      511
 STATE000; RETURN FauxLevel1                                  #    511      512
 FauxLevel2: # waveform
-STATE089; STATE000                                           #      1        2
-STATE012;                                                    #      2        3
-STATE013; STATE000(252)                                      #    255      256
-STATE091; STATE000(254)                                      #    510      511
+STATE099; STATE000                                           #      1        2
+STATE013;                                                    #      2        3
+STATE014; STATE000(252)                                      #    255      256
+STATE101; STATE000(254)                                      #    510      511
 STATE000; RETURN FauxLevel2                                  #    511      512
 FauxLevel3: # waveform
-STATE089; STATE000                                           #      1        2
-STATE012;                                                    #      2        3
-STATE013; STATE000(252)                                      #    255      256
-STATE092; STATE000(254)                                      #    510      511
+STATE099; STATE000                                           #      1        2
+STATE013;                                                    #      2        3
+STATE014; STATE000(252)                                      #    255      256
+STATE102; STATE000(254)                                      #    510      511
 STATE000; RETURN FauxLevel3                                  #    511      512
 FauxLevel4: # waveform
-STATE089; STATE000                                           #      1        2
-STATE012;                                                    #      2        3
-STATE013; STATE000(252)                                      #    255      256
-STATE093; STATE000(254)                                      #    510      511
+STATE099; STATE000                                           #      1        2
+STATE013;                                                    #      2        3
+STATE014; STATE000(252)                                      #    255      256
+STATE103; STATE000(254)                                      #    510      511
 STATE000; RETURN FauxLevel4                                  #    511      512
 FauxLevel5: # waveform
-STATE089; STATE000                                           #      1        2
-STATE012;                                                    #      2        3
-STATE013; STATE000(252)                                      #    255      256
-STATE094; STATE000(254)                                      #    510      511
+STATE099; STATE000                                           #      1        2
+STATE013;                                                    #      2        3
+STATE014; STATE000(252)                                      #    255      256
+STATE104; STATE000(254)                                      #    510      511
 STATE000; RETURN FauxLevel5                                  #    511      512
 FauxLevel6: # waveform
-STATE089; STATE000                                           #      1        2
-STATE012;                                                    #      2        3
-STATE013; STATE000(252)                                      #    255      256
-STATE095; STATE000(254)                                      #    510      511
+STATE099; STATE000                                           #      1        2
+STATE013;                                                    #      2        3
+STATE014; STATE000(252)                                      #    255      256
+STATE105; STATE000(254)                                      #    510      511
 STATE000; RETURN FauxLevel6                                  #    511      512
 FauxLevel7: # waveform
-STATE089; STATE000                                           #      1        2
-STATE012;                                                    #      2        3
-STATE013; STATE000(252)                                      #    255      256
-STATE096; STATE000(254)                                      #    510      511
+STATE099; STATE000                                           #      1        2
+STATE013;                                                    #      2        3
+STATE014; STATE000(252)                                      #    255      256
+STATE106; STATE000(254)                                      #    510      511
 STATE000; RETURN FauxLevel7                                  #    511      512
 FauxLevel8: # waveform
-STATE089; STATE000                                           #      1        2
-STATE012;                                                    #      2        3
-STATE013; STATE000(252)                                      #    255      256
-STATE097; STATE000(254)                                      #    510      511
+STATE099; STATE000                                           #      1        2
+STATE013;                                                    #      2        3
+STATE014; STATE000(252)                                      #    255      256
+STATE107; STATE000(254)                                      #    510      511
 STATE000; RETURN FauxLevel8                                  #    511      512
 FauxToZero: # waveform
-STATE098; RETURN FauxToZero                                  #      0        1
+STATE108; RETURN FauxToZero                                  #      0        1
 wOpenShutter: # waveform
-STATE099; RETURN wOpenShutter                                #      0        1
+STATE109; RETURN wOpenShutter                                #      0        1
 wCloseShutter: # waveform
-STATE100; RETURN wCloseShutter                               #      0        1
+STATE110; RETURN wCloseShutter                               #      0        1
 wFrame: # waveform
-STATE101; RETURN wFrame                                      #      0        1
+STATE111; RETURN wFrame                                      #      0        1
 wLine: # waveform
-STATE102; RETURN wLine                                       #      0        1
+STATE112; RETURN wLine                                       #      0        1
 wLine_triggered: # waveform
-STATE099; STATE000(1999)                                     #   1999     2000
-STATE103; RETURN wLine_triggered                             #   2000     2001
+STATE109; STATE000(1999)                                     #   1999     2000
+STATE113; RETURN wLine_triggered                             #   2000     2001
 wPixel: # waveform
-STATE012;                                                    #      0        1
-STATE013; RETURN wPixel                                      #      1        2
+STATE013;                                                    #      0        1
+STATE014; RETURN wPixel                                      #      1        2
 ADClamp: # waveform
-STATE104; RETURN ADClamp                                     #      0        1
+STATE114; RETURN ADClamp                                     #      0        1
 ADClamp_: # waveform
-STATE105; RETURN ADClamp_                                    #      0        1
+STATE115; RETURN ADClamp_                                    #      0        1
 wDumpGateOn: # waveform
-STATE106; STATE000(999999)                                   # 999999  1000000
-STATE107; STATE000(999998)                                   # 1999998  1999999
+STATE116; STATE000(999999)                                   # 999999  1000000
+STATE117; STATE000(999998)                                   # 1999998  1999999
 STATE000; RETURN wDumpGateOn                                 # 1999999  2000000
 wDumpGateOff: # waveform
-STATE108; STATE000(999999)                                   # 999999  1000000
-STATE109; STATE000(999998)                                   # 1999998  1999999
+STATE118; STATE000(999999)                                   # 999999  1000000
+STATE119; STATE000(999998)                                   # 1999998  1999999
 STATE000; RETURN wDumpGateOff                                # 1999999  2000000
+wOGHigh: # waveform
+STATE120; STATE000(999999)                                   # 999999  1000000
+STATE121; STATE000(999999)                                   # 1999999  2000000
+STATE122; STATE000(999999)                                   # 2999999  3000000
+STATE123; RETURN wOGHigh                                     # 3000000  3000001
+wOGNom: # waveform
+STATE124; STATE000(999999)                                   # 999999  1000000
+STATE125; STATE000(999999)                                   # 1999999  2000000
+STATE126; STATE000(999999)                                   # 2999999  3000000
+STATE127; RETURN wOGNom                                      # 3000000  3000001
 wOutAmpsLow: # waveform
-STATE110; STATE000(999999)                                   # 999999  1000000
-STATE111; STATE000(999999)                                   # 1999999  2000000
-STATE112; STATE000(999999)                                   # 2999999  3000000
-STATE113; RETURN wOutAmpsLow                                 # 3000000  3000001
+STATE128; STATE000(999999)                                   # 999999  1000000
+STATE129; STATE000(999999)                                   # 1999999  2000000
+STATE130; STATE000(999999)                                   # 2999999  3000000
+STATE131; RETURN wOutAmpsLow                                 # 3000000  3000001
 wOutAmpsHigh: # waveform
-STATE114; STATE000(999999)                                   # 999999  1000000
-STATE115; STATE000(999999)                                   # 1999999  2000000
-STATE116; STATE000(999999)                                   # 2999999  3000000
-STATE117; RETURN wOutAmpsHigh                                # 3000000  3000001
+STATE132; STATE000(999999)                                   # 999999  1000000
+STATE133; STATE000(999999)                                   # 1999999  2000000
+STATE134; STATE000(999999)                                   # 2999999  3000000
+STATE135; RETURN wOutAmpsHigh                                # 3000000  3000001
 wIdle: # waveform
 STATE000; RETURN wIdle                                       #      0        1
 LoadSerialRegister: # waveform
-STATE046; STATE000(999)                                      #    999     1000
-STATE118; STATE000(998)                                      #   1998     1999
-STATE000; RETURN LoadSerialRegister                          #   1999     2000
+STATE047; STATE000(1999)                                     #   1999     2000
+STATE136; STATE000(1998)                                     #   3998     3999
+STATE000; RETURN LoadSerialRegister                          #   3999     4000
 TPixel: # waveform
-STATE119; STATE000(7)                                        #      7        8
-STATE120;                                                    #      8        9
-STATE013; STATE000(18)                                       #     27       28
-STATE121; STATE000(13)                                       #     41       42
-STATE022; STATE000(2)                                        #     44       45
-STATE122; STATE000(10)                                        #     55       56
-STATE123; STATE000(26)                                       #     82       83
-STATE000; RETURN TPixel                                      #     83       84
+STATE137; STATE000(7)                                        #      7        8
+STATE138;                                                    #      8        9
+STATE014; STATE000(23)                                       #     32       33
+STATE139; STATE000(15)                                       #     48       49
+STATE023; STATE000(2)                                        #     51       52
+STATE140; STATE000(13)                                       #     65       66
+STATE141; STATE000(31)                                       #     97       98
+STATE000; RETURN TPixel                                      #     98       99
 InitialClock2Low: # waveform
-STATE017; STATE000(98)                                       #     98       99
+STATE018; STATE000(98)                                       #     98       99
 STATE000; RETURN InitialClock2Low                            #     99      100
 PixelShift: # waveform
-STATE124; STATE000(7)                                        #      7        8
-STATE011; STATE000(19)                                       #     27       28
-STATE025; STATE000(13)                                       #     41       42
-STATE022; STATE000(2)                                        #     44       45
-STATE122; STATE000(10)                                        #     55       56
-STATE026; STATE000(26)                                       #     82       83
-STATE000; RETURN PixelShift                                  #     83       84
+STATE142; STATE000(7)                                        #      7        8
+STATE012; STATE000(24)                                       #     32       33
+STATE026; STATE000(15)                                       #     48       49
+STATE023; STATE000(2)                                        #     51       52
+STATE140; STATE000(13)                                       #     65       66
+STATE027; STATE000(31)                                       #     97       98
+STATE000; RETURN PixelShift                                  #     98       99
 P23to34: # waveform
-STATE125; STATE000(7)                                        #      7        8
-STATE120;                                                    #      8        9
-STATE013; STATE000(18)                                       #     27       28
-STATE121; STATE000(13)                                       #     41       42
-STATE022; STATE000(2)                                        #     44       45
-STATE122; STATE000(10)                                        #     55       56
-STATE123; STATE000(26)                                       #     82       83
-STATE000; RETURN P23to34                                     #     83       84
+STATE143; STATE000(7)                                        #      7        8
+STATE138;                                                    #      8        9
+STATE014; STATE000(23)                                       #     32       33
+STATE139; STATE000(15)                                       #     48       49
+STATE023; STATE000(2)                                        #     51       52
+STATE140; STATE000(13)                                       #     65       66
+STATE141; STATE000(31)                                       #     97       98
+STATE000; RETURN P23to34                                     #     98       99
 P34to41: # waveform
-STATE126; STATE000(7)                                        #      7        8
-STATE120;                                                    #      8        9
-STATE013; STATE000(18)                                       #     27       28
-STATE121; STATE000(13)                                       #     41       42
-STATE022; STATE000(2)                                        #     44       45
-STATE122; STATE000(10)                                        #     55       56
-STATE123; STATE000(26)                                       #     82       83
-STATE000; RETURN P34to41                                     #     83       84
+STATE144; STATE000(7)                                        #      7        8
+STATE138;                                                    #      8        9
+STATE014; STATE000(23)                                       #     32       33
+STATE139; STATE000(15)                                       #     48       49
+STATE023; STATE000(2)                                        #     51       52
+STATE140; STATE000(13)                                       #     65       66
+STATE141; STATE000(31)                                       #     97       98
+STATE000; RETURN P34to41                                     #     98       99
 P41to12: # waveform
-STATE127; STATE000(7)                                        #      7        8
-STATE120;                                                    #      8        9
-STATE013; STATE000(18)                                       #     27       28
-STATE121; STATE000(13)                                       #     41       42
-STATE022; STATE000(2)                                        #     44       45
-STATE122; STATE000(10)                                        #     55       56
-STATE123; STATE000(26)                                       #     82       83
-STATE000; RETURN P41to12                                     #     83       84
+STATE145; STATE000(7)                                        #      7        8
+STATE138;                                                    #      8        9
+STATE014; STATE000(23)                                       #     32       33
+STATE139; STATE000(15)                                       #     48       49
+STATE023; STATE000(2)                                        #     51       52
+STATE140; STATE000(13)                                       #     65       66
+STATE141; STATE000(31)                                       #     97       98
+STATE000; RETURN P41to12                                     #     98       99
 P12to23: # waveform
-STATE128; STATE000(7)                                        #      7        8
-STATE120;                                                    #      8        9
-STATE013; STATE000(18)                                       #     27       28
-STATE121; STATE000(13)                                       #     41       42
-STATE022; STATE000(2)                                        #     44       45
-STATE122; STATE000(10)                                        #     55       56
-STATE123; STATE000(26)                                       #     82       83
-STATE000; RETURN P12to23                                     #     83       84
+STATE146; STATE000(7)                                        #      7        8
+STATE138;                                                    #      8        9
+STATE014; STATE000(23)                                       #     32       33
+STATE139; STATE000(15)                                       #     48       49
+STATE023; STATE000(2)                                        #     51       52
+STATE140; STATE000(13)                                       #     65       66
+STATE141; STATE000(31)                                       #     97       98
+STATE000; RETURN P12to23                                     #     98       99

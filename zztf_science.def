@@ -42,15 +42,15 @@
 
 #define CDSWINDOW                 18 /*20*/
 
-#define PixelT       84 /* Full pixel time */
+#define PixelT       99 /* Full pixel time */
 #define RGsettleT    17 /*32*/  /* Settling Time for the reset gate 310ns */ /* Static */ /* Used in CDS Window calculation */ /* Shifted to 1 less from previous */
 #define SWsettleT    16 /*32*/  /* Settling Time for charge dump    310ns */ /* Static */ /* Used in CDS Window calculation */ /* Shifted to 1 less from previous */
 
 
 
-#define _FIRST_RESET_SAMPLE      #eval RGsettleT              /*#eval _LAST_RESET_SAMPLE - CDSWINDOW */
+#define _FIRST_RESET_SAMPLE      /*#eval RGsettleT*/ #eval PixelT/2 - 1 - 20 /*#eval _LAST_RESET_SAMPLE - CDSWINDOW */
 #define _LAST_RESET_SAMPLE       #eval PixelT/2 - 1           /*50*/ /* Shifted to 2 less sample from previous */
-#define _FIRST_VIDEO_SAMPLE      #eval PixelT/2 - 1 + SWsettleT   /*#eval _LAST_VIDEO_SAMPLE - CDSWINDOW*/
+#define _FIRST_VIDEO_SAMPLE      /*#eval PixelT/2 - 1 + SWsettleT*/ #eval PixelT -2 - 20 /*#eval _LAST_VIDEO_SAMPLE - CDSWINDOW*/
 #define _LAST_VIDEO_SAMPLE       #eval PixelT - 2             /*100*/ /* Shifted to 2 less sample from previous */
 
 #define _ARCHON_SAMPLE_MODE        1     /* 0=16bit, 1=32bit  */
@@ -101,6 +101,7 @@
 #define _SW_CLOCK_LOW       0.0
 #define _SW_CLOCK_HIGH     12.0 /*10.0*/
 
+#define _SER_TRENCH_HIGH   5.0
 /* Biases */
 #defeval _RESET_DRAIN      #eval _PAR_CLOCK_LOW+18
 #define _OUTPUT_GATE       #eval _PAR_CLOCK_LOW +  2.5
@@ -169,3 +170,7 @@
 /* Create output drain high and low levels */
 #define _ODHigh                31  /* This is the OD value */
 #define _ODLow                 23    /* This is the min of OD from data sheet */
+
+/* Create output gate high and nominal levels */
+#define _gateOGHigh                5
+#define _gateOGNom                 1.5

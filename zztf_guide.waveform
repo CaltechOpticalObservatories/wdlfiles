@@ -226,7 +226,7 @@ WAVEFORM GSerial3to2 {
 #define G_RefSamples 100
 #define G_SWsettleT 10
 #define G_SWslewT 28
-#define G_PixelT 252
+#define G_PixelT 297 /*252*/ /* Normally 252 for 0.84 sci pixel */
 #define G_Test 2000
 
 WAVEFORM GSerialReadRight_smooth{
