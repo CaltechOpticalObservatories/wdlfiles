@@ -49,7 +49,12 @@ param SerialOverscan=_SERIALOVERSCAN
 param ParallelOverscan=_PARALLELOVERSCAN
 param ImageCols=_IMAGECOLS
 param ImageRows=_IMAGEROWS
-
+param scycles=0
+param EwrRepeat=1
+param ExpRepeat=1
+  /*param NumExpose=1*/
+param ewr=0
+  /*param NumRepeat=1*/
   
   
 SEQUENCE Start {
@@ -87,7 +92,8 @@ SEQUENCE Start {
 SEQUENCE StateZero {
   Abort--;
   /*if Expose GOTO DoExpose();*/
-  if Expose DoExpose(); /* Use this for direct readout */
+  /*if Expose ExposeRoutine();*/
+  if Expose DoExpose(ExpRepeat); /* Use this for direct readout */
   Idling();  /* put in if Idle, used to be just Idling() */
   /*Wait1us(223);
     Wait10ns(71);*/
@@ -96,14 +102,35 @@ SEQUENCE StateZero {
   wCloseShutter();*/
   GOTO StateZero();
 }
+
+/*SEQUENCE ExposeRoutine {
+/*  if ewr DoExpose();
+/*  if !ewr DoExpose(NumRepeat);
+/*  return;
+/*}*/
+
 SEQUENCE DoExpose {
-  Expose--;
-  Wait10ns();
+  DecExpose();
+  /* sobs begin */
+  if !ewr Wait10ns();
+  /*Wait10ns();*/
+  /* sobs end */
   if ShutterEnable OpenShutter();
-  if exptime MilliSec(exptime);
-  wCloseShutter();
+  /*if exptime MilliSec(exptime);*/
+  /*if exptime MilliSec(0);*/
+  /* sobs begin */
+  if scycles ShiftTheCharge(scycles);
+  if !scycles NormExpose();
+  /*if ewr OpenShutter();*/
+  if !ewr wCloseShutter();  /* close the shutter if we are not in EWR mode */
+  /* sobs end */
+  
   /*if Guiding GOTO GuideSeq();*/
   Wait1ms(30);
+  /* sobs begin */
+  /*if ewr DoSimultaneousReadOut();
+    if ewr wCloseShutter();*/
+  /* sobs end */
 
   Wait10ns();
   Wait10ns();
@@ -111,26 +138,52 @@ SEQUENCE DoExpose {
   Wait10ns();
   DoShutterDelay(100);
   Wait1us(150);
-  Wait10ns(90);
+  Wait10ns(92);
   DoShutterDelay();
   
   if exptime DoShutterDelay(84); /**/
+  /*if exptime DoShutterDelay(224);*/
 
+  Wait10ns();
+  Wait10ns();
   Wait1ms(30);      /* Delay time of wOG in science acf trench */
+  Wait10ns(11);
   Wait1us();        /* Delay for trench commands */
-  Wait10ns(15);    /* Delay for trench commands */
+/*  Wait10ns(15);*/    /* Delay for trench commands */
 
-
+  if ewr Wait10ns();
   /* Comment out for triggered readout */
+  /*DoSimultaneousReadOut(EwrRepeat);*/ /* Moved EwrRepeat to call for JustReadout */
   DoSimultaneousReadOut();
+  if ewr Wait10ns();
   return;
   /* end comment out */
   
   /*GOTO WaitForReadOut();*/ /* uncomment for trig readout */
 }
 
+SEQUENCE DecExpose {
+  Expose--;
+  return;
+}
+
+SEQUENCE NormExpose {
+  if exptime MilliSec(exptime);
+  return;
+}
+
+SEQUENCE ShiftTheCharge {
+  Wait1ms(2);
+  Wait1us(900);
+  Wait10ns(9);
+  return;
+}
+
 SEQUENCE OpenShutter {
   if exptime wOpenShutter();
+  /* sobs begin */
+  if ewr wOpenShutter();
+  /* sobs end */
   return;
 }
 /*SEQUENCE DoExpose {
@@ -210,9 +263,13 @@ SEQUENCE Idling {
                  /*OpenBLC();
                    ADClamp_();*/
   /*FGSerialReceiving();*/
+  /* sobs begin */
+  if ewr wCloseShutter();
+  if ewr MilliSec(30);  /**/  /* Wait to match wOutAmpsHigh in science acf */
+  /* sobs end */
   GFParallelSplit();
   Wait1us(20); /* will this work?? */
-  Wait10ns(5);
+  Wait10ns(6); /* increased to 6 from 5 2021-04-14 */
   GSerialReadRight_smooth(1033);
   FGSerialReceiving();
   Wait1us();
@@ -300,7 +357,7 @@ SEQUENCE DoSimultaneousReadOut {
   OpenBLC();
   ADClamp_();
   
-  wFrame();
+  /***wFrame();*/ /*** In JustReadout */
 
   /* This is only for a test shutter signal */
   /*wOpenShutter();
@@ -309,23 +366,39 @@ SEQUENCE DoSimultaneousReadOut {
   /* End test shutter signal */
 
   /*DoSimultaneousFocus(GLines);*/ /*a bit more than ScienceLines/3*/
-  DoSimultaneousFocus(1540); /* Should match ScienceRead(3080) */
-  FGSerialReceiving(); /* Line should match SerialReceiving() */
-  Wait10ns(2);
+  /***DoSimultaneousFocus(1540);*/ /*** In JustReadout */ /* Should match ScienceRead(3080) */
+  /***FGSerialReceiving();*/ /*** In JustReadout */ /* Line should match SerialReceiving() */
+  /***Wait10ns(2);*/ /*** In JustReadout */
+  JustReadout(EwrRepeat);
 
   /*wOutAmpsLow();*/
   /*Wait1us();*/
   /*Wait10ns(10);*/
-  MilliSec(30);  /**/  /* Wait to match wOutAmpsHigh in science acf */
+  /* sobs begin */
+  /*if !ewr MilliSec(30);*/  /**/  /* Wait to match wOutAmpsHigh in science acf */
+  /* sobs end */
+  MilliSec(30);
   Wait10ns(); /**/
   /* Comment out for triggered readout */
   Wait1ms(30);      /* Delay time of wOG in science acf trench */
-  Wait10ns(96);    /* Delay for trench commands */
+  /***Wait10ns(96);*/    /* Delay for trench commands */
+  Wait10ns(94);    /*** For JustReadout implementation */
 
   return; /**/  /***/
   /* end comment out */
   /*GOTO StateZero();*/ /* uncomment for trig readout */
 }
+
+/* This routine is only to readout the focus chip, no overhead */
+SEQUENCE JustReadout {
+  wFrame();
+  DoSimultaneousFocus(1540); /* Should match ScienceRead(3080) */
+  FGSerialReceiving(); /* Line should match SerialReceiving() */
+  Wait10ns(4);
+  /*Wait1ms(30);*/ /* taken out 20220729 to match ztf_guide.acf */
+  return;
+}
+  
 
 SEQUENCE DoSimultaneousFocus { 
   GFParallelSplit();
