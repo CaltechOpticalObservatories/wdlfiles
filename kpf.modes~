@@ -1,11 +1,4 @@
 [MODE_DEFAULT]
-ACF:scycles=0
-ACF:dtime=0
-ACF:lineshft=0
-ACF:ewr=0
-ACF:ShutterEnable=1
-ACF:ExpRepeat=1
-ACF:EwrRepeat=1
 FITS:CDS3=#eval PixelT - 2
 FITS:CDS2=#eval PixelT/2 - 1 + SWsettleT
 FITS:CDS1=#eval PixelT/2 - 1
@@ -55,21 +48,3 @@ ACF:RAWENABLE=1
 ARCH:AMPS_PER_CCD_HORI=1
 ARCH:AMPS_PER_CCD_VERT=16
 ARCH:NUM_CCDS=1
-
-[MODE_101]
-ACF:scycles=5
-ACF:dtime=6000
-ACF:lineshft=30
-
-[MODE_102]
-ACF:scycles=0
-ACF:dtime=0
-ACF:lineshft=0
-ACF:ShutterEnable=0
-ACF:ewr=1
-
-[MODE_105]
-ACF:scycles=0
-ACF:dtime=0
-ACF:lineshft=0
-ACF:ShutterEnable=1

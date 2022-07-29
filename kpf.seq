@@ -1,0 +1,188 @@
+/* -*- C -*- */
+/** ---------------------------------------------------------------------------
+ * @file     ztf_science.seq
+ * @brief    sequence file for ZTF
+ * @author   Stephen Kaye
+ * @date     2016-04-07
+ * @modified 2016-04-07 SK
+ *
+ */
+
+/** ---------------------------------------------------------------------------
+ * parameter definitions
+ * syntax: param paramname=value
+*/
+
+param exptime=0 
+param Expose=0
+param Abort=0
+param ShutterEnable=1
+param shutdelay=_SHDEL
+/* These are for vicd to know the size of the image.  vicd will not be used */
+param SerialPrescan=_SERIALPRESCAN
+param SerialOverscan=_SERIALOVERSCAN
+param ParallelOverscan=_PARALLELOVERSCAN
+param ImageCols=_IMAGECOLS
+param ImageRows=_IMAGEROWS
+/* The above are use by vicd.  vicd will not be used */  
+param SplitLines=_LINES_PER_TAP
+param Lines=_LINES_PER_TAP
+param Pixels=_PIXELS_PER_TAP
+param PxByFour=_PIXBYFOUR
+param IdleLines=_IDLE_LINES
+
+/** ---------------------------------------------------------------------------
+ * @fn     MAIN
+ * @brief  the main loop.  MAIN is implicitly an infinite loop.
+ *
+ */
+SEQUENCE Start {
+  wCloseShutter();
+  SerialReceiving();      /* Put serials at nominal voltages   */
+  SynchedLineTransfer();  /* Put parallels at nominal voltages */
+
+  /* Start with a reset of the sense node and clamping to that level */
+  wReset();
+  Wait1us();
+  wUnsetReset();
+  ADClamp();
+  Wait1us();
+  ADClamp_();
+
+  /*wDumpGateOn();*/
+  /*wParallelInversion();*/
+  /*wDumpGateOff();*/           /* suppresses the waffle pattern */
+  Idling(IdleLines);                 /* clears the residual badness */
+}
+
+SEQUENCE WaitForExpose {
+  Abort--;
+  if Expose DoExpose();
+  Idling();
+  /*wCloseShutter();*/ /* For ramped illumination */
+  /*DoScienceReadout();*/  /***/
+  /*return;*/              /***/
+  GOTO WaitForExpose();
+}
+
+/** ---------------------------------------------------------------------------
+ * @fn	    Idling
+ * @brief   Idle sequence to push one parallel line and read the full serial register
+ */
+SEQUENCE Idling {
+  ReadLineConcurrently();
+
+  /*SynchedLineTransfer();*/ /* Idle... to invert parallel shifting */
+  /*TPixel(Pixels);*/
+  /* Now go to nominal clock levels for the serial */
+  SerialReceiving();
+
+  /* Do a reset sequence */
+  wReset();
+  Wait1us();
+  wUnsetReset();
+  ADClamp();
+  Wait1us();
+  ADClamp_();
+
+  return;
+}
+
+/** ---------------------------------------------------------------------------
+ * @fn     DoExpose
+ * @brief  start an exposure
+ *
+ */
+SEQUENCE DoExpose {
+  Expose--;
+  SetParallelExpose();
+  if ShutterEnable OpenShutter();      // don't even try to open shutter unless enabled
+  if exptime MilliSec(exptime);
+  wCloseShutter();
+  if exptime DoShutterDelay(shutdelay);
+  DoScienceReadout();
+  return;
+}
+
+SEQUENCE OpenShutter {
+  if exptime wOpenShutter();           // only fire open shutter waveform for non-zero exposure times
+  return;
+}
+
+SEQUENCE MilliSec {
+  Wait1ms();	/* This is a placeholder 1ms routine - Need to fix up */
+  if Abort GOTO DoAbort();  /* This is the test for an abort  */
+  return;
+}
+
+SEQUENCE DoAbort {
+  Abort--;
+  GOTO WaitForExpose();
+}
+
+SEQUENCE DoShutterDelay {
+  Wait1ms();
+  return;
+}
+
+SEQUENCE DoScienceReadout {
+  SetParallelTransfer();                                         /*   0.01 us*/
+  SetParallelTransferConcurrent();  /* Move Integrated charge to AB3 and CD4 here */
+  TPixel(Pixels); /* initial serial sweepout */
+  SerialReceiving();                                             /*   0.21 us*/
+
+/* Do a clamp and reset since things were sitting during exposure and waiting for readout */
+/* This is an attempt to make the first line the same as other lines */
+  wReset();
+  Wait1us();
+  wUnsetReset();  /* Do we move this until the end of the BLC and ADC Clamps? */
+  ADClamp();
+  Wait1us();
+  ADClamp_();
+  
+  wFrame();                                                      /*   0.01 us*/
+  ScienceRead(SplitLines);                                       /*3257.65 us*/
+  SerialReceiving();   /* Put serial clocks in ready for charge state after readout */
+  return;   /***/
+}
+
+ 
+SEQUENCE ScienceRead {
+  /* Commented out due to concurrent clocking */
+  /*SynchedLineTransfer();*/  /* Parallel shift */
+  wLine();
+  /* Replaces SynchedLineTransfer for concurrent clocking */
+  ReadLineConcurrently();
+
+  /* The first pixel is a junk pixel and then we get the dark pixels, not sure why */
+  /* To avoid the junk pixel try putting in one PixelShift before reading pixels */
+  /* PixelShift is the same as TPixel except no control signals, therefore, no conversion */
+  /*InitialClock2Low();
+    TPixel(Pixels);*/
+
+  SerialReceiving();  /* This puts phase 1 and 2 high and reset gate high */
+  /* Need a final reset so that we clamp on a reset level and not
+     on a charge signal level */
+  wReset();
+  Wait1us();
+  wUnsetReset();  /* Do we move this until the end of the BLC and ADC Clamps? */
+  ADClamp();
+  Wait1us();
+  ADClamp_();
+
+  return;
+}
+
+SEQUENCE ReadLineConcurrently {
+  LoadSerialRegister();
+  InitialClock2Low();       /* After receiving charge get it under 1 phase */
+  P23to34();                /* Charge under AB3,AB4   CD4,CD1 */
+  TPixel(NumReads);
+  P34to41();                /* Charge under AB4,AB1   CD1,CD2 */
+  TPixel(NumReads);
+  P41to12();                /* Charge under AB1,AB2   CD2,CD3 */
+  TPixel(NumReads);
+  P12to23();                /* Charge under AB2,AB3   CD3,CD4 */
+  TPixel(NumReads);
+  return;
+}

@@ -1,0 +1,385 @@
+[PARAMETER#]
+Expose=0
+Readout=0
+ShutterEnable=1
+shutterdelay=0
+exptime=0
+GReadout=0
+FReadout=0
+SReadout=0
+Idle=1
+GLines=1540
+GPixels=2093
+Abort=0
+Delay_FrameStart=264013
+Delay_PixelStart=5
+Delay_LTStart=358
+Guiding=0
+GFrames=1
+G_ROI_Height=100
+G_ROI_Width=2093
+G_PreFlush=512
+G_PostFlush=1625
+G_PixelPreFlush=0
+G_PixelPostFlush=0
+SerialPrescan=8
+SerialOverscan=21
+ParallelOverscan=0
+ImageCols=2064
+ImageRows=1540
+[LINE#]
+Start: # sequence
+STATE000; CALL FGSerialReceiving                           #      0       17
+STATE000; CALL GFParallelSplit                             #      1     6223
+STATE000; CALL ADClamp_                                    #      2     6225
+STATE000; CALL OpenBLC                                     #      3     6227
+StateZero: # sequence
+STATE000; Abort--                                          #      1        2
+STATE000; if Expose GOTO DoExpose                          #      2        3
+STATE000; if Idle CALL Idling                              #      3     8757
+STATE000; GOTO StateZero                                   #      4     8758
+DoExpose: # sequence
+STATE000; Expose--                                         #      1        2
+STATE000; if !Guiding CALL MilliSec(exptime)               #      2   100003
+STATE000; if Guiding GOTO GuideSeq                         #      3   100004
+STATE000; if exptime CALL DoShutterDelay(500)              #      4 50099505
+STATE000; GOTO WaitForReadOut                              #      5 50099506
+WaitForReadOut: # sequence
+STATE000; if Readout GOTO DoSimultaneousReadOut            #      0        1
+STATE000; if Abort GOTO StateZero                          #      1        2
+STATE000; GOTO WaitForReadOut                              #      2        3
+Idling: # sequence
+STATE000; CALL OpenBLC                                     #      0        2
+STATE000; CALL ADClamp_                                    #      1        4
+STATE000; CALL GFParallelSplit                             #      2     6210
+STATE000; CALL GSerialReadRight_smooth(10)                 #      3     8731
+STATE000; CALL GSerialReceiving                            #      4     8748
+STATE000; CALL GroundBLC                                   #      5     8750
+STATE000; CALL ADClamp                                     #      6     8752
+STATE000; RETURN Idling                                    #      7     8753
+OpenShutter: # sequence
+STATE000; if exptime CALL wOpenShutter                     #      0        2
+STATE000; RETURN OpenShutter                               #      1        3
+DoShutterDelay: # sequence
+STATE000; CALL Wait1ms                                     #      0    99998
+STATE000; RETURN DoShutterDelay                            #      1    99999
+DoGuideReadout: # sequence
+STATE000; GReadout--                                       #      1        2
+STATE000; CALL FGSerialReceiving                           #      2       19
+STATE000; CALL MilliSec(exptime)                           #      3   100020
+STATE000; CALL Wait1us                                     #      4   100121
+STATE000; CALL GroundBLC                                   #      5   100123
+STATE000; CALL ADClamp                                     #      6   100125
+STATE000; CALL Wait1us                                     #      7   100226
+STATE000; CALL OpenBLC                                     #      8   100228
+STATE000; CALL ADClamp_                                    #      9   100230
+STATE000; CALL wFrame                                      #     10   100232
+STATE000; CALL DoGuider(GLines)                            #     11   107386
+STATE000; GOTO StateZero                                   #     12   107387
+DoGuider: # sequence
+STATE000; CALL GParallelTopOnly                            #      0     6206
+STATE000; CALL wLine                                       #      1     6208
+STATE000; CALL GuideSerialReadRightTop(GPixels)            #      2     6925
+STATE000; CALL GSerialReceiving                            #      3     6942
+STATE000; CALL Wait1us                                     #      4     7043
+STATE000; CALL GroundBLC                                   #      5     7045
+STATE000; CALL ADClamp                                     #      6     7047
+STATE000; CALL Wait1us                                     #      7     7148
+STATE000; CALL OpenBLC                                     #      8     7150
+STATE000; CALL ADClamp_                                    #      9     7152
+STATE000; RETURN DoGuider                                  #     10     7153
+DoFocusReadout: # sequence
+STATE000; Readout--                                        #      1        2
+STATE000; CALL wOpenShutter                                #      2        4
+STATE000; CALL MilliSec(exptime)                           #      3   100005
+STATE000; CALL wCloseShutter                               #      4   100007
+STATE000; CALL wFrame                                      #      5   100009
+STATE000; CALL DoFocus(GLines)                             #      6   150448
+STATE000; GOTO StateZero                                   #      7   150449
+DoSimultaneousReadOut: # sequence
+STATE000; Readout--                                        #      1        2
+STATE000; CALL Wait10ns(Delay_FrameStart)                  #      2        4
+STATE000; CALL FGSerialReceiving                           #      3       21
+STATE000; CALL Wait1us                                     #      4      122
+STATE000; CALL GroundBLC                                   #      5      124
+STATE000; CALL ADClamp                                     #      6      126
+STATE000; CALL Wait1us                                     #      7      227
+STATE000; CALL OpenBLC                                     #      8      229
+STATE000; CALL ADClamp_                                    #      9      231
+STATE000; CALL wFrame                                      #     10      233
+STATE000; CALL DoSimultaneousFocus(GLines)                 #     11     6927
+STATE000; GOTO StateZero                                   #     12     6928
+DoSimultaneousFocus: # sequence
+STATE000; CALL GFParallelSplit                             #      0     6206
+STATE000; CALL Wait10ns(Delay_PixelStart)                  #      1     6208
+STATE000; CALL wLine                                       #      2     6210
+STATE000; CALL GSerialReadRight_smooth(GPixels)            #      3     6463
+STATE000; CALL FGSerialReceiving                           #      4     6480
+STATE000; CALL Wait1us                                     #      5     6581
+STATE000; CALL GroundBLC                                   #      6     6583
+STATE000; CALL ADClamp                                     #      7     6585
+STATE000; CALL Wait1us                                     #      8     6686
+STATE000; CALL OpenBLC                                     #      9     6688
+STATE000; CALL ADClamp_                                    #     10     6690
+STATE000; CALL Wait10ns(Delay_LTStart)                     #     11     6692
+STATE000; RETURN DoSimultaneousFocus                       #     12     6693
+DoFocus: # sequence
+STATE000; CALL FParallelSplit                              #      0    49951
+STATE000; CALL OpenBLC                                     #      1    49953
+STATE000; CALL ADClamp_                                    #      2    49955
+STATE000; CALL wLine                                       #      3    49957
+STATE000; CALL GSerialReadRight_smooth(GPixels)            #      4    50210
+STATE000; CALL FGSerialReceiving                           #      5    50227
+STATE000; CALL Wait1us                                     #      6    50328
+STATE000; CALL GroundBLC                                   #      7    50330
+STATE000; CALL ADClamp                                     #      8    50332
+STATE000; CALL Wait1us                                     #      9    50433
+STATE000; CALL OpenBLC                                     #     10    50435
+STATE000; CALL ADClamp_                                    #     11    50437
+STATE000; RETURN DoFocus                                   #     12    50438
+GuideSeq: # sequence
+STATE000; Guiding--                                        #      1        2
+STATE000; CALL DoGuiding(GFrames)                          #      2  3041838
+STATE000; GOTO WaitForReadOut                              #      3  3041839
+DoGuiding: # sequence
+STATE000; CALL GSerialReceiving                            #      0       17
+STATE000; CALL MilliSec(exptime)                           #      1   100018
+STATE000; CALL Wait1us                                     #      2   100119
+STATE000; CALL GroundBLC                                   #      3   100121
+STATE000; CALL ADClamp                                     #      4   100123
+STATE000; CALL Wait1us                                     #      5   100224
+STATE000; CALL OpenBLC                                     #      6   100226
+STATE000; CALL ADClamp_                                    #      7   100228
+STATE000; CALL GParallelTopOnly(G_PreFlush)                #      8   106434
+STATE000; CALL GuideSerialReadRightTop(2040)               #      9  1567075
+STATE000; CALL wFrame                                      #     10  1567077
+STATE000; CALL GuideRowROI(G_ROI_Height)                   #     11  1574987
+STATE000; CALL GParallelTopOnly(G_PostFlush)               #     12  1581193
+STATE000; CALL GuideSerialReadRightTop(2040)               #     13  3041834
+STATE000; RETURN DoGuiding                                 #     14  3041835
+GuideRowROI: # sequence
+STATE000; CALL GSerialReceiving                            #      0       17
+STATE000; CALL GParallelTopOnly                            #      1     6223
+STATE000; CALL GSerial2to3                                 #      2     6324
+STATE000; CALL wLine                                       #      3     6326
+STATE000; CALL GuidePixelFlush(G_PixelPreFlush)            #      4     6427
+STATE000; CALL GuideSerialReadRightTop_smooth(G_ROI_Width) #      5     6680
+STATE000; CALL GuidePixelFlush(G_PixelPostFlush)           #      6     6781
+STATE000; CALL FGSerialReceiving                           #      7     6798
+STATE000; CALL Wait1us(10)                                 #      8     7799
+STATE000; CALL GroundBLC                                   #      9     7801
+STATE000; CALL ADClamp                                     #     10     7803
+STATE000; CALL Wait1us                                     #     11     7904
+STATE000; CALL OpenBLC                                     #     12     7906
+STATE000; CALL ADClamp_                                    #     13     7908
+STATE000; RETURN GuideRowROI                               #     14     7909
+MilliSec: # sequence
+STATE000; CALL Wait1ms                                     #      0    99998
+STATE000; if Abort GOTO StateZero                          #      1    99999
+STATE000; RETURN MilliSec                                  #      2   100000
+FParallelUp: # waveform
+STATE001; STATE000(1033)                                   #   1033     1034
+STATE002; STATE000(1033)                                   #   2067     2068
+STATE003; STATE000(1033)                                   #   3101     3102
+STATE004; STATE000(1033)                                   #   4135     4136
+STATE005; STATE000(1033)                                   #   5169     5170
+STATE006; STATE000(1033)                                   #   6203     6204
+STATE007; RETURN FParallelUp                               #   6204     6205
+FParallelDown: # waveform
+STATE001; STATE000(1033)                                   #   1033     1034
+STATE004; STATE000(1033)                                   #   2067     2068
+STATE003; STATE000(1033)                                   #   3101     3102
+STATE002; STATE000(1033)                                   #   4135     4136
+STATE007; STATE000(1033)                                   #   5169     5170
+STATE006; STATE000(1033)                                   #   6203     6204
+STATE005; RETURN FParallelDown                             #   6204     6205
+FParallelSplit_Old: # waveform
+STATE008; STATE000(1033)                                   #   1033     1034
+STATE009; STATE000(1033)                                   #   2067     2068
+STATE002; STATE000(1033)                                   #   3101     3102
+STATE010; STATE000(1033)                                   #   4135     4136
+STATE011; STATE000(1033)                                   #   5169     5170
+STATE005; STATE000(1033)                                   #   6203     6204
+STATE012; RETURN FParallelSplit_Old                        #   6204     6205
+FParallelSplit: # waveform
+STATE013; STATE000(16649)                                  #  16649    16650
+STATE014; STATE000(16649)                                  #  33299    33300
+STATE015; STATE000(16648)                                  #  49948    49949
+STATE000; RETURN FParallelSplit                            #  49949    49950
+GFParallelSplit: # waveform
+STATE016; STATE000(1033)                                   #   1033     1034
+STATE017; STATE000(1033)                                   #   2067     2068
+STATE018; STATE000(1033)                                   #   3101     3102
+STATE019; STATE000(1033)                                   #   4135     4136
+STATE020; STATE000(1033)                                   #   5169     5170
+STATE021; STATE000(1033)                                   #   6203     6204
+STATE022; RETURN GFParallelSplit                           #   6204     6205
+GParallelSplit: # waveform
+STATE023; STATE000(1033)                                   #   1033     1034
+STATE024; STATE000(1033)                                   #   2067     2068
+STATE025; STATE000(1033)                                   #   3101     3102
+STATE026; STATE000(1033)                                   #   4135     4136
+STATE027; STATE000(1033)                                   #   5169     5170
+STATE028; STATE000(1033)                                   #   6203     6204
+STATE029; RETURN GParallelSplit                            #   6204     6205
+GParallelUp: # waveform
+STATE023; STATE000(1033)                                   #   1033     1034
+STATE030; STATE000(1033)                                   #   2067     2068
+STATE025; STATE000(1033)                                   #   3101     3102
+STATE031; STATE000(1033)                                   #   4135     4136
+STATE032; STATE000(1033)                                   #   5169     5170
+STATE028; STATE000(1033)                                   #   6203     6204
+STATE033; RETURN GParallelUp                               #   6204     6205
+GParallelTopOnly: # waveform
+STATE034; STATE000(1033)                                   #   1033     1034
+STATE035; STATE000(1033)                                   #   2067     2068
+STATE036; STATE000(1033)                                   #   3101     3102
+STATE037; STATE000(1033)                                   #   4135     4136
+STATE038; STATE000(1033)                                   #   5169     5170
+STATE039; STATE000(1033)                                   #   6203     6204
+STATE040; RETURN GParallelTopOnly                          #   6204     6205
+FGSerialReceiving: # waveform
+STATE041; STATE000(14)                                     #     14       15
+STATE042; RETURN FGSerialReceiving                         #     15       16
+GSerialReceiving: # waveform
+STATE043; STATE000(14)                                     #     14       15
+STATE042; RETURN GSerialReceiving                          #     15       16
+GSerial2to3: # waveform
+STATE044; STATE000(98)                                     #     98       99
+STATE000; RETURN GSerial2to3                               #     99      100
+GSerial3to2: # waveform
+STATE045; STATE000(98)                                     #     98       99
+STATE000; RETURN GSerial3to2                               #     99      100
+GSerialReadRight_smooth: # waveform
+STATE046; STATE000(7)                                      #      7        8
+STATE047;                                                  #      8        9
+STATE048; STATE000(74)                                     #     83       84
+STATE049; STATE000(27)                                     #    111      112
+STATE050; STATE000(27)                                     #    139      140
+STATE051; STATE000(110)                                    #    250      251
+STATE000; RETURN GSerialReadRight_smooth                   #    251      252
+GuideSerialReadRightTop_smooth: # waveform
+STATE052; STATE000(7)                                      #      7        8
+STATE047;                                                  #      8        9
+STATE048; STATE000(5)                                      #     14       15
+STATE053; STATE000(14)                                     #     29       30
+STATE054; STATE000(149)                                    #    179      180
+STATE055; STATE000(14)                                     #    194      195
+STATE056; STATE000(14)                                     #    209      210
+STATE057; STATE000(40)                                     #    250      251
+STATE000; RETURN GuideSerialReadRightTop_smooth            #    251      252
+GuidePixelFlush: # waveform
+STATE058; STATE000(15)                                     #     15       16
+STATE059; STATE000(15)                                     #     31       32
+STATE053; STATE000(15)                                     #     47       48
+STATE054; STATE000(15)                                     #     63       64
+STATE055; STATE000(15)                                     #     79       80
+STATE056; STATE000(15)                                     #     95       96
+STATE057; STATE000(2)                                      #     98       99
+STATE000; RETURN GuidePixelFlush                           #     99      100
+GuideSerialReadRightTop: # waveform
+STATE060;                                                  #      0        1
+STATE048; STATE000(39)                                     #     40       41
+STATE061; STATE000(299)                                    #    340      341
+STATE054; STATE000(14)                                     #    355      356
+STATE062; STATE000(14)                                     #    370      371
+STATE063; STATE000(14)                                     #    385      386
+STATE057; STATE000(14)                                     #    400      401
+STATE064; STATE000(14)                                     #    415      416
+STATE065; STATE000(298)                                    #    714      715
+STATE000; RETURN GuideSerialReadRightTop                   #    715      716
+PulseTest: # waveform
+STATE000; STATE000(7)                                      #      7        8
+STATE066;                                                  #      8        9
+STATE048;                                                  #      9       10
+STATE067; STATE000(499)                                    #    509      510
+STATE068; STATE000(19)                                     #    529      530
+STATE069; STATE000(499)                                    #   1029     1030
+STATE070; STATE000(19)                                     #   1049     1050
+STATE071; STATE000(499)                                    #   1549     1550
+STATE072; STATE000(19)                                     #   1569     1570
+STATE073; STATE000(499)                                    #   2069     2070
+STATE042; STATE000(19)                                     #   2089     2090
+STATE061; STATE000(499)                                    #   2589     2590
+STATE074; STATE000(19)                                     #   2609     2610
+STATE075; STATE000(499)                                    #   3109     3110
+STATE038; STATE000(19)                                     #   3129     3130
+STATE035; STATE000(499)                                    #   3629     3630
+STATE040; STATE000(19)                                     #   3649     3650
+STATE037; STATE000(499)                                    #   4149     4150
+STATE036; STATE000(19)                                     #   4169     4170
+STATE039; STATE000(499)                                    #   4669     4670
+STATE076; STATE000(19)                                     #   4689     4690
+STATE077; STATE000(499)                                    #   5189     5190
+STATE078; STATE000(19)                                     #   5209     5210
+STATE079; STATE000(499)                                    #   5709     5710
+STATE080; STATE000(19)                                     #   5729     5730
+STATE081; STATE000(499)                                    #   6229     6230
+STATE011; STATE000(19)                                     #   6249     6250
+STATE009; STATE000(499)                                    #   6749     6750
+STATE012; STATE000(19)                                     #   6769     6770
+STATE010; STATE000(499)                                    #   7269     7270
+STATE002; STATE000(19)                                     #   7289     7290
+STATE005; STATE000(498)                                    #   7788     7789
+STATE000; RETURN PulseTest                                 #   7789     7790
+GSerialReadRight: # waveform
+STATE082;                                                  #      0        1
+STATE048; STATE000(39)                                     #     40       41
+STATE061; STATE000(299)                                    #    340      341
+STATE068; STATE000(14)                                     #    355      356
+STATE071; STATE000(14)                                     #    370      371
+STATE083; STATE000(14)                                     #    385      386
+STATE069; STATE000(14)                                     #    400      401
+STATE070; STATE000(14)                                     #    415      416
+STATE084; STATE000(298)                                    #    714      715
+STATE000; RETURN GSerialReadRight                          #    715      716
+GSerialReadRightReversed: # waveform
+STATE085;                                                  #      0        1
+STATE048; STATE000(39)                                     #     40       41
+STATE061; STATE000(299)                                    #    340      341
+STATE072; STATE000(14)                                     #    355      356
+STATE069; STATE000(14)                                     #    370      371
+STATE086; STATE000(14)                                     #    385      386
+STATE073; STATE000(14)                                     #    400      401
+STATE049; STATE000(14)                                     #    415      416
+STATE075; STATE000(298)                                    #    714      715
+STATE000; RETURN GSerialReadRightReversed                  #    715      716
+GSerialReadLeft: # waveform
+STATE082;                                                  #      0        1
+STATE048; STATE000(39)                                     #     40       41
+STATE061; STATE000(299)                                    #    340      341
+STATE072; STATE000(14)                                     #    355      356
+STATE071; STATE000(14)                                     #    370      371
+STATE087; STATE000(14)                                     #    385      386
+STATE073; STATE000(14)                                     #    400      401
+STATE070; STATE000(14)                                     #    415      416
+STATE088; STATE000(298)                                    #    714      715
+STATE000; RETURN GSerialReadLeft                           #    715      716
+Wait1ms: # waveform
+STATE000; STATE000(99995)                                  #  99995    99996
+STATE000; RETURN Wait1ms                                   #  99996    99997
+Wait1us: # waveform
+STATE000; STATE000(98)                                     #     98       99
+STATE000; RETURN Wait1us                                   #     99      100
+Wait10ns: # waveform
+STATE000; RETURN Wait10ns                                  #      0        1
+OpenBLC: # waveform
+STATE089; RETURN OpenBLC                                   #      0        1
+GroundBLC: # waveform
+STATE090; RETURN GroundBLC                                 #      0        1
+wOpenShutter: # waveform
+STATE091; RETURN wOpenShutter                              #      0        1
+wCloseShutter: # waveform
+STATE092; RETURN wCloseShutter                             #      0        1
+wFrame: # waveform
+STATE093; RETURN wFrame                                    #      0        1
+wLine: # waveform
+STATE094; RETURN wLine                                     #      0        1
+wPixel: # waveform
+STATE066;                                                  #      0        1
+STATE048;                                                  #      1        2
+STATE092; RETURN wPixel                                    #      2        3
+ADClamp: # waveform
+STATE095; RETURN ADClamp                                   #      0        1
+ADClamp_: # waveform
+STATE096; RETURN ADClamp_                                  #      0        1

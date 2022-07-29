@@ -1,0 +1,121 @@
+/* -*- C -*- */
+/** ---------------------------------------------------------------------------
+ * @file   wasp.signals
+ * @brief  WaSP signal names and module/channel assignments
+ * 
+ * syntax:
+ *
+ * #define signallabel slot : channel
+ *
+ * where signallabel   is any ASCII text string to identify the signal name
+ *       slot          is the slot number containing the module,
+ *       channel       is the channel number on the module
+ * 
+ * Combinations of signals can also be made by creating a comma-separated
+ * list enclosed in square brackets as follows:
+ *
+ * #define newlabel [ signallabel, signallabel [, signallabel] ]
+ *
+ * where newlabel    is any ASCII text string to define a new signal
+ *       signallabel is any signal already defined above
+ *
+ * any number can be combined in a comma-separated list between square brackets,
+ * or a single signal can be defined in square brackets to effectively asign
+ * a different name to the signal
+ *
+ */
+
+#define SHUTTER	0 : 1  /* INT signal from the backplane - controls the shutter	*/
+#define FRAME	0 : 2  /* FRAME signal from the backplane			*/
+#define LINE	0 : 3  /* LINE signal from the backplane			*/
+#define PIXEL	0 : 4  /* PIXEL signal from the backplane			*/
+                
+#define RG	3 : 1  /* Reset Gate    	        	*/
+#define SW	3 : 2  /* Summing Well          		*/
+#define LL1	3 : 3  /* Loopback logic 1              	*/
+#define LL2	3 : 4  /* Loopback logic 2			*/
+#define LL3	3 : 9  /* Loopback logic 3      		*/
+#define LL4	3 : 10 /* Loopback logic 4      		*/
+#define LL5	3 : 11 /* Loopback logic 5      		*/
+                
+#define S3a	4 : 1 /* Serial phase 3 Px (Top left)                  	*/
+#define S2a	4 : 2 /* Serial phase 2 Px (Top left)       		*/
+#define S1a	4 : 3 /* Serial phase 1 Px (Top left)               	*/
+#define S1b	4 : 4 /* Serial phase 1 Px (Top right)                  */
+#define S2b	4 : 5 /* Serial phase 2 Px (Top right)              	*/
+#define S3b	4 : 6 /* Serial phase 3 Px (Top right)      		*/
+#define OTG	4 : 7 /* Output Transfer Gate - DC Voltage (all quads)	*/
+#define SW_LOW	4 : 8 /* Summing Well Low rail voltage - DC Voltage	*/
+                
+#define AD5	5 : 1 /* AD board in slot 5.  Access to the clamp	*/
+
+/* These are the biases which can now be commanded in states            */
+#define RDa      9 : 1  /* Reset Drain Px (Top left)                    */
+#define RDb      9 : 2  /* Reset Drain Px (Top right)                   */
+#define RDc      9 : 3  /* Reset Drain Py (Bottom right)                */
+#define RDd      9 : 4  /* Reset Drain Py (Bottom left)                 */
+#define SC       9 : 6  /* Scupper Voltage - All Quads                  */
+#define RG_HIGH  9 : 11 /* Reset Gate High Rail - All Quads             */
+#define SW_HIGH  9 : 12 /* Summing Well High Rail - All Quads           */
+#define DD       9 : 25 /* Dump Drain - All Quads                       */
+#define ODa      9 : 27 /* Output Drain Px (Top left)                   */
+#define ODb      9 : 28 /* Output Drain Px (Top right)                  */
+#define ODc      9 : 29 /* Output Drain Py (Bottom right)               */
+#define ODd      9 : 30 /* Output Drain Py (Bottom left)                */
+
+                
+#define A1x	10 : 1 /* Parallel Phase 1 Px (Top)			*/
+#define A2x	10 : 2 /* Parallel Phase 2 Px (Top)			*/
+#define A3x	10 : 3 /* Parallel Phase 3 Px (Top)                   	*/
+#define A1y	10 : 4 /* Parallel Phase 1 Py (Bottom)                 	*/
+#define A2y	10 : 5 /* Parallel Phase 2 Py (Bottom)                 	*/
+#define A3y	10 : 6 /* Parallel Phase 3 Py (Bottom)                	*/
+#define T1	10 : 7 /* Transfer Gate 1 - Px and Py (Top and Bottom)	*/
+#define T2	10 : 8 /* Transfer Gate 2 - Px and Py (Top and Bottom)  */
+                
+#define S3c	11 : 1 /* Serial phase 3 Py (Bottom right)             	*/
+#define S2c	11 : 2 /* Serial phase 2 Py (Bottom right)		*/
+#define S1c	11 : 3 /* Serial phase 1 Py (Bottom right)     		*/
+#define S3d	11 : 4 /* Serial phase 3 Py (Bottom left)              	*/
+#define S2d	11 : 5 /* Serial phase 2 Py (Bottom left)         	*/
+#define S1d	11 : 6 /* Serial phase 1 Py (Bottom left)              	*/
+#define DG	11 : 7 /* Dump Gate - All Quadrants     		*/
+#define RG_LOW	11 : 8 /* Reset Gate low rail - All Quadrants   	*/
+                
+#define SplitClock1  [S1a,S1b,S1c,S1d]
+#define SplitClock2  [S2a,S2b,S2c,S3d]
+#define SplitClock3  [S3a,S3b,S3c,S3d]
+
+#define RightSClock1 [S1a,S1b,S1c,S1d]
+#define RightSClock2 [S3a,S2b,S3c,S2d]
+#define RightSClock3 [S2a,S3b,S2c,S3d]
+
+#define LeftSClock1 [S1a,S1b,S1c,S1d]
+#define LeftSClock2 [S2a,S3b,S2c,S3d]
+#define LeftSClock3 [S3a,S2b,S3c,S2d]
+
+#define ADCCLAMP  [AD5]
+
+/* Select amplifiers in use here: */
+#define Ampa 1
+#define Ampb 1
+#define Ampc 1
+#define Ampd 1
+
+#if ((Ampa || Ampb) && (Ampc || Ampd)) /* Split frame clocking */
+#define P1 [A1x,A1y]
+#define P2 [A2x,A2y]
+#define P3 [A3x,A3y]
+#endif
+
+#if ((AmpE || AmpF) && !(AmpG || AmpH)) /* Full frame downwards */
+#define P1 [A1x,A1y]
+#define P2 [A3x,A2y]
+#define P3 [A2x,A3y]
+#endif
+
+#if (!(AmpE || AmpF) && (AmpG || AmpH)) /* Full frame upwards */
+#define P1 [A1x,A1y]
+#define P2 [A2x,A3y]
+#define P3 [A3x,A2y]
+#endif

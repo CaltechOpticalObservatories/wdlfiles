@@ -62,6 +62,16 @@ param GoFast=1
 param Guiding=0
 #define defIdleLines #eval _LINES_PER_TAP*2
 #define SingleSerial #eval _PIXELS_PER_TAP*2
+/* sobs begin */
+param scycles=0 /*10*/   /* Number of cycles to shift the charge and expose */
+param dtime=0 /*6000*/   /* dwell time at each position */
+param lineshft=0 /*30*/  /* Number of line of separation */
+param ewr=0        /* Default to not in ewr mode */
+param EwrRepeat=1  /*** 20220414 comment out param EwrRepeat=5*/
+param ExpRepeat=1
+  /*param NumRepeat=1*/
+  /*param NumExpose=1*/  /* Default to single exposure */
+/* sobs end */
 
 /** ---------------------------------------------------------------------------
  * @fn     MAIN
@@ -101,7 +111,8 @@ SEQUENCE Start {
 SEQUENCE WaitForExpose {
   Abort--;
   /*if Expose GOTO DoExpose();*/
-  if Expose DoExpose(); /* Use this for direct readout */
+  /*if Expose ExposeRoutine();*/
+  if Expose DoExpose(ExpRepeat); /*(ExpRepeat);*/ /* Use this for direct readout */
   Idling(); /* 3710 for charge smearing This keeps clocking charge while we're transferring data */
 
   /* This is only for a test shutter signal */
@@ -121,6 +132,12 @@ SEQUENCE WaitForReadout {
   GOTO WaitForReadout();
 }
 
+/*SEQUENCE ExposeRoutine {
+/*  if ewr DoExpose();
+/*  if !ewr DoExpose(NumRepeat);
+/*  return;
+/*}*/  
+
 
 /** ---------------------------------------------------------------------------
  * @fn	    Idling
@@ -128,6 +145,14 @@ SEQUENCE WaitForReadout {
  */
 SEQUENCE Idling {
                  /*  wOutAmpsLow();*/
+  /* sobs begin */
+  if ewr wCloseShutter();
+  if ewr wOutAmpsLow();
+  /* sobs end */
+
+  /* sobs test of top bar */
+  /* Take this out to prevent the top bar */
+  /*if !ewr ReadLineConcurrently();*/
   ReadLineConcurrently();
 
   /*SynchedLineTransfer();*/ /* Idle... to invert parallel shifting */
@@ -176,17 +201,29 @@ SEQUENCE Idling {
  *
  */
 SEQUENCE DoExpose {
-  Expose--;
+  DecExpose(); /* ROS/vicd sets this to zero, so do we really need this? */
   /* if exptime wOutAmpsLow(); */ /* Amps are off at this point anyway */
-  SetParallelExpose();
+  /* sobs begin */
+  if !ewr SetParallelExpose();
+  /*SetParallelExpose();*/
+  /* sobs end */
   /*wOutAmpsHigh();*/
   if ShutterEnable OpenShutter();      // don't even try to open shutter unless enabled
-  if exptime MilliSec(exptime);
-  wCloseShutter();
+  /*if exptime MilliSec(exptime);*/ /* use for nominal acf */
+  /* sobs begin */
+  if scycles ShiftTheCharge(scycles);
+  if !scycles NormExpose();
+  /*if ewr OpenShutter();*/
+  if !ewr wCloseShutter();  /* close the shutter if we are not in EWR mode */
+  /* sobs end */
   /*wOpenShutter();*/ /* Just for a ramped illumination */
 
   /* Comment out for shutter phase test */
   wOutAmpsHigh(); /***/  /* Turn amplifiers back on for readout */
+  /* sobs begin */
+  /*if ewr DoScienceReadout();
+    if ewr wCloseShutter();*/
+  /* sobs end */
   
   /*SetParallelTransfer();*/ /***/  /* These two lines are for shift then squeeze */
   /*SetParallelTransferConcurrent();*/ /***/  /* These two lines are for shift then squeeze */
@@ -220,6 +257,7 @@ SEQUENCE DoExpose {
   wIdle(97);    /* Comment out when dump gate included */
   /*wIdle(54);*/    /* For dump gate included */
   if exptime DoShutterDelay(84);  /* Down to 64 when dump gate included */
+  /*if exptime DoShutterDelay(224);*/ /* for rpm of shutter at 60 */
 
   /* Disable trench, analog to disable dump gate */
   /* Keep trench mode until shutter is fully closed so disable here */
@@ -230,22 +268,59 @@ SEQUENCE DoExpose {
   /* End analog to disable dump gate */
   /* Clamp the signals now and will unclamp just before reading out */
   /* Comment out for triggered readout */
-  DoScienceReadout();
+  /*if !ewr DoScienceReadout();*/
+  /* sobs begin */
+  if ewr wOpenShutter();
+  /* sobs end */
+  /*** 20220414 comment out DoScienceReadout(EwrRepeat);*/ /* Could this be getting set somehow?? */
+  DoScienceReadout(); /*** 20220414 comment in */ /* Moved EwrRepeat to call for JustReadout */
+  /*  if ewr DoScienceReadout(NumRepeat);  /* usually uses NumExpose to loop */
+  /*  if !ewr DoScienceReadout();*/
+    /*DoScienceReadout();*/ /* This is like observational acfs */
+  if ewr wCloseShutter();
   return;             /***/
   /* end comment out */
   
   /*GOTO WaitForReadout();*/ /* uncomment for trig readout */
 }
 
+SEQUENCE DecExpose {
+  Expose--;
+  return;
+}
+
+/* sobs begin */
+SEQUENCE NormExpose {
+  if exptime MilliSec(exptime); /* if there are no cycles, normal exposure */
+  /*if exptime MilliSec(0);*/
+  return;
+}
+
+SEQUENCE ShiftTheCharge {
+  /* Just start with shift as this will make things easier */
+  /* Even though nothing has exposed yet */
+  MilliSec(dtime);  /* Start exposing before shift, I think?         */
+  ParallelUp(lineshft);     /* Shift image toward G-H amplifiers by astlines lines */
+  MilliSec(dtime);  /* Expose for required number of seconds         */
+  ParallelDown(lineshft);   /* Shift image toward E-F amplifiers by astlines lines */
+  /*MilliSec(asttime);*/
+  /* Now go for another round or just go back and close the shutter    */
+  return;
+}
+/* sobs end */
+
 SEQUENCE OpenShutter {
   if exptime wOpenShutter();           // only fire open shutter waveform for non-zero exposure times
+  /* sobs begin */
+  if ewr wOpenShutter();
+  /* sobs end */
   return;
 }
 
 SEQUENCE MilliSec {
   Wait1ms();	/* This is a placeholder 1ms routine - Need to fix up */
 
-  /*TPixel(3152);     */ /* Always clocking out to prevent backstreaming     */
+  /*TPixel(3152);     */ /* Always clocking out to prevent backstreaming */
   /*wAllSerialHigh(); */ /* Make the serials high to collect charge */
   /*Wait1us(100);     */
   /*wAllSerialLow();  */ /* Force charge into the dump gate again */
@@ -323,8 +398,10 @@ SEQUENCE DoScienceReadout {
   Wait1us(10); /*Wait1us();*/
   OpenBLC();
   ADClamp_();
+
+  JustReadout(EwrRepeat); /*** 20220414 Put in here */
+  /*wFrame();*/ /*** 20220414 Comment out*/ /*** In JustReadout */ /*   0.01 us*/
   
-  wFrame();                                                      /*   0.01 us*/
   /* This is only for a test shutter signal */
   /*wOpenShutter();
   Wait1us(10);
@@ -336,16 +413,22 @@ SEQUENCE DoScienceReadout {
   /*InitialClock2Low(); */ /****/ /* For first line test */
   /*TPixel(3152);       */ /****/ /* For first line test */
   /*ScienceRead(3079);  */ /****/ /* For first line test */
-  ScienceRead(3080); /****/ /* For first line test (commented out) */
+  
+  /*ScienceRead(3180);*/ /*** 20220414 Comment out */ /*** In JustReadout */ /* For first line test (commented out) */
+  
   /*ScienceRead(SplitLines);*/ /***/ /* This is just for the non-overlapping clocks */
-  SerialReceiving();   /* Put serial clocks in ready for charge state after readout */                                                               /*   0.21 us*/
+  
+  /*SerialReceiving();*/ /*** 20220414 Comment out In JustReadout */   /* Put serial clocks in ready for charge state after readout */                                                               /*   0.21 us*/
   /*return;*/
+  /***JustReadout(EwrRepeat);*/
   /* Clamp before turning amp off */
   /*GroundBLC();*/    /* Is this correct order for BLC and ADC clamp, does order matter? */
   /*ADClamp();*/
 
   /* Don't turn Amps Off smear mode */
-  wOutAmpsLow(); /***/  /* Turn the amps down when in idle */
+  /* sobs begin */
+  if !ewr wOutAmpsLow(); /***/  /* Turn the amps down when in idle */
+  /* sobs end */
   /* This will enable the dump gate */
   /*wDumpGateOn();   */ /* Can take these out, they don't really help */
   /*wAllSerialLow(); */ /* Can take these out, they don't really help */
@@ -363,6 +446,14 @@ SEQUENCE DoScienceReadout {
   /*GOTO WaitForExpose();*/ /* uncomment for trig readout */   /*   0.01 us?*/
 }
 
+/* This routine is only to readout the mosaic, no overhead */
+SEQUENCE JustReadout {
+  wFrame();
+  ScienceRead(3080); /*** 20220414 went to 3080 from 3180 */
+  SerialReceiving();
+  /*Wait1ms(30);*/  /*** 20220414 commented out */
+  return;
+}
  
 SEQUENCE ScienceRead {
   /* Commented out due to concurrent clocking */
