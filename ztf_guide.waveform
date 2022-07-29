@@ -198,7 +198,7 @@ WAVEFORM GSerialReceiving {
                         SET S1B TO -9,FAST;
                         SET S2B TO -9,FAST;
                         SET S3B TO -9,FAST;
-                        SET SW TO -9,FAST;
+                        SET SW  TO -9,FAST;
 .+SDELAY:               SET RG        TO _RG_CLOCK_HIGH, FAST;
 }
 WAVEFORM GSerial2to3{
@@ -226,13 +226,14 @@ WAVEFORM GSerial3to2 {
 #define G_RefSamples 100
 #define G_SWsettleT 10
 #define G_SWslewT 28
-#define G_PixelT 252
+#define G_PixelT 297 /*252*/ /* Normally 252 for 0.84 sci pixel */
 #define G_Test 2000
-#define G_PixelT_G 252
+
 WAVEFORM GSerialReadRight_smooth{
 #include ztf_guide_ReadPixelSTA.h
 }
 
+#define G_PixelT_G 252
 WAVEFORM GuideSerialReadRightTop_smooth{
   #include ztf_guide_ReadPixelSTA_G.h
 }
@@ -449,3 +450,11 @@ WAVEFORM ADClamp_ {
  0:			SET AD5     TO Low;
 			SET AD6     TO Low;
 }
+
+/*WAVEFORM wOutAmpsHigh {
+  10ms+10ms+10ms+4:    RETURN;
+}
+
+WAVEFORM wOutAmpsLow {
+  10ms+10ms+10ms+4:    RETURN;
+  }*/

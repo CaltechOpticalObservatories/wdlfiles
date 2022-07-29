@@ -16,7 +16,7 @@
 param Expose=0
 param Readout=0
 param ShutterEnable=1
-param shutterdelay=0
+param shutterdelay=_SHDEL
 
 param exptime=0
 param GReadout=0
@@ -31,7 +31,7 @@ param GPixels=_GPIXELS_PER_TAP
 
 param Abort=0
 
-param Delay_FrameStart=264013  /*264013*/
+param Delay_FrameStart=264768 /*264013*/  /*264013, Want 259011 for new 9/27 waveforms?*/
 param Delay_PixelStart=5       /*5*/
 param Delay_LTStart=358        /*156*/
 
@@ -49,14 +49,39 @@ param SerialOverscan=_SERIALOVERSCAN
 param ParallelOverscan=_PARALLELOVERSCAN
 param ImageCols=_IMAGECOLS
 param ImageRows=_IMAGEROWS
-
+param scycles=0
+param EwrRepeat=1
+param ExpRepeat=1
+  /*param NumExpose=1*/
+param ewr=0
+  /*param NumRepeat=1*/
   
   
 SEQUENCE Start {
-  FGSerialReceiving();  /* Put the serials into a known state   */
-  GFParallelSplit();    /* Put the parallels into a known state */
-  ADClamp_();
+  wCloseShutter(); /* Commented out */
+  FGSerialReceiving();  /* Uncomment */ /* Put the serials into a known state   */
+  Wait10ns(5);
+  GFParallelSplit();    /* Uncomment */ /* Put the parallels into a known state */
+  Wait1us(438);
+  Wait10ns(85);
+
+  Wait10ns();
+  Wait1us();
+  Wait10ns();
+  
+  GroundBLC();
+  ADClamp();
+  Wait1us(10); /*Wait1us();*/
   OpenBLC();
+  /*ADClamp_();*/ /* Comment in */
+  /*OpenBLC();*/  /* Uncomment  */
+
+  Idling(); /*Idling(94340);*/
+  Idling();
+  /*Wait1us(727);*/
+  /*Wait10ns(149);*/
+  Wait1ms(30);
+
 }
 
 /** ---------------------------------------------------------------------------
@@ -66,36 +91,198 @@ SEQUENCE Start {
  */
 SEQUENCE StateZero {
   Abort--;
-   if Expose GOTO DoExpose();     
-  if Idle Idling();                    
+  /*if Expose GOTO DoExpose();*/
+  /*if Expose ExposeRoutine();*/
+  if Expose DoExpose(ExpRepeat); /* Use this for direct readout */
+  Idling();  /* put in if Idle, used to be just Idling() */
+  /*Wait1us(223);
+    Wait10ns(71);*/
+  /*wOpenShutter();
+  Wait1us(10);
+  wCloseShutter();*/
   GOTO StateZero();
 }
+
+/*SEQUENCE ExposeRoutine {
+/*  if ewr DoExpose();
+/*  if !ewr DoExpose(NumRepeat);
+/*  return;
+/*}*/
+
 SEQUENCE DoExpose {
-  Expose--;
-  if !Guiding MilliSec(exptime);
-  if Guiding GOTO GuideSeq();
-  if exptime DoShutterDelay(500);
-  GOTO WaitForReadOut();
+  DecExpose();
+  /* sobs begin */
+  if !ewr Wait10ns();
+  /*Wait10ns();*/
+  /* sobs end */
+  if ShutterEnable OpenShutter();
+  /*if exptime MilliSec(exptime);*/
+  /*if exptime MilliSec(0);*/
+  /* sobs begin */
+  if scycles ShiftTheCharge(scycles);
+  if !scycles NormExpose();
+  /*if ewr OpenShutter();*/
+  if !ewr wCloseShutter();  /* close the shutter if we are not in EWR mode */
+  /* sobs end */
+  
+  /*if Guiding GOTO GuideSeq();*/
+  Wait1ms(30);
+  /* sobs begin */
+  /*if ewr DoSimultaneousReadOut();
+    if ewr wCloseShutter();*/
+  /* sobs end */
+
+  Wait10ns();
+  Wait10ns();
+  DoShutterDelay(100);
+  Wait10ns();
+  DoShutterDelay(100);
+  Wait1us(150);
+  Wait10ns(92);
+  DoShutterDelay();
+  
+  if exptime DoShutterDelay(84); /**/
+  /*if exptime DoShutterDelay(224);*/
+
+  Wait10ns();
+  Wait10ns();
+  Wait1ms(30);      /* Delay time of wOG in science acf trench */
+  Wait10ns(11);
+  Wait1us();        /* Delay for trench commands */
+/*  Wait10ns(15);*/    /* Delay for trench commands */
+
+  if ewr Wait10ns();
+  /* Comment out for triggered readout */
+  /*DoSimultaneousReadOut(EwrRepeat);*/ /* Moved EwrRepeat to call for JustReadout */
+  DoSimultaneousReadOut();
+  if ewr Wait10ns();
+  return;
+  /* end comment out */
+  
+  /*GOTO WaitForReadOut();*/ /* uncomment for trig readout */
 }
-SEQUENCE WaitForReadOut {
+
+SEQUENCE DecExpose {
+  Expose--;
+  return;
+}
+
+SEQUENCE NormExpose {
+  if exptime MilliSec(exptime);
+  return;
+}
+
+SEQUENCE ShiftTheCharge {
+  Wait1ms(2);
+  Wait1us(900);
+  Wait10ns(9);
+  return;
+}
+
+SEQUENCE OpenShutter {
+  if exptime wOpenShutter();
+  /* sobs begin */
+  if ewr wOpenShutter();
+  /* sobs end */
+  return;
+}
+/*SEQUENCE DoExpose {
+  Expose--;
+  Wait10ns();  /* Wait to match SetParallelExpose in science acf */
+/*  if ShutterEnable OpenShutter();
+  if exptime MilliSec(exptime);
+  wCloseShutter();
+  /*wOutAmpsHigh();*/
+/*  Wait1ms(30);   /* Wait to match wOutAmpsHigh in science acf */
+/*  Wait10ns(91);  /* Wait to match wOutAmpsHigh in science acf */
+/*  if exptime DoShutterDelay(shutterdelay);
+  DoSimultaneousReadOut();
+  /*Wait1ms(2);
+  Wait1us(654);
+  Wait10ns(14);*/
+
+/*  return;
+  /*GOTO WaitForReadOut();*/
+/*}*/
+
+/* This was used for direct readout since routine isn't used */
+/*SEQUENCE WaitForReadOut {
   if Readout GOTO DoSimultaneousReadOut();
   if Abort GOTO StateZero();
   GOTO WaitForReadOut();
+  }*/
+
+SEQUENCE WaitForReadOut {
+  if Readout GOTO DoSimultaneousReadOut();
+  GOTO WaitForReadOut();
 }
+
+
 
 /** ---------------------------------------------------------------------------
  * @fn	    Idling
  * @brief   Idle sequence to push one parallel line and read the full serial register
  */
+/*SEQUENCE Idling {
+  GFParallelSplit();
+  Wait10ns(5);
+  
+  GSerialReadRight_smooth(1033);
+  FGSerialReceiving();
+
+  Wait1us();
+  GroundBLC();
+  ADClamp();
+  Wait1us()
+  OpenBLC();
+  ADClamp_();
+  Wait10ns(361);
+  Wait1us();
+
+  return;
+  }*/
+
+/* This is former synched idle */
+/*
 SEQUENCE Idling {
   OpenBLC();
   ADClamp_();
   /*FGSerialReceiving();*/
-  GFParallelSplit();
+/*  GFParallelSplit();
   GSerialReadRight_smooth(10);
   GSerialReceiving();
   GroundBLC();
   ADClamp();
+  Wait1ms(2);
+  Wait1us(583);
+  Wait10ns(67);
+  return;
+  }*/
+
+SEQUENCE Idling {
+                 /*OpenBLC();
+                   ADClamp_();*/
+  /*FGSerialReceiving();*/
+  /* sobs begin */
+  if ewr wCloseShutter();
+  if ewr MilliSec(30);  /**/  /* Wait to match wOutAmpsHigh in science acf */
+  /* sobs end */
+  GFParallelSplit();
+  Wait1us(20); /* will this work?? */
+  Wait10ns(6); /* increased to 6 from 5 2021-04-14 */
+  GSerialReadRight_smooth(1033);
+  FGSerialReceiving();
+  Wait1us();
+  GroundBLC();
+  ADClamp();
+  Wait1us(10); /*Wait1us();*/
+  OpenBLC();
+  ADClamp_();
+  Wait10ns(452); /* 0.84us timing Wait10ns(358);*/
+  Wait1us(7); /* just for 1.11us timing */
+  /*Wait1ms(2);
+  Wait1us(583);
+  Wait10ns(67);*/
   return;
 }
 
@@ -118,7 +305,7 @@ SEQUENCE DoGuideReadout {
   Wait1us();
   GroundBLC();
   ADClamp();
-  Wait1us();
+  Wait1us(10); /*Wait1us();*/
   OpenBLC();
   ADClamp_();
   wFrame();
@@ -136,7 +323,7 @@ SEQUENCE DoGuider {
   Wait1us();
   GroundBLC();
   ADClamp();
-  Wait1us();
+  Wait1us(10); /*Wait1us();*/
   OpenBLC();
   ADClamp_();
   return;
@@ -154,34 +341,89 @@ SEQUENCE DoFocusReadout {
 
 SEQUENCE DoSimultaneousReadOut {
   Readout--;
-  Wait10ns(Delay_FrameStart); /*extra Delay*/
-  FGSerialReceiving();
-  Wait1us();
+  /*Wait10ns(265475);*/ /**/ /*extra Delay*/
+  /*Wait10ns(Delay_FrameStart);*/  /* Number matches initial sweepout in science */
+  Wait10ns(312048); /* 0.84 timing Wait10ns(264768);*/    /* Same timing as TPixel(3152) in science acf */
+  FGSerialReceiving(); /* This equals SerialReceiving */
+  Wait10ns(5);
+
+  Wait10ns(); /**/ /* Same as wReset */
+  Wait1us();  /**/ /* Matches science line */
+  Wait10ns(); /**/ /* Same as wUnsetReset  */
+
   GroundBLC();
   ADClamp();
-  Wait1us();
+  Wait1us(10); /*Wait1us();*/
   OpenBLC();
   ADClamp_();
-  wFrame();
-  DoSimultaneousFocus(GLines); /*a bit more than ScienceLines/3*/
-  GOTO StateZero();
+  
+  /***wFrame();*/ /*** In JustReadout */
+
+  /* This is only for a test shutter signal */
+  /*wOpenShutter();
+  Wait1us(10);
+  wCloseShutter();*/
+  /* End test shutter signal */
+
+  /*DoSimultaneousFocus(GLines);*/ /*a bit more than ScienceLines/3*/
+  /***DoSimultaneousFocus(1540);*/ /*** In JustReadout */ /* Should match ScienceRead(3080) */
+  /***FGSerialReceiving();*/ /*** In JustReadout */ /* Line should match SerialReceiving() */
+  /***Wait10ns(2);*/ /*** In JustReadout */
+  JustReadout(EwrRepeat);
+
+  /*wOutAmpsLow();*/
+  /*Wait1us();*/
+  /*Wait10ns(10);*/
+  /* sobs begin */
+  /*if !ewr MilliSec(30);*/  /**/  /* Wait to match wOutAmpsHigh in science acf */
+  /* sobs end */
+  MilliSec(30);
+  Wait10ns(); /**/
+  /* Comment out for triggered readout */
+  Wait1ms(30);      /* Delay time of wOG in science acf trench */
+  /***Wait10ns(96);*/    /* Delay for trench commands */
+  Wait10ns(94);    /*** For JustReadout implementation */
+
+  return; /**/  /***/
+  /* end comment out */
+  /*GOTO StateZero();*/ /* uncomment for trig readout */
 }
 
+/* This routine is only to readout the focus chip, no overhead */
+SEQUENCE JustReadout {
+  wFrame();
+  DoSimultaneousFocus(1540); /* Should match ScienceRead(3080) */
+  FGSerialReceiving(); /* Line should match SerialReceiving() */
+  Wait10ns(4);
+  /*Wait1ms(30);*/ /* taken out 20220729 to match ztf_guide.acf */
+  return;
+}
+  
+
 SEQUENCE DoSimultaneousFocus { 
-GFParallelSplit();
-  Wait10ns(Delay_PixelStart);
+  GFParallelSplit();
+  /*Wait10ns(Delay_PixelStart);*/
+  Wait1us(40); /* will this work?? */
+  Wait10ns(4);
+ 
   wLine();
-/*GuideSerialReadRightTop(GPixels);  */
-  GSerialReadRight_smooth(GPixels); /*SciencePixels*2*3+1*interline */
+  /* GSerialReadRight_smooth(GPixels);*/ /*SciencePixels*2*3+1*interline */
+  GSerialReadRight_smooth(2093);
   /* PulseTest(GPixels);*/
   FGSerialReceiving();
+  /*Wait10ns(5);*/
+
+  /*Wait10ns();*/
   Wait1us();
+  /*Wait10ns();*/
   GroundBLC();
   ADClamp();
-  Wait1us();
+  Wait1us(19); /*Wait1us();*/ /* To keep at 2x pixel, needs 99 instead of 50*/
   OpenBLC();
   ADClamp_();
-  Wait10ns(Delay_LTStart);
+  /*Wait10ns(Delay_LTStart);*/
+  Wait1us(1);    /* just for 111 pix */
+  Wait10ns(632); /* normally 358 for 0.84 pix */
   return;
 }
 SEQUENCE DoFocus {
@@ -194,7 +436,7 @@ SEQUENCE DoFocus {
   Wait1us();
   GroundBLC();
   ADClamp();
-  Wait1us();
+  Wait1us(10); /*Wait1us();*/
     OpenBLC();                 
   ADClamp_();
   return;
@@ -212,7 +454,7 @@ SEQUENCE DoGuiding{
   Wait1us();
   GroundBLC();
   ADClamp();
-  Wait1us();
+  Wait1us(10); /*Wait1us();*/
   OpenBLC();
   ADClamp_();
   GParallelTopOnly(G_PreFlush);
@@ -236,7 +478,7 @@ SEQUENCE GuideRowROI{
   Wait1us(10);
   GroundBLC();
   ADClamp();
-  Wait1us();
+  Wait1us(10); /*Wait1us();*/
   OpenBLC();
   ADClamp_();
   return;
@@ -244,6 +486,11 @@ SEQUENCE GuideRowROI{
 
 SEQUENCE MilliSec {
   Wait1ms();	/* This is a placeholder 1ms routine - Need to fix up */
-  if Abort GOTO StateZero(); /* This abort here is a bit suspect.  The stack isn't cleared of the return when this happens */
+  if Abort GOTO DoAbort(); /* This abort here is a bit suspect.  The stack isn't cleared of the return when this happens */
   return;
+}
+
+SEQUENCE DoAbort {
+  Abort--;
+  GOTO StateZero();
 }

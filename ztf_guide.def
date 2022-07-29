@@ -8,7 +8,7 @@
 /** ---------------------------------------------------------------------------
  * Various configuration modes
  */
-#define _SHDEL                 470       /* microseconds to delay before readout to allow shutter to close */
+#define _SHDEL                 0       /* microseconds to delay before readout to allow shutter to close */
 
 /** ---------------------------------------------------------------------------
  * Configuration Modes for the Guider and Focus chips
@@ -38,7 +38,7 @@
 #define _PIXELS_PER_TAP         2172
 */
 #define _FIRST_RESET_SAMPLE     75 
-#define _LAST_RESET_SAMPLE      80
+#define _LAST_RESET_SAMPLE      80 
 #define _FIRST_VIDEO_SAMPLE     240
 #define _LAST_VIDEO_SAMPLE      245 
 #define _ARCHON_SAMPLE_MODE        1     /* 0=16bit, 1=32bit  */
@@ -79,8 +79,8 @@
  * Define guider clock voltage levels here (units are Volts)
  */
 #define _GSER_CLOCK_LOW    -5.0
-#define _GSER_CLOCK_HIGH    5
-#define _GSER_CLOCK_RCV     5
+#define _GSER_CLOCK_HIGH    8  /* Make these 8 for better sharpness */
+#define _GSER_CLOCK_RCV     8  /* Make these 8 for better sharpness */
 
 #define _GPAR_CLOCK_LOW    -9.0
 #define _GPAR_CLOCK_HIGH    2.0
@@ -89,7 +89,7 @@
 #define _GRG_CLOCK_HIGH     10.0
 
 #define _GSW_CLOCK_LOW     -7
-#define _GSW_CLOCK_HIGH     5
+#define _GSW_CLOCK_HIGH     5  /* Need to make this higher with GSER_CLOCK_HIGH? */
 
 #define _RG_CLOCK_HIGH	    10.0
 #define _RG_CLOCK_LOW	   -2.0
