@@ -25,6 +25,7 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install numpy
         python -m pip install matplotlib
+        python -m pip install scipy
     - name: Build ACF
       run: |
         cd src/cryoscope
