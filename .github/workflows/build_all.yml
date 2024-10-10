@@ -19,7 +19,11 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install gpp
-      run: sudo apt-get update && sudo apt-get install -y gpp
+      run: | 
+        sudo apt-get update
+        sudo apt-get install -y gpp
+        python -m pip install --upgrade pip
+        python -m pip install numpy
     - name: Build ACF
       run: |
         cd src/cryoscope
