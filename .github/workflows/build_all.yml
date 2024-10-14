@@ -28,5 +28,10 @@ jobs:
         python -m pip install scipy
     - name: Build ACF
       run: |
-        cd src/cryoscope
-        python ../bin/build_acf.py cryoscope
+        cd src
+        for dir in */ ; do
+          if [ -d "$dir" ]; then
+            echo "Building ACF file for $dir"
+            python ../bin/build_acf.py "$dir"
+          fi
+        done

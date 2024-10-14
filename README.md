@@ -16,23 +16,27 @@ Additionally, CI workflows are set up to automate the conversion process, ensuri
 
 The repository is structured as follows:
 
+```
 wdlfiles/ 
 ├── src/ # Folder containing the WDL source files 
 ├── acf/ # Folder for storing generated .acf files 
 ├── .github/ # CI workflows for automating conversion 
 └── README.md # This documentation file
+```
 
 ## How to Use
 
 ### Prerequisites
 
-- Clone the [CaltechOpticalObservatories/wdl](https://github.com/CaltechOpticalObservatories/wdl) repository locally to access the conversion scripts.
-- Ensure you have the necessary dependencies and environment to run the WDL-to-ACF conversion scripts (refer to the [wdl repository](https://github.com/CaltechOpticalObservatories/wdl) for setup instructions).
+- Ensure you have the necessary dependencies and environment to run the ACF build script (refer to the [wdl repository](https://github.com/CaltechOpticalObservatories/wdl) for setup instructions).
 
 ### Steps to Convert WDL to ACF
 
 1. Place the WDL source files in the `src/` directory of this repository.
-2. Run the conversion scripts from the [wdl repository](https://github.com/CaltechOpticalObservatories/wdl) to generate `.acf` files.
+2. Run the ACF build script in the `bin` folder to generate `.acf` files.
+```
+    bin/build_acf.py {target}
+```
 3. The `.acf` files will be stored in the `acf/` directory for further use.
 
 ### CI Workflow
@@ -40,7 +44,7 @@ wdlfiles/
 The CI pipeline is configured to:
 
 - Trigger on every push to the repository.
-- Automatically run the WDL-to-ACF conversion for the WDL files stored in the `src/` folder.
+- Automatically run the ACF build script for the WDL files stored in the `src/` folder.
 - Report success or failure based on whether the conversion process completes successfully.
 
 ## Contributing

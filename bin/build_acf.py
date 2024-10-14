@@ -3,10 +3,13 @@
 import sys
 import os
 import subprocess
-import json
+import re
 
+# Please set the correct gpp path here
 GPP = "/usr/bin/gpp"
-WDLPATH = "../../wdl/wdl"
+
+CURDIR = os.path.dirname(os.path.abspath(__file__))
+WDLPATH = f"{CURDIR}/../wdl/wdl"
 PLOT = "False"  # Default, set to True to show waveform plots
 GFLAGS = '+c "/*" "*/" +c "//" "\\n"'
 
@@ -18,17 +21,34 @@ WAVGEN = f"{WDLPATH}/wavgenDriver.py"
 MODEGEN = f"{WDLPATH}/modegenDriver.py"
 I2A = f"{WDLPATH}/ini2acf.pl"
 
-def get_src_dir(target):
-    return f'./src/{target}'
+def read_config_variables(file_path):
+    variables = {}
+    
+    # Define the regex pattern to match lines with variable assignments
+    pattern = re.compile(r'(\w+)\s*=\s*"([^"]+)"')
 
-def scan_file_for_key(file_name, key):
+    # Open the file and read line by line
+    with open(file_path, 'r') as file:
+        for line in file:
+            # Match the pattern
+            match = pattern.search(line)
+            if match:
+                # Extract the variable name and value
+                variable_name = match.group(1)
+                variable_value = match.group(2)
+                variables[variable_name] = variable_value
+
+    return variables
+
+def get_src_dir(target):
+    return f'{CURDIR}/../src/{target}'
+
+def scan_file_for_key(target, key):
     try:
-        with open(f"{file_name}.conf.json") as f:
-            content = f.read()
-            js = json.loads(content)
-            return js[key]
+        config_variables = read_config_variables(f"{get_src_dir(target)}/{target}.conf")
+        return f"{get_src_dir(target)}/{config_variables[key]}"
     except FileNotFoundError:
-        print(f"{file_name}.conf.json does not exist")
+        print(f"{target}.conf does not exist")
         return None
 
 
@@ -41,7 +61,7 @@ def run_command(command):
 
 
 def build_acf(target):
-    f_tmp = f"{target}_TMP"
+    f_tmp = f"{get_src_dir(target)}/{target}_TMP"
     
     # Scan for MODULE_FILE
     modfile = scan_file_for_key(target, "MODULE_FILE")
@@ -51,7 +71,7 @@ def build_acf(target):
         return
 
     print(f"Making {f_tmp}.wdl from {target}.conf ...")
-    run_command(f"cat {target}.conf | {SEQPARSER} - | {GPP} {GFLAGS} -I{get_src_dir(target)} | {WDLPARSER} - > {f_tmp}.wdl")
+    run_command(f"cat {get_src_dir(target)}/{target}.conf | {SEQPARSER} - | {GPP} {GFLAGS} -I{get_src_dir(target)} | {WDLPARSER} - > {f_tmp}.wdl")
 
     print(f"Making {f_tmp}.script, {f_tmp}.states from {f_tmp}.wdl ...")
     run_command(f"echo {f_tmp} | cat  - {modfile} | {GPP} {GFLAGS} -I{get_src_dir(target)} | {MODPARSER} -")
@@ -69,24 +89,24 @@ def build_acf(target):
         return
 
     run_command(f"cat {target}.conf | {INCPARSER} - | cat - {cdsfile} | {GPP} {GFLAGS} -I{get_src_dir(target)} | "
-                f"cat - {f_tmp}.script {f_tmp}.modules {f_tmp}.states {f_tmp}.system | {I2A} - > {target}.acf")
+                f"cat - {f_tmp}.script {f_tmp}.modules {f_tmp}.states {f_tmp}.system | {I2A} - > {get_src_dir(target)}/{target}.acf")
 
     # Scan for MODE_FILE
     modefile = scan_file_for_key(target, "MODE_FILE")
-    run_command(f"{MODEGEN} {modefile} {target}.acf")
+    run_command(f"{MODEGEN} {modefile} {get_src_dir(target)}/{target}.acf")
 
     # Insert REV keyword if in git
     if os.path.isdir(".git"):
         print("Inserting REV keyword ...")
-        run_command(f"{WDLPATH}/insert_hash {target}.acf")
+        run_command(f"{WDLPATH}/insert_hash {get_src_dir(target)}/{target}.acf")
     else:
         print("Not a git archive, skipping REV keyword")
 
-    print(f"Removing {target}_TMP files ...")
-    run_command(f"rm -f {target}_TMP.*")
+    print(f"Removing {get_src_dir(target)}/{target}_TMP files ...")
+    run_command(f"rm -f {get_src_dir(target)}/{target}_TMP.*")
 
-    print(f"Moving {target}.acf file to acf folder ...")
-    run_command(f"mv {target}.acf ../../acf/")
+    print(f"Moving {get_src_dir(target)}/{target}.acf file to acf folder ...")
+    run_command(f"mv {get_src_dir(target)}/{target}.acf {CURDIR}/../acf/")
 
     print("Done")
 
