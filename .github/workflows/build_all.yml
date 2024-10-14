@@ -52,33 +52,13 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Add and commit changes
+      - name: Add and commit ACF file changes
         run: |
-          git add version.txt
-          git commit -m "Update version.txt with Python 3.10"
+          git add acf/
+          git commit -m "Automated ACF files update by GitHub Actions"
 
       - name: Push changes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git push
-
-
-
-
-
-    - name: Configure Git
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-    - name: Add and commit ACF file changes
-      run: |
-        git add acf/
-        git commit -m "Automated ACF files update by GitHub Actions"
-
-    - name: Push changes
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        git push
