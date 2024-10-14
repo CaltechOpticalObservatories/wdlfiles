@@ -24,13 +24,24 @@ wdlfiles/
 └── README.md # This documentation file
 ```
 
-## How to Use
+## Prerequisites
 
-### Prerequisites
+### System Requirements:
+- Python 3.x
+- GNU Make
+- GPP (GNU Preprocessor) [Download GPP](https://logological.org/gpp)
 
-- Ensure you have the necessary dependencies and environment to run the ACF build script (refer to the [wdl repository](https://github.com/CaltechOpticalObservatories/wdl) for setup instructions).
+### Python Packages:
+- `numpy`
+- `scipy`
+- `matplotlib`
+- `pyqt`
 
-### Steps to Convert WDL to ACF
+### WDL
+- Ensure you have the necessary dependencies and environment to run the ACF build script    (refer to the [wdl repository](https://github.com/CaltechOpticalObservatories/wdl) for setup instructions).
+
+
+## Steps to Convert WDL to ACF
 
 1. Place the WDL source files in the `src/` directory of this repository.
 2. Run the ACF build script in the `bin` folder to generate `.acf` files.
@@ -39,7 +50,7 @@ wdlfiles/
 ```
 3. The `.acf` files will be stored in the `acf/` directory for further use.
 
-### CI Workflow
+## CI Workflow
 
 The CI pipeline is configured to:
 
