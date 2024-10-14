@@ -42,15 +42,18 @@ jobs:
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-    - name: Add and commit ACF file changes
+    - name: Add, commit and push ACF file changes
       if: matrix.python-version == '3.12'
       run: |
         git add acf/
-        git commit -m "Automated ACF files update by GitHub Actions"
 
-    - name: Push changes
-      if: matrix.python-version == '3.12'
+        # Check if there are any changes
+        if git diff --staged --quiet; then
+          echo "No changes to commit."
+        else
+          git commit -m "Automated ACF files update by GitHub Actions"
+          git push
+        fi
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        git push
+        
