@@ -18,7 +18,7 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install gpp
+    - name: Install gpp and python packages
       run: | 
         sudo apt-get update
         sudo apt-get install -y gpp
@@ -26,7 +26,7 @@ jobs:
         python -m pip install numpy
         python -m pip install matplotlib
         python -m pip install scipy
-    - name: Build ACF
+    - name: Build all ACF files in src folder
       run: |
         cd src
         for dir in * ; do
@@ -35,3 +35,18 @@ jobs:
             python ../bin/build_acf.py "$dir"
           fi
         done
+    - name: Configure Git
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+    - name: Add and commit ACF file changes
+      run: |
+        git add acf/
+        git commit -m "Automated ACF files update by GitHub Actions"
+
+    - name: Push changes
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        git push
