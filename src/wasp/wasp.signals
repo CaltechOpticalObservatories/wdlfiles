@@ -1,0 +1,161 @@
+/* -*- C -*- */
+/** ---------------------------------------------------------------------------
+ * @file   wasp.signals
+ * @brief  WaSP signal names and module/channel assignments
+ * 
+ * syntax:
+ *
+ * #define signallabel slot : channel
+ *
+ * where signallabel   is any ASCII text string to identify the signal name
+ *       slot          is the slot number containing the module,
+ *       channel       is the channel number on the module
+ * 
+ * Combinations of signals can also be made by creating a comma-separated
+ * list enclosed in square brackets as follows:
+ *
+ * #define newlabel [ signallabel, signallabel [, signallabel] ]
+ *
+ * where newlabel    is any ASCII text string to define a new signal
+ *       signallabel is any signal already defined above
+ *
+ * any number can be combined in a comma-separated list between square brackets,
+ * or a single signal can be defined in square brackets to effectively asign
+ * a different name to the signal
+ *
+ * Update in progress for new Hardware
+ */
+
+#define SHUTTER	0 : 1 /* INT signal from the backplane - controls the shutter	*/
+#define FRAME	0 : 2 /* FRAME signal from the backplane			*/
+#define LINE	0 : 3 /* LINE signal from the backplane				*/
+#define PIXEL	0 : 4 /* PIXEL signal from the backplane			*/
+
+#define GA1T 	2 : 1 /* Guider image phase 1 top    */
+#define GA1B	2 : 2 /* Guider image phase 1 bottom */
+#define FA1B	2 : 3 /* Focus  image phase 1 bottom */
+#define FA2T	2 : 4 /* Focus  image phase 2 top    */
+#define FA2B	2 : 5 /* Focus  image phase 2 bottom */
+#define FA3T	2 : 6 /* Focus  image phase 3 top    */
+#define FA3B	2 : 7 /* Focus  image phase 3 bottom */
+#define FA1T	2 : 8 /* Focus  image phase 1 top    */
+
+#define RG	3 : 1 /* Focus/guider reset gate		*/
+#define SW	3 : 2 /* Focus/guider summing well   		*/
+#define HV	3 : 4 /*High voltage switch 5V logic*/
+#define GA3T	3 : 5 /* Guider image phase 3 top		*/
+#define GA3B	3 : 6 /* Guider image phase 3 bottom		*/
+#define GA2T	3 : 7 /* Guider image phase 2 top		*/
+#define GA2B	3 : 8 /* Guider image phase 2 bottom		*/
+
+#define GFS3L	4 : 1 /* Guide/Focus serial phase 3 left             	*/
+#define GF_OTG  4 : 2 /*Guide/Focus Transfer Gate */
+#define GFS3R	4 : 3 /* Guide/Focus serial phase 3 right     		*/
+#define GFS1L   4 : 5 /*Guide/Focus serial phase 1 left                 */
+#define GFS2R	4 : 6 /* Guider serial phase 2 right             	*/
+#define GFS1R	4 : 7 /* Guide/Focus serial phase 1 right        	*/
+#define GFS2L	4 : 8 /* Guide/Focus serial phase 2 left            	*/
+
+
+#define AD5	5 : 1 /* AD board in slot 5.  Access to the clamp	*/
+
+#define AD6	6 : 1 /* AD board in slot 6.  Access to the clamp	*/
+
+#define DG	8 : 2 /* Science Dump Gate; 				*/
+#define OD_GR  8 : 16
+#define OD_GL  8 : 21
+#define SC_G 8:19
+#define RD_GBL 8:13
+#define RD_GBR 8:14
+#define RD_GUL 8:20
+#define RD_GUR 8:17
+
+#define TG_AD	9 : 1 /* Science transfer gate				*/
+#define SW_EFGH	9 : 2 /* Science summing well				*/
+#define G3_H3	9 : 3 /* Science serial phase 3 G and H registers	*/
+#define F2_G2	9 : 4 /* Science serial phase 2 F and G registers	*/
+#define E1_H1	9 : 5 /* Science serial phase 1 E and H registers	*/
+#define F1_G1	9 : 6 /* Science serial phase 1 F and G registers	*/
+#define E2_H2	9 : 7 /* Science serial phase 2 E and H registers	*/
+#define E3_F3	9 : 8 /* Science serial phase 3 E and F registers	*/
+
+#define CD3	10 : 1 /* Science // Phase				*/
+#define AB4	10 : 2 /* Science // Phase				*/
+#define CD4	10 : 3 /* Science // Phase	*/
+#define AB3	10 : 4 /* Science // Phase	*/
+#define CD2	10 : 5 /* Science // Phase	*/
+#define AB1	10 : 6 /* Science // Phase	*/
+#define CD1	10 : 7 /* Science // Phase	*/
+#define AB2	10 : 8 /* Science // Phase	*/
+
+#define NOP	11 : 1 /* This LVDS does nothing, so I'm presently using it as a NOP */
+#define PhiR	11 : 2 /* Reset gate LVDS signal			*/
+#define FBLOS	11 : 3 /* Black level clamp for focus signal		*/
+#define FBLDOS	11 : 4 /* Black level clamp for focus dummy signal	*/
+#define GBLOS	11 : 5 /* Black level clamp for guider signal		*/
+#define GBLDOS	11 : 6 /* Black level clamp for guider dummy signal	*/
+#define SBLDOS	11 : 7 /* Black level clamp for science signal		*/
+#define SBLOS	11 : 8 /* Black level clamp for science dummy signal	*/
+
+/* Science Serials */
+#if _SCI_SER_CLOCK_DIR == SPLIT
+   #define SciSClock1 [E1_H1, F1_G1]
+   #define SciSClock2 [E2_H2, F2_G2]
+   #define SciSClock3 [E3_F3, G3_H3]
+#elif _SCI_SER_CLOCK_DIR == RIGHT
+   #define SciSClock1 [E2_H2, F1_G1]
+   #define SciSClock2 [E1_H1, F2_G2]
+   #define SciSClock3 [E3_F3, G3_H3]
+#elif _SCI_SER_CLOCK_DIR == LEFT
+   #define SciSClock1 [E1_H1, F2_G2]
+   #define SciSClock2 [E2_H2, F1_G1]
+   #define SciSClock3 [E3_F3, G3_H3]
+#endif
+
+
+#if _GPAR_CLOCK_DIR == SPLIT
+   #define GPClock1 [GA1T, GA3B]  /* top image phase1 and bottom image phase 3 */
+   #define GPClock2 [GA2T, GA2B]  /* top image phase2 and bottom image phase 2 */
+   #define GPClock3 [GA3T, GA1B]  /* top image phase3 and bottom image phase 1 */
+#elif _GPAR_CLOCK_DIR == DOWN
+   #define GPClock1 [GA1T, GA1B]  /* top image phase1 and bottom image phase 1 */
+   #define GPClock2 [GA2T, GA2B]  /* top image phase2 and bottom image phase 2 */
+   #define GPClock3 [GA3T, GA3B]  /* top image phase3 and bottom image phase 3 */
+#elif _GPAR_CLOCK_DIR == UP
+   #define GPClock1 [GA2T, GA2B]  /* top image phase3 and bottom image phase 3 */
+   #define GPClock2 [GA1T, GA1B]  /* top image phase2 and bottom image phase 2 */
+   #define GPClock3 [GA3T, GA3B]  /* top image phase1 and bottom image phase 1 */
+#endif
+
+#if _FPAR_CLOCK_DIR == SPLIT
+   #define FPClock1 [FA1T, FA3B]  /* top image phase1 and bottom image phase 3 */
+   #define FPClock2 [FA2T, FA2B]  /* top image phase2 and bottom image phase 2 */
+   #define FPClock3 [FA3T, FA1B]  /* top image phase3 and bottom image phase 1 */
+#elif _FPAR_CLOCK_DIR == DOWN
+   #define FPClock1 [FA1T, FA1B]  /* top image phase1 and bottom image pahse 1 */
+   #define FPClock2 [FA2T, FA2B]  /* top image phase2 and bottom image phase 2 */
+   #define FPClock3 [FA3T, FA3B]  /* top image phase3 and bottom image phase 3 */
+#elif _FPAR_CLOCK_DIR == UP
+   #define FPClock1 [FA2T, FA2B]  /* top image phase1 and bottom image pahse 1 */
+   #define FPClock2 [FA1T, FA1B]  /* top image phase2 and bottom image phase 2 */
+   #define FPClock3 [FA3T, FA3B]  /* top image phase3 and bottom image phase 3 */
+#endif
+
+
+
+#if _GFSER_CLOCK_DIR == SPLIT
+    #define GFSClock1 [GFS2L, GFS1R]
+    #define GFSClock2 [GFS1L, GFS2R]
+    #define GFSClock3 [GFS3L, GFS3R]
+#elif _GFSER_CLOCK_DIR == LEFT
+    #define GFSClock1 [GFS1L, GFS1R]
+    #define GFSClock2 [GFS2L, GFS2R]
+    #define GFSClock3 [GFS3L, GFS3R]
+#elif _GFSER_CLOCK_DIR == RIGHT
+    #define GFSClock1 [GFS2L, GFS2R]
+    #define GFSClock2 [GFS1L, GFS1R]
+    #define GFSClock3 [GFS3L, GFS3R]
+#endif
+    #define GSClock1 [GFS2L, GFS2R]
+    #define GSClock2 [GFS1L, GFS1R]
+    #define GSClock3 [GFS3L, GFS3R]
