@@ -1,0 +1,108 @@
+MOD10\\DIO_DIR12=1
+MOD10\\DIO_DIR34=1
+MOD10\\DIO_POWER=1
+MOD10\\DIO_SOURCE1=3
+MOD10\\DIO_SOURCE2=3
+MOD10\\DIO_SOURCE3=3
+MOD10\\VCPU_INREG0=0
+MOD10\\VCPU_INREG1=0
+MOD10\\VCPU_INREG10=0
+MOD10\\VCPU_INREG11=0
+MOD10\\VCPU_INREG12=0
+MOD10\\VCPU_INREG13=0
+MOD10\\VCPU_INREG14=0
+MOD10\\VCPU_INREG15=0
+MOD10\\VCPU_INREG2=0
+MOD10\\VCPU_INREG3=0
+MOD10\\VCPU_INREG4=0
+MOD10\\VCPU_INREG5=0
+MOD10\\VCPU_INREG6=0
+MOD10\\VCPU_INREG7=0
+MOD10\\VCPU_INREG8=0
+MOD10\\VCPU_INREG9=0
+MOD10\\VCPU_LINE0="ALIAS r0 TriggerHw                ; reads hardware trigger"
+MOD10\\VCPU_LINE1="ALIAS r1 TriggerSw                ; reads software trigger"
+MOD10\\VCPU_LINE10=";"
+MOD10\\VCPU_LINE11="DIN_PORT=0x0000                   ; digital input port register"
+MOD10\\VCPU_LINE12="SOFT_TRIG=0x0010                  ; software trigger VCPU_INREG0"
+MOD10\\VCPU_LINE13="DATA_WORD=0x0011                  ; VCPU_INREG1 carries the word to write serially"
+MOD10\\VCPU_LINE14=
+MOD10\\VCPU_LINE15="; bitmasks"
+MOD10\\VCPU_LINE16=";"
+MOD10\\VCPU_LINE17="DATACLK_HI=1"
+MOD10\\VCPU_LINE18="DATACLK_LO=0"
+MOD10\\VCPU_LINE19="CSB_HI=2"
+MOD10\\VCPU_LINE2="ALIAS r2 Once                     ; allows one-shot software trigger"
+MOD10\\VCPU_LINE20="CSB_LO=0"
+MOD10\\VCPU_LINE21="DATAIN_HI=4"
+MOD10\\VCPU_LINE22="DATAIN_LO=0"
+MOD10\\VCPU_LINE23="HW_TRIG=0x10                      ; hardware trigger bit = DIO5"
+MOD10\\VCPU_LINE24=
+MOD10\\VCPU_LINE25="; Initialize Output Ports"
+MOD10\\VCPU_LINE26=";"
+MOD10\\VCPU_LINE27="LOAD ClockPort, 0x0101            ; ClockPort = DIO1"
+MOD10\\VCPU_LINE28="LOAD DataPort, 0x0104             ; DataPort = DIO3"
+MOD10\\VCPU_LINE29="LOAD SPI, 0x0107                  ; CLK=DIO1, CSB=DIO2, DATA=DIO3"
+MOD10\\VCPU_LINE3="ALIAS r3 Counter                  ; general purpose counter"
+MOD10\\VCPU_LINE30=
+MOD10\\VCPU_LINE31="LOAD Once, 0                      ; clear the Once flag"
+MOD10\\VCPU_LINE32="INPUT TriggerSw, SOFT_TRIG        ; read the software trigger once at program start only"
+MOD10\\VCPU_LINE33="TEST TriggerSw, 1"
+MOD10\\VCPU_LINE34="IF Z GOTO Init                    ; if clear then leave the Once flag clear"
+MOD10\\VCPU_LINE35="LOAD Once, HW_TRIG                ; otherwise set the Once flag same as a hardware trigger"
+MOD10\\VCPU_LINE36=
+MOD10\\VCPU_LINE37="; Initialize all ports and registers"
+MOD10\\VCPU_LINE38=";"
+MOD10\\VCPU_LINE39=Init:
+MOD10\\VCPU_LINE4="ALIAS r4 Data                     ; this register caries the data"
+MOD10\\VCPU_LINE40="OUTPUT SPI, 0x06                  ; DATAIN=HI, CSB=HI, CLK=LO (110)"
+MOD10\\VCPU_LINE41=
+MOD10\\VCPU_LINE42="; WaitForTrigger"
+MOD10\\VCPU_LINE43="; Loop here until either a hardware or software trigger is received"
+MOD10\\VCPU_LINE44=";"
+MOD10\\VCPU_LINE45=WaitForTriggerLO:
+MOD10\\VCPU_LINE46=";LOAD Counter, 1                  ; initialize Counter for LO state"
+MOD10\\VCPU_LINE47=
+MOD10\\VCPU_LINE48=TestTriggerLO:
+MOD10\\VCPU_LINE49="INPUT TriggerHw, DIN_PORT         ; read the hardware trigger"
+MOD10\\VCPU_LINE5="ALIAS r5 ClockPort                ; holds the address for the DATACLK port"
+MOD10\\VCPU_LINE50="TEST TriggerHw, HW_TRIG           ; Z = NOT(TriggerHw & HW_TRIG)"
+MOD10\\VCPU_LINE51="IF NZ GOTO WaitForTriggerLO       ; loop waiting until Trigger==0"
+MOD10\\VCPU_LINE52=";SUB Counter, 1                   ; decrement LO counter"
+MOD10\\VCPU_LINE53=";IF NZ GOTO TestTriggerLO         ; keep checking Trigger until LO for \\"Counter\\" cycles"
+MOD10\\VCPU_LINE54=
+MOD10\\VCPU_LINE55=WaitForTriggerHI:
+MOD10\\VCPU_LINE56=";LOAD Counter, 1                  ; initialize Counter for HI state"
+MOD10\\VCPU_LINE57=
+MOD10\\VCPU_LINE58=TestTriggerHI:
+MOD10\\VCPU_LINE59="INPUT TriggerHw, DIN_PORT         ; read the hardware trigger"
+MOD10\\VCPU_LINE6="ALIAS r7 DataPort                 ; holds the address for the DATAIN port"
+MOD10\\VCPU_LINE60="OR TriggerHw, Once                ; OR with Once register: TriggerHw=TriggerHw|Once"
+MOD10\\VCPU_LINE61="TEST TriggerHw, HW_TRIG           ; Z = NOT(TriggerHw & HW_TRIG)"
+MOD10\\VCPU_LINE62="IF Z GOTO WaitForTriggerHI        ; loop waiting until Trigger==1"
+MOD10\\VCPU_LINE63=";SUB Counter, 1                   ; increment HI counter"
+MOD10\\VCPU_LINE64=";IF NZ GOTO TestTriggerHI         ; keep checking Trigger until HI for \\"Counter\\" cycles"
+MOD10\\VCPU_LINE65=
+MOD10\\VCPU_LINE66="LOAD Counter, 16                  ; initialize Counter to 16 bit word length"
+MOD10\\VCPU_LINE67=
+MOD10\\VCPU_LINE68="; SendSerial"
+MOD10\\VCPU_LINE69="; jump here when a trigger is received to send the serial data word"
+MOD10\\VCPU_LINE7="ALIAS r9 SPI                      ; address for CLK/CS/DATA"
+MOD10\\VCPU_LINE70=";"
+MOD10\\VCPU_LINE71=SendSerial:
+MOD10\\VCPU_LINE72="INPUT Data, DATA_WORD             ; copy the requested word from the VCPU_INREG"
+MOD10\\VCPU_LINE73="OUTPUT SPI, 0x04                  ; enable CSB: DATAIN=HI, CSB=LO, CLK=LO (100)"
+MOD10\\VCPU_LINE74=
+MOD10\\VCPU_LINE75="SendSerialLoop:                   ; loop over this for each bit in the data word"
+MOD10\\VCPU_LINE76="OUTPUT SPI, 0x04                  ; each bit starts with DATA=HI and CLK=LO"
+MOD10\\VCPU_LINE77="SLA Data                          ; shift the MSB of Data into Carry"
+MOD10\\VCPU_LINE78="IF NC OUTPUT DataPort, DATAIN_LO  ; if C is clear then bring DATAIN LO"
+MOD10\\VCPU_LINE79="OUTPUT ClockPort, DATACLK_HI      ; then bring the clock HI"
+MOD10\\VCPU_LINE8=
+MOD10\\VCPU_LINE80="SUB Counter, 1                    ; decrement bit counter"
+MOD10\\VCPU_LINE81="IF NZ GOTO SendSerialLoop         ; keep looping over all bits in the data word"
+MOD10\\VCPU_LINE82="LOAD Once, 0                      ; clear the Once register to stop software triggers"
+MOD10\\VCPU_LINE83=GOTO Init
+MOD10\\VCPU_LINE84=
+MOD10\\VCPU_LINE9="; Define Constants"
+MOD10\\VCPU_LINES=85

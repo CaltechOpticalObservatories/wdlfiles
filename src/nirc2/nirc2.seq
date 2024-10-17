@@ -1,0 +1,88 @@
+/* -*- C -*- */
+/** ---------------------------------------------------------------------------
+ * @file     nirc2
+ * @brief    sequence file for Aladdin imager
+ * @author   Timothee Greffe
+ * @date     2021-06-03 Initial creation
+ * @modified 
+ *
+ */
+
+/** ---------------------------------------------------------------------------
+ * parameter definitions
+ * syntax: param paramname=value
+*/
+
+param Expose=0
+param SkippedRowsQuad=0
+param nRowsQuad=3
+param SkippedColumnsQuad=0
+param nPixelsPair=8
+
+
+/** ---------------------------------------------------------------------------
+ * @fn     SetupAladdin
+ * @brief  This executes on start-up and sets levels to initialize ROIC array.
+ *
+ */
+SEQUENCE SetupAladdin {
+ /*  */
+}
+
+
+/** ---------------------------------------------------------------------------
+ * @fn	    WaitForExposure
+ * @brief   Here we wait until the host asks for an image
+ */
+
+SEQUENCE WaitForExpose {
+if Expose GrabFrame();
+GOTO WaitForExpose();
+}
+
+SEQUENCE GrabFrame {
+Expose--;
+wFrame();
+FrameStartPulse();
+SkipRow(SkippedRowsQuad);                /* Skips rows per group of 2 by pulsing S2 followed by S1  */
+ReadRowQuad(nRowsQuad);                  /* Reads rows per group of 4. S2 O/E then S1 O/E */
+}
+
+SEQUENCE ReadRowQuad {
+/* S2 Odd/Even */
+ConfigureS2();
+ReadRowPair();  /* read two rows */
+/* S1 Odd/Even */
+ConfigureS1();
+ReadRowPair(); /* reads two rows */
+return;
+}
+
+SEQUENCE ReadRowPair {
+wLine();                                   /* ***** Read Odd Row **** */
+ActivateOddRow();
+InitRowRegister();
+SkipColumn(SkippedColumnsQuad);            /*  Skips by group of 4 pixels by pulsing F2 then F1 */
+ReadPixelPair(nPixelsPair);                /*  Reads the remaining odd pixels followed by even pixels */
+wLine();
+ActivateEvenRow();                         /* ***** Read Even Row **** */
+InitRowRegister();
+SkipColumn(SkippedColumnsQuad);            /*  Skips by group of 4 pixels by pulsing F2 then F1 */
+ReadPixelPair(nPixelsPair);                /*  Reads the remaining odd pixels followed by even pixels */
+return;
+}
+
+SEQUENCE ReadPixelPair {
+wPixel();
+ReadOddPixel();         /* Read Odd Pixels with F2 low  */
+wPixel();
+ReadEvenPixel();        /* Read Even Pixels with F1 low */
+return;
+}
+
+SEQUENCE MilliSec {
+  wDelay1ms();	/* This is a placeholder 1ms routine - Need to fix up */
+  return;
+}
+
+

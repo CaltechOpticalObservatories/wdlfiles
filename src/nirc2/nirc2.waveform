@@ -1,0 +1,178 @@
+/* -*- C -*- */
+/** ---------------------------------------------------------------------------
+ * @file     nirc2.waveform
+ * @brief    Aladdin timing file, rules for waveform generation and scripting
+ * @author   Timothee Greffe
+ * @date     2021-06-03 Initial creation
+ * @modified 
+ *
+ * syntax (is case sensitive):
+ *
+ * WAVEFORM waveformlabel { rules }
+ *
+ * where rules (enclosed in curly braces) are as follows:
+ *
+ * [time]: [=timelabel] SET signallabel TO level;
+ *
+ * time: at least one time label is required, followed by colon
+ *       (if omitted then SET... lines are all at the same time as previous time)
+ *       arithmetic operations are allowed for time
+ *       units are allowed to follow numbers, E.G. ns, us, ms
+ *       ".+" means to add to the previous time
+ *
+ * =timelabel is an optional label for this time, which can be used elsewhere
+ *
+ * SET signallabel TO level; 
+ * is required and must end with a semi-colon
+ * signallabel and level can be defined anywhere
+ *
+ */
+
+#define clockfreq  100000000                      /* 100 MHz master clock frequency in Hz */
+#define sec        *(clockfreq)                   /* clock cycles per second   */
+#define ms         *(clockfreq/1000)              /* clock cycles per millisec */
+#define us         *(clockfreq/1000000)           /* clock cycles per microsec */
+#define ns         *(clockfreq/1000000000)          /* clock cycles per nanosecond */
+#define clicks	   *(clockfreq/100000000)	  /* clock cycles per nanosecond */
+
+/* Timing defines */
+/* Generic timing parameters */
+#define TICK	        #eval  1 clicks		  /* 10 nsec */
+#define 1ms	        #eval  1 ms
+#define 1us             #eval  1 us
+#define 2us             #eval  2 us
+#define 20us            #eval 20 us
+#define 25us            #eval 25 us
+#define 10ms            #eval 10 ms
+#define 10us            #eval 10 us
+/* Timing specific to Alladdin waveform */
+#define Tw  #eval 1 us  /* Minimum Pulse width                                                                     */
+#define Ta  #eval 1 us  /* Column 1 settling time. Reasonnable minimum 1us                                         */
+#define Tpixel #eval 4 us  /* Tb. Column enable time. (But according to datasheet, minimum require time for the output to settle is 5us. 200kHz)        */
+#define Tf  #eval 1 us /* Minimum clock spacing between the PhiFS Frame Start pulse and the PhiF1 clock           */
+#define Ts  #eval 1 us /* Minimum clock spacing between the PhiSS pulse and PhiS1 clock. As well PhiS1 and PhiS2  */
+#define Tro #eval 1 us /* Length of the odd row enable time duration. From falling edge of PhiS1/2 and PhiSOE     */
+#define Tre #eval 1 us /* Length of the even row enable time duration. From falling edge of PhiSOE and PhiS1/S2   */
+#define Tr  #eval 1 us /* Time at which falling edge of PhiSOE occurs. It disables odd row select and enable even */
+#define Trs #eval 1 us /* Time interval between row pairs                                                         */
+
+
+/* Logical state defines */
+#define High		   1
+#define Low		       0
+
+
+
+
+WAVEFORM RawPixel {
+  10us:          RETURN;
+}
+
+/* Various wait routines */
+WAVEFORM wDelay1us {
+ 1us:		   RETURN;
+}
+WAVEFORM wDelay10us {
+ 10us:		   RETURN;
+}
+
+
+WAVEFORM wDelay10ns {
+}
+
+WAVEFORM wDelay1ms {
+ 1ms:               RETURN;
+}
+
+/*****************************************/
+/* Waveforms specific to Aladdin III     */
+/*****************************************/
+WAVEFORM FrameStartPulse {   /* Reset Slow Register */
+0:          SET SSYNC TO AnalogLo, FAST;
+.+Tw:       SET SSYNC TO AnalogHi, FAST;
+.+Ts:       SET PhiS1 TO AnalogLo, FAST;
+.+Tw:       SET PhiS1 TO AnalogHi, FAST;
+.+Ts:        RETURN;
+}
+
+WAVEFORM ConfigureS2 {
+0:          SET PhiS1 TO AnalogHi, FAST;
+            SET PhiSOE TO AnalogHi, FAST;
+.+Trs:       SET PhiS2 TO AnalogLo, FAST;
+.+1:            RETURN;
+}
+
+WAVEFORM ConfigureS1 {
+0:          SET PhiS2 TO AnalogHi, FAST;
+            SET PhiSOE TO AnalogHi, FAST;
+.+Trs:       SET PhiS1 TO AnalogLo, FAST;
+.+1:            RETURN;
+}
+
+WAVEFORM ActivateOddRow {
+0:          SET PhiSOE TO AnalogHi, FAST;
+.+Ts:       RETURN;
+}
+
+WAVEFORM ActivateEvenRow {
+0:          SET PhiSOE TO AnalogLo, FAST;
+.+Ts:       RETURN;
+}
+
+WAVEFORM InitRowRegister {
+0:          SET FSYNC TO AnalogLo, FAST; 
+.+Tw:       SET FSYNC TO AnalogHi, FAST;
+.+Ts:       SET PhiF1 TO AnalogLo, FAST;
+.+Tw:       SET PhiF1 TO AnalogHi, FAST;
+.+Ta:       RETURN;
+}
+
+WAVEFORM ReadOddPixel {
+0:           SET PhiF2 TO AnalogLo, FAST;
+.+Tpixel:    SET PhiF2 TO AnalogHi, FAST;
+.+Tw:        RETURN;
+}
+
+WAVEFORM ReadEvenPixel{
+0:           SET PhiF1 TO AnalogLo, FAST;
+.+Tpixel:    SET PhiF1 TO AnalogHi, FAST;
+.+Tw:        RETURN;
+}
+
+WAVEFORM SkipRow {
+0:           SET PhiS2 TO Low;/*,FAST; */
+.+Tw:        SET PhiS2 TO High;/*,FAST; */
+.+Ts:        SET PhiS1 TO Low;/*,FAST; */ 
+.+Tw:        SET PhiS1 TO High;/*,FAST; */ 
+.+Ts:        RETURN;
+}
+
+WAVEFORM SkipColumn {
+0:          SET PhiF2 TO Low;/*,FAST; */ 
+.+Tw:       SET PhiF2 TO High;/*,FAST; */ 
+.+Tw:       SET PhiF1 TO Low;/*,FAST; */ 
+.+Tw:       SET PhiF1 TO High;/*,FAST; */ 
+.+Tw:       RETURN;  
+}
+
+
+
+/*****************************************/
+/* Here are the control signal waveforms */
+/*****************************************/
+WAVEFORM wFrame {
+ 0:			SET FRAME TO High;
+}
+
+WAVEFORM wLine {
+ 0:			SET LINE TO High;
+}
+
+WAVEFORM wPixel {
+ 0:			SET PIXEL   TO High;
+ .+TICK:		SET PIXEL   TO Low;
+			SET FRAME   TO Low;
+			SET LINE    TO Low;
+}
+
+
