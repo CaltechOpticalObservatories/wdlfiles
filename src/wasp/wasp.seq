@@ -1,0 +1,387 @@
+/* -*- C -*- */
+/** ---------------------------------------------------------------------------
+ * @file     ztf_science.seq
+ * @brief    sequence file for ZTF
+ * @author   Stephen Kaye
+ * @date     2016-04-07
+ * @modified 2016-04-07 SK
+ *
+ */
+
+/** ---------------------------------------------------------------------------
+ * parameter definitions
+ * syntax: param paramname=value
+*/
+param trigger_ScienceExpose=0
+param trigger_ScienceRead=0
+param trigger_GuideRead=0
+param trigger_FocusRead=0
+param trigger_Abort=0
+
+param param_ScienceClassicReadout=1
+param param_ScienceMovieReadout=0
+param param_ScienceBinnedReadout=0
+param param_SubExposeTime=500 /* in mseconds */
+param param_SubLines=20
+param param_BurstNb = 313
+
+param param_ScienceLines=_LINES_PER_TAP
+param param_SciencePixels=_PIXELS_PER_TAP
+param param_ScienceParallelFlush=0
+param param_SciencePreSerialFlush=0
+param param_SciencePostSerialFlush=0
+
+param param_GuideNbFrames =1
+param param_GStartSubWindow = 0
+param param_GHeightSubWindow = 1032
+param param_GEndLines =0 /*=1032-HeightSubWindow-StartSubWindow*/
+param param_GSubExpose=1 /*in sec*/
+
+param param_GStartColumn=0
+param param_GWidthSubWindow=1040
+param param_GEndColumns=0
+
+param param_NBin=2
+param param_BinnedScienceLines=1600
+param param_BinnedPixels=1561
+
+/*param trigger_GroundBLC=0 */
+/*param trigger_OpenBLC=0 */
+
+/** ---------------------------------------------------------------------------
+ * @fn     MAIN
+ * @brief  the main loop.  MAIN is implicitly an infinite loop.
+ *
+ */
+SEQUENCE Start {
+ 
+  HV_ON();
+  SerialReceiving();      /* Put serials at nominal voltages   */
+  SynchedLineTransfer();  /* Put parallels at nominal voltages */
+  /* Start with a reset of the sense node and clamping to that level */
+  wReset();
+  Wait1us();
+  wUnsetReset();
+  GroundBLC();
+  ADClamp();
+  Wait1us();
+  OpenBLC();
+  ADClamp_();
+  /*wDumpGateOn();*/
+  /*wParallelInversion();*/
+  /*wDumpGateOff();*/           /* suppresses the waffle pattern */
+  Idling(10);                 /* clears the residual badness */
+  FParallel3P();
+}
+
+SEQUENCE WaitForExpose {
+  Idling();
+  if trigger_ScienceExpose DoExpose();
+  GOTO WaitForExpose();
+}
+
+
+
+
+/** ---------------------------------------------------------------------------
+ * @fn	    Idling
+ * @brief   Idle sequence to push one parallel line and read the full serial register
+ */
+SEQUENCE Idling {
+  wCloseShutter();
+  /*wDumpGateOn();*/
+  wReset();                       /* Turn on reset to take away any charge to the sense node */
+    SFG_LineTransfer(); 
+
+  /*wAllSerialLow();*/
+  /*Wait25us();*/
+  /*wDumpGateOff();*/
+  /*Wait25us();*/
+  TPixelShift(100);
+ /* FlushFastSerialOutputClocking(100);*/  /* Clock out any charge swept into the serial */
+  /* Now go to nominal clock levels for the serial */
+  SerialReceiving();
+
+  /* Do a reset sequence */
+  wReset();
+  Wait1us();
+/*  wUnsetReset(); */
+  GroundBLC();
+  ADClamp();
+  Wait1us();
+  OpenBLC();
+  ADClamp_();
+
+  return;
+}
+
+/** ---------------------------------------------------------------------------
+ * @fn     DoExpose
+ * @brief  start an exposure
+ *
+ */
+SEQUENCE DoExpose {
+G_AD12_OFF(); /*Turn Off the amp of Focus chip*/
+  SetParallelExpose();
+ /*  wOpenShutter();*/ wCloseShutter();
+ wReset();
+  if trigger_ScienceRead SelectScienceReadoutMode();
+  if trigger_GuideRead  DoFocusReadOut(); /*When true Guide is called, we are dealing with Focus Chip*/
+  if trigger_FocusRead DoGuideReadOutFrameTransfer(); /*When true Focus is called we are dealing with Guide Chip*/
+  if trigger_Abort GOTO WaitForExpose();
+/*  if trigger_GroundBLC GroundBLC();*/
+/*  if trigger_OpenBLC OpenBLC();*/
+  GOTO DoExpose(); 
+}
+
+/** ---------------------------------------------------------------------------
+ * @fn     Science ReadOut
+ * 
+ *
+ */
+
+SEQUENCE SelectScienceReadoutMode {
+ wCloseShutter();
+  if param_ScienceClassicReadout DoScienceReadout();
+  if param_ScienceMovieReadout DoMovieReadout();
+  if param_ScienceBinnedReadout DoScienceBinnedReadout();
+  if trigger_Abort GOTO WaitForExpose();
+  GOTO SelectScienceReadoutMode();
+}
+
+
+SEQUENCE DoMovieReadout {
+  FastSerialOutputClocking(param_SciencePixels); /* initial sweepout ?PHM? */
+  SerialReceiving();
+ 
+  wFrame();
+   ScienceRead(100);
+ wOpenShutter();
+ DoBurstReadout(param_BurstNb); /* has to comply with the total number of lines expected*/
+
+ wCloseShutter(); 
+ SerialReceiving();   /* Put serial clocks in ready for charge state after readout */
+  GOTO WaitForExpose();
+}
+
+SEQUENCE DoBurstReadout {
+	SetParallelExpose();
+        Wait1ms(param_SubExposeTime);
+	SetParallelTransfer();
+	ScienceRead(param_SubLines);
+return;
+}
+
+
+
+SEQUENCE DoScienceReadout {
+  wCloseShutter();
+ SetParallelTransfer();
+  wOpenShutter();
+  wFrame();
+   DumpScienceLine(param_ScienceParallelFlush);
+   TPixelShift(3122);  /* initial sweepout */
+    SerialReceiving();
+   ScienceRead(param_ScienceLines);
+    DumpScienceLine(param_ScienceParallelFlush); 
+ SerialReceiving();   /* Put serial clocks in ready for charge state after readout */
+ wCloseShutter();
+ GOTO DoExpose();
+}              
+
+SEQUENCE ScienceRead {
+ SynchedLineTransfer(); 
+  wLine();
+  InitialSClock2Low();
+  Wait1us(20); /*To get rid of transient in the prescan area - maybe useless if bias-substractable*/
+  TPixelShift(param_SciencePreSerialFlush);
+ /*   FastSerialOutputClocking(param_SciencePixels);*/
+   TPixel(param_SciencePixels); TPixel(1);   /*Add 1pixelTime settling time*/
+TPixelShift(param_SciencePreSerialFlush);
+
+  SerialReceiving();  /* This puts phase 1 and 2 high and reset gate high */
+  wReset();
+  Wait1us();
+  /* wUnsetReset();*/
+  GroundBLC();
+  ADClamp();
+  Wait1us();
+  OpenBLC();
+  ADClamp_();
+  return;
+}
+
+SEQUENCE DoScienceBinnedReadout{
+   SetParallelTransfer();
+  wFrame();
+   ScienceSerialFlush(3122);  /* initial sweepout */
+    SerialReceiving();
+   BinnedScienceRead(param_BinnedScienceLines);
+ SerialReceiving();   /* Put serial clocks in ready for charge state after readout */
+ wCloseShutter();
+ GOTO DoExpose();
+}
+SEQUENCE BinnedScienceRead{
+ SynchedLineTransfer(param_NBin); 
+  wLine();
+  BinnedPixels(param_BinnedPixels)
+  Wait1us() /*Add 1pixelTime settling time*/
+  SerialReceiving();  /* This puts phase 1 and 2 high and reset gate high */
+  wReset();
+  Wait1us();
+  /* wUnsetReset(); */
+  GroundBLC();
+  ADClamp();
+  Wait1us();
+  OpenBLC();
+  ADClamp_();
+  return;
+}
+SEQUENCE BinnedPixels{
+  TPixelBin();
+  TPixel();
+  return;
+}
+ 
+/** ---------------------------------------------------------------------------
+ * @fn     Guide and Focus ReadOut
+ * 
+ *
+ */
+
+SEQUENCE DoGuideReadOutFrameTransfer{ 
+  G_AD12_ON();
+  GDumpLine(1032);/*Frame Transfer*/
+  
+  wFrame();
+  GuideRead(1032);
+  wCloseShutter();
+  GOTO WaitForExpose();
+}
+SEQUENCE GuideRead{
+  GParallel3P_StoreArea(); /*Line transfer from the Storage Area*/ 
+  wLine();
+/* HOLD(100);*/
+/*  PULSE_TEST(100);*/
+  GSerialShift(2080); /*Read Out of the full Array through only one amplifier*/
+  GSerialReceiving();
+  Wait1us(20);
+  GroundBLC(); /*ground both inputs of the preamp*/
+  ADClamp(); /*Clamp input of the ADC to dc offset*/
+  Wait1us(20);
+  OpenBLC(); /*connect preamp to decoupling cap from video signal*/
+  ADClamp_(); /*Unclamp adc input from dc offset*/
+  return;
+}
+
+SEQUENCE DoFocusReadOut {
+ /*wCloseShutter();*/
+wOpenShutter();
+DoFocusReadOutFrameTransfer();
+wCloseShutter();
+FWaitForProcessing();
+}
+
+SEQUENCE FWaitForProcessing {
+ FDumpLine();
+ if trigger_Abort GOTO WaitForExpose(); 
+ if trigger_GuideRead RunFocusBurst(); /*Guide and Focus chips are swaped*/
+GOTO FWaitForProcessing();
+}
+
+SEQUENCE RunFocusBurst { 
+  param_GuideNbFrames--;
+  MilliSec(param_GSubExpose);
+  DoFocusReadOutFrameTransfer();
+  if param_GuideNbFrames GOTO RunFocusBurst();
+  GOTO DoExpose();
+}
+
+SEQUENCE DoFocusReadOutFrameTransfer {
+ /*  wCloseShutter();*/
+  FDumpLine(1032);  /*Frame Transfer*/
+  wCloseShutter();
+ FDumpLine_StoreArea(param_GStartSubWindow); /*transfer the lines of the storage area only*/
+  wFrame();
+FocusRead(param_GHeightSubWindow); 
+FDumpLine_StoreArea(param_GEndLines); /* Line Transfer of the storage area only*/
+  return;
+}
+
+SEQUENCE FocusRead { 
+    FParallel3P_StoreArea(); /* shift the storage area only*/
+  wLine();
+/*  FSerialDump(param_GuideStartColumn); */
+  FGSerialShift(1040);
+/*  FSerialDump(param_GEndColumns);*/
+  FGSerialReceiving();
+  Wait1us();
+  GroundBLC(); /*ground both inputs of the preamp*/
+  ADClamp(); /*Clamp input of the ADC to dc offset*/
+  Wait1us();
+  OpenBLC(); /*connect preamp to decoupling cap from video signal*/
+  ADClamp_(); /*Unclamp adc input from dc offset*/
+ return;
+}
+
+SEQUENCE GDumpLine {
+  GParallelDump1();
+  GSerialDump(10);
+  GParallelDump2();
+  GSerialDump(10);
+  GParallelDump3();
+  GSerialDump(10);
+  GParallelDump4();
+  GSerialDump(10);
+  GParallelDump5();
+  GSerialDump(10);
+  GParallelDump6();
+  GSerialDump(10);
+  /*MilliSec(5);*/
+  return;
+}
+SEQUENCE FDumpLine {
+  FParallelDump1();
+  FGSerialDump(10);
+  FParallelDump2();
+  FGSerialDump(10);
+  FParallelDump3();
+  FGSerialDump(10);
+  FParallelDump4();
+  FGSerialDump(10);
+  FParallelDump5();
+  FGSerialDump(10);
+  FParallelDump6();
+  FGSerialDump(10);
+  /*MilliSec(5);*/
+  return;
+}
+SEQUENCE FDumpLine_StoreArea {
+  FParallelDump1_SA();
+  FGSerialDump(10);
+  FParallelDump2_SA();
+  FGSerialDump(10);
+  FParallelDump3_SA();
+  FGSerialDump(10);
+  FParallelDump4_SA();
+  FGSerialDump(10);
+  FParallelDump5_SA();
+  FGSerialDump(10);
+  FParallelDump6_SA();
+  FGSerialDump(10);
+  /*MilliSec(5);*/
+  return;
+}
+
+/** ---------------------------------------------------------------------------
+ * misc
+ *
+ */
+SEQUENCE MilliSec {
+  Wait1ms();	/* This is a placeholder 1ms routine - Need to fix up */
+  return;
+}
+SEQUENCE Wait1Sec {
+  Wait1ms(1000);	/* This is a placeholder 1ms routine - Need to fix up */
+  return;
+}

@@ -5,8 +5,8 @@ import os
 import subprocess
 import re
 
-# Please set the correct gpp path here
-GPP = "/usr/bin/gpp"
+# Set the correct gpp path
+GPP = subprocess.check_output(["which", "gpp"]).decode('utf-8').strip()
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
 WDLPATH = f"{CURDIR}/../wdl/wdl"
@@ -95,13 +95,6 @@ def build_acf(target):
     modefile = scan_file_for_key(target, "MODE_FILE")
     run_command(f"{MODEGEN} {modefile} {get_src_dir(target)}/{target}.acf")
 
-    # Insert REV keyword if in git
-    if os.path.isdir(".git"):
-        print("Inserting REV keyword ...")
-        run_command(f"{WDLPATH}/insert_hash {get_src_dir(target)}/{target}.acf")
-    else:
-        print("Not a git archive, skipping REV keyword")
-
     print(f"Removing {get_src_dir(target)}/{target}_TMP files ...")
     run_command(f"rm -f {get_src_dir(target)}/{target}_TMP.*")
 
@@ -109,7 +102,6 @@ def build_acf(target):
     run_command(f"mv {get_src_dir(target)}/{target}.acf {CURDIR}/../acf/")
 
     print("Done")
-
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
