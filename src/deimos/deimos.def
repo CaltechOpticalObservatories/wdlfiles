@@ -16,6 +16,21 @@
 #define _SCI_SER_CLOCK_DIR       SPLIT   /* SPLIT | | E_LEFT | F_RIGHT */
 
 
+ /** --------------------------------------------------------------------------
+ * Archon Configuration Details
+ */
+
+#define _ARCHON_SAMPLE_MODE        1 /* 0=16bit, 1=32bit                    */
+#define _ARCHON_FRAMEMODE          2 /* 0=top, 1=bottom, 2=split            */
+#define _ARCHON_FRAMEBUFS          0 /* 0=3x512MB, 1=2x768MB, I.E. "BIGBUF" */
+
+#define _RAW_ENABLE                0 /* 0=no, 1=yes                         */
+#define _RAW_STARTLINE             0 /* first line of raw data, 0-65535     */
+#define _RAW_ENDLINE              10 /* last line of raw data, 0-65535      */
+#define _RAW_STARTPIXEL           50
+#define _RAW_SAMPLES            2000
+#define _RAW_SELECT                7 /* AD channel for raw data capture, 0-15 */
+
  /** ---------------------------------------------------------------------------
  * Detector Array Parameters
  */
