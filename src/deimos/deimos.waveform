@@ -1,0 +1,190 @@
+/* -*- C -*- */
+/** ---------------------------------------------------------------------------
+ * @file   deimos_science.wavform
+ * @brief  DEIMOS timing file; rules for waveform generation and scripting
+ *
+ * syntax (is case sensitive):
+ *
+ * WAVEFORM waveformlabel { rules }
+ *
+ * where rules (enclosed in curly braces) are as follows:
+ *
+ * [time]: [=timelabel] SET signallabel TO level;
+ *
+ * time: at least one time label is required, followed by colon
+ *       (if omitted then SET... lines are all at the same time as previous time)
+ *       arithmetic operations are allowed for time
+ *       units are allowed to follow numbers, E.G. ns, us, ms
+ *       ".+" means to add to the previous time
+ *
+ * =timelabel is an optional label for this time, which can be used elsewhere
+ *
+ * SET signallabel TO level; 
+ * is required and must end with a semi-colon
+ * signallabel and level can be defined anywhere
+ *
+ */
+
+
+#define clockfreq  100000000                      /* 100 MHz master clock frequency in Hz */
+#define sec        *(clockfreq)                   /* clock cycles per second              */
+#define ms         *(clockfreq/1000)              /* clock cycles per millisec            */
+#define us         *(clockfreq/1000000)           /* clock cycles per microsec            */
+#define ns         *(clockfreq/10000000)          /* clock cycles per nanosecond          */
+#define clicks	   *(clockfreq/100000000)	      /* clock cycles per nanosecond          */
+
+/* Timing defines */
+/* Generic timing parameters */
+#define TICK	      #eval 1 clicks		  /* 10 nsec */
+#define 1ns           #eval 1 ns 
+#define 1us           #eval 1 us
+#define 2us           #eval 2 us
+#define 10us          #eval 10 us
+#define 20us          #eval 20 us
+#define 25us          #eval 25 us
+/* #define 1ms	          #eval 99999 clicks	  /* 999 usec */ /* WHY */
+#define 10ms          #eval 10 ms
+
+
+/* Line transfer timing definitions */
+#define TDRT 20us
+#define TOI  20us
+#define TDTR 20us
+
+/* Serial transfer timing definitions */
+
+#define TWX 170 ns /* Reset Pulse Width    */
+#define TOR 130 ns /* Serial Clock Overlap */
+
+/*****************************************/
+/*             LOGIC STATES              */
+/*****************************************/
+#define OPEN		    1
+#define CLOSE		    0
+#define HIGH		    1
+#define LOW		        0
+
+
+
+
+WAVEFORM LineTransfer {
+ /* wLine done in sequence */
+ 0: 
+ .+TDRT:	    SET TG TO _TG_CLOCK_HIGH, SLOW;
+ .+TOI:			SET CD3     TO _PAR_CLOCK_LOW, SLOW;
+			    SET AB2     TO _PAR_CLOCK_LOW, SLOW;
+ .+TOI:			SET CD4     TO _PAR_CLOCK_HIGH, SLOW;
+			    SET AB1     TO _PAR_CLOCK_HIGH, SLOW;
+ .+TOI:			SET CD2     TO _PAR_CLOCK_LOW, SLOW;
+			    SET AB3     TO _PAR_CLOCK_LOW, SLOW;
+ .+TOI:			SET CD3     TO _PAR_CLOCK_HIGH, SLOW;
+			    SET AB2     TO _PAR_CLOCK_HIGH, SLOW;			
+ .+TOI:			SET CD1     TO _PAR_CLOCK_LOW, SLOW;
+			    SET AB4     TO _PAR_CLOCK_LOW, SLOW;
+			    SET TG  TO _TG_CLOCK_LOW, SLOW;
+ .+TOI:			SET CD2     TO _PAR_CLOCK_HIGH, SLOW;
+			    SET AB3     TO _PAR_CLOCK_HIGH, SLOW;
+ .+TOI:			SET CD4     TO _PAR_CLOCK_LOW, SLOW;
+			    SET AB1     TO _PAR_CLOCK_LOW, SLOW;			
+ .+TOI:         SET CD1     TO _PAR_CLOCK_HIGH, SLOW;
+                SET AB4     TO _PAR_CLOCK_HIGH, SLOW;
+}
+
+WAVEFORM wPixel {
+ /* Starts at beginning of waveform */
+ 0:		        SET PIXEL   TO HIGH; 
+ .+TICK:	    SET PIXEL   TO LOW;
+			    SET FRAME   TO LOW;
+			    SET LINE    TO LOW;
+ /* Starts at beginning of waveform */
+ 0:             SET RG_1    TO HIGH; 
+ TWX:           SET RG_2    TO LOW;
+/* Do something with summing well (following RG)    */
+/* Do something with serial clocks (starting at 0:) */
+ 0:         SET sci_serial1 TO HIGH
+            SET sci_serial3 TO LOW
+ .+TOR:     SET sci_serial2 TO HIGH
+ .+TOR:     SET sci_serial1 TO LOW
+            SET sci_serial3 TO HIGH
+ .+TOR:     RETURN;
+}
+
+/*****************************************/
+/* Basic DEIMOS control signal waveforms */
+/*****************************************/
+
+WAVEFORM wReset {
+ 0:         SET RG       TO _RG_CLOCK_HIGH; 
+}
+
+WAVEFORM wUnsetReset {
+ 0:        SET RG        TO _RG_CLOCK_LOW; 
+}
+
+
+WAVEFORM OS_Clamp {
+            SET AC_Clamp TO HIGH;
+}
+
+WAVEFORM OS_Clamp_ {
+            SET AC_Clamp TO LOW;  
+}
+
+/*****************************************/
+/*    ARCHON control signal waveforms    */
+/*****************************************/
+
+WAVEFORM wOpenShutter {
+ 0:			SET SHUTTER TO OPEN;
+}
+WAVEFORM wCloseShutter {
+ 0:			SET SHUTTER TO CLOSE;
+}
+WAVEFORM wFrame {
+ 0:			SET FRAME TO HIGH;
+}
+WAVEFORM wLine {
+ 0:			SET LINE TO HIGH;
+}
+WAVEFORM wPixel {
+ 0:			SET PIXEL    TO HIGH;
+ .+TICK:	SET PIXEL    TO LOW;
+			SET FRAME    TO LOW;
+			SET LINE     TO LOW;
+}
+
+WAVEFORM AD_Clamp {
+ 0:			SET AD1      TO HIGH;
+			SET AD2      TO HIGH;
+			SET AD3      TO HIGH;
+			SET AD4      TO HIGH;
+            SET AD5      TO HIGH;
+            SET AD6      TO HIGH;
+            SET AD7      TO HIGH;
+            SET AD8      TO HIGH;
+            SET AD11     TO HIGH;
+			SET AD12     TO HIGH;
+			SET AD13     TO HIGH;
+			SET AD14     TO HIGH;
+            SET AD15     TO HIGH;
+            SET AD16     TO HIGH;
+            SET AD18     TO HIGH;
+}
+
+WAVEFORM AD_Clamp_ {
+ 0:			SET AD1      TO LOW;
+			SET AD2      TO LOW;
+			SET AD3      TO LOW;
+			SET AD4      TO LOW;
+            SET AD5      TO LOW;
+            SET AD6      TO LOW;
+            SET AD7      TO LOW;
+            SET AD8      TO LOW;
+            SET AD11     TO LOW;
+			SET AD12     TO LOW;
+			SET AD13     TO LOW;
+			SET AD14     TO LOW;
+            SET AD15     TO LOW;
+            SET AD16     TO LOW;
+            SET AD18     TO LOW;
+}

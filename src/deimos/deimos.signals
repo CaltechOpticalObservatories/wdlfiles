@@ -1,0 +1,99 @@
+/* -*- C -*- */
+/** ---------------------------------------------------------------------------
+ * @file   deimos.signals
+ * @brief  DEIMOS signal names and module/channel assignments
+ * 
+ * syntax:
+ *
+ * #define signallabel slot : channel
+ *
+ * where signallabel   is any ASCII text string to identify the signal name
+ *       slot          is the slot number containing the module,
+ *       channel       is the channel number on the module
+ * 
+ * Combinations of signals can also be made by creating a comma-separated
+ * list enclosed in square brackets as follows:
+ *
+ * #define newlabel [ signallabel, signallabel [, signallabel] ]
+ *
+ * where newlabel    is any ASCII text string to define a new signal
+ *       signallabel is any signal already defined above
+ *
+ * any number can be combined in a comma-separated list between square brackets,
+ * or a single signal can be defined in square brackets to effectively asign
+ * a different name to the signal
+ *
+ * Update in progress for new Hardware
+ */
+
+ 
+#define SHUTTER 0 : 1 /* INT signal from the backplane   */
+#define FRAME	 0 : 2 /* FRAME signal from the backplane	*/
+#define LINE	 0 : 3 /* LINE signal from the backplane	*/
+#define PIXEL	 0 : 4 /* PIXEL signal from the backplane	*/
+
+#define FSS     x : x /* Front Substrate    */
+#define BSS     x : x /* Back Substrate     */
+#define GD      x : x /* Guard Drain        */
+
+/**** Parallel Phase Signal Definitions ****/
+/* Each detector is made of two 2048x2048  
+   vertically stacked image areas. The top 
+   detector is addressed by three B phase 
+   signals and the bottom detector is 
+   addresed by three A phase signals. The
+   focal plane is made of 8 detectors. The
+   detector signals are ganged together 
+   into two sets of 4.
+/* Note: _1 refers to detectors 1-4        */
+/*       _2 refers to detectors 5-8        */
+
+#define PP_B3_2   1 : 1  
+#define PP_A3_2   1 : 2  
+#define PP_B2_2   1 : 3  
+#define PP_A2_2   1 : 4  
+#define PP_B1_2   1 : 5 
+#define PP_A1_2   1 : 6 
+#define PP_A1_1   1 : 7
+#define PP_B1_1   1 : 8 
+#define PP_A2_1   1 : 9
+#define PP_B2_1   1 : 10
+#define PP_A3_1   1 : 11
+#define PP_B3_1   1 : 12
+
+/****  Serial Phase Signal Definitions  ****/
+
+#define TG        2 : 1
+#define SP_EF     2 : 2
+#define SP_E2     2 : 3
+#define SP_E1     2 : 4
+#define SP_F2     2 : 5
+#define SP_F1     2 : 6
+
+/****  LVDS Driver Signal definitions   ****/
+#define RG_1     12 : 7
+#define RG_2     12 : 8
+#define AC_Clamp 12 : 12
+#define SW_1     12 : 15
+#define SW_2     12 : 16 
+
+
+/****     Bias Voltage Definitions      ****/
+
+/**** Readout Method ****/
+/* Science Serials */
+#if _SCI_SER_CLOCK_DIR == SPLIT
+   #define sci_serial1 [SP_E2, SP_F2]
+   #define sci_serial2 [SP_E1, SP_F1]
+   #define sci_serial3 SP_EF
+#elif _SCI_SER_CLOCK_DIR == F_RIGHT
+   #define sci_serial1 [SP_E1, SP_F1]
+   #define sci_serial2 [SP_E2, SP_F2]
+   #define sci_serial3 SP_EF
+#elif _SCI_SER_CLOCK_DIR == E_LEFT
+   #define sci_serial1 [SP_E2, SP_F1]
+   #define sci_serial2 [SP_E1, SP_F2]
+   #define sci_serial3 SP_EF
+#endif
+/* Reset Gate Combine */
+#define RG [ RG_1, RG_2]

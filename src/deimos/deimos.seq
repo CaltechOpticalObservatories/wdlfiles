@@ -1,0 +1,103 @@
+/* -*- C -*- */
+/** ---------------------------------------------------------------------------
+ * @file     deimos.seq
+ * @brief    sequence file for DEIMOS science detectors
+ * @author   Joseph Bichel
+ * @date     2024-12-02
+ * @modified 
+ *
+ */
+
+/** ---------------------------------------------------------------------------
+
+/** ---------------------------------------------------------------------------
+ * parameter definitions
+ * syntax: param paramname=value
+*/
+
+/** System Control Triggers **/
+param abort=0
+param start=0
+
+/** Science Readout Control Triggers **/
+param trigger_ScienceExpose = 0
+param trigger_ScienceRead   = 0
+
+/** Science Readout Control Parameters **/
+
+param param_ScienceLines    = _LINENUM
+param param_SciencePixels   = _PIXELSNUM
+param param_ExposeTime      = 0
+
+
+SEQUENCE StartSeq {
+    BiasLow();
+    if start GOTO InitSeq();
+    GOTO StartSeq();
+}
+
+SEQUENCE InitSeq {
+    BiasInit();
+    ACReset();
+    /* Initialize Serial and Parallel Lines - What is serial recieving???? */
+    /* Do something to parallel lines to prepare for exposure - GUARDS UP*/
+    GOTO DetectorSel();
+}
+
+SEQUENCE DetectorSel {
+    if trigger_ScienceExpose SelectScienceReadoutMode();
+    GOTO DetectorSel();
+}
+
+SEQUENCE SelectScienceReadoutMode {
+    if trigger_ScienceRead ScienceReadout();
+    GOTO SelectScienceReadoutMode();
+}
+
+SEQUENCE ScienceReadout {
+    wCloseShutter();
+    /* Prep Image Area */
+    wOpenShutter();
+    wFrame();
+    /* Flush lines? */
+    ScienceLineRead(param_ScienceLines);
+    /* Dump Extra lines? */
+    /* Put serial clocks in ready for charge state after readout, via serial recieving?? */
+    wCloseShutter();
+}
+
+SEQUENCE ScienceLineRead{
+    SynchedLineTransfer(); 
+    wLine();
+    /* Initialize Serial Clocks */ 
+    /* Flush desired number of post pixels */
+
+    wPixel(param_SciencePixels);
+    /* Flush desired number of pre serial pixels */
+
+    /* Serial Recieving?? */
+    
+    wReset();
+    Wait1us();
+    OS_Clamp();
+    AD_Clamp();
+    Wait1us();
+    OS_Clamp_();
+    AD_Clamp_();
+    return;
+    RETURN();
+}
+
+SEQUENCE BiasInit {
+    /* Initialize all biases as required in datasheet */
+    /* Bias Settling time wait??? */
+}
+
+SEQUENCE BiasLow {
+    /* Initialize all biases to low */
+}
+
+SEQUENCE ACReset {
+    /* Clamp and unclamp AC clamp */
+}
+

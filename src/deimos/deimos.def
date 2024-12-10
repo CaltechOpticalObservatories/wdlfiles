@@ -1,0 +1,102 @@
+/* -*- C -*- */
+/** ---------------------------------------------------------------------------
+ * @file   deimos.def
+ * @brief  DEIMOS definition file; user macros to be used within Archon files
+ *                                 i.e. within the .script, .states, .cds, or .modules files
+ * 
+ * Use #define to define macros; syntax is case sensitive.
+ * By convention macros will be capitalized and will start with an underscore
+ *      ex. _SW_SLEW_SLOW for setting slow slew rate of the summing well
+ */
+
+ /** --------------------------------------------------------------------------
+ * Configuration modes
+ */
+
+#define _SCI_SER_CLOCK_DIR       SPLIT   /* SPLIT | | E_LEFT | F_RIGHT */
+
+
+ /** ---------------------------------------------------------------------------
+ * Detector Array Parameters
+ */
+ 
+#define  _SECTIONROWS           2052  /* Number of rows in one section
+#defien  _SECTIONCOLS           2048  /* Number of columns in one section 
+/* #define _CDS_WIDTH            10  /* width of each CDS integration component in clocks */
+#define  _SKIP_LINES               0
+#define  _SERIALPRESCAN           50
+#define  _SERIALOVERSCAN         100 
+#define  _PARALLELOVERSCAN        50
+#defeval _IMAGEROWS            #eval _SECTIONROWS*2 
+#defeval _IMAGECOLS            #eval _SECTIONCOLS
+#defeval _IDLE_LINES           #eval _SKIP_LINES + _IMAGEROWS
+
+#defeval _LINENUM              #eval _IMAGEROWS + _PARALLELOVERSCAN - _SKIP_LINES
+/* Number of Pixels depends on if both output
+#if _SCI_SER_CLOCK_DIR == SPLIT
+   #defeval _PIXELNUM          #eval _IMAGECOLS/2 + _SERIALPRESCAN + _SERIALOVERSCAN
+#elif _SCI_SER_CLOCK_DIR == F_RIGHT || _SCI_SER_CLOCK_DIR == E_LEFT
+   #defeval _PIXELNUM          #eval _IMAGECOLS + _SERIALPRESCAN + _SERIALOVERSCAN
+#endif
+
+
+
+ /** ---------------------------------------------------------------------------
+ * CDS-Deinterlace options
+ */
+
+#define Pixel_T       100 /* Full pixel time : 10s of ns */
+#define RG_settleT    17 /*32*/  /* Settling Time for the reset gate 310ns */ /* Static */ /* Used in CDS Window calculation */ /* Shifted to 1 less from previous */
+#define SW_settleT    16 /*32*/  /* Settling Time for charge dump    310ns */ /* Static */ /* Used in CDS Window calculation */ /* Shifted to 1 less from previous */
+
+#define _FIRST_RESET_SAMPLE      #eval RG_settleT                 /* Start Reset sample after reset settling time                    */
+#define _LAST_RESET_SAMPLE       #eval Pixel_T/2 - 1              /* Half of the pixel time to reset pedestal                        */
+#define _FIRST_VIDEO_SAMPLE      #eval Pixel_T/2 - 1 + SW_settleT /* Start video sample after reset pedestal and summing well settle */
+#define _LAST_VIDEO_SAMPLE       #eval Pixel_T - 2                /* Stop video sample at end of pixel time                          */
+
+/** ---------------------------------------------------------------------------
+ * Define clock voltage levels here (units are volts)
+ * All voltages are set relative to front substrate voltage (typ. 0V)
+ * evaluations relative to FSS should be implemented if variability is required
+/*/     
+
+#define _PAR_CLOCK_HIGH    12 /* [ 8.00, 14.0] */
+#define _PAR_CLOCK_LOW      0 /* [-0.50, 0.50] */
+
+#define _TG_CLOCK_HIGH     12 /* [ 8.00, 14.0] */
+#define _TG_CLOCK_LOW       0 /* [-0.50, 0.50] */
+
+#define _SER_CLOCK_HIGH    12 /* [ 8.00, 14.0] */
+#define _SER_CLOCK_LOW      1 /* [-0.50, 1.50] */
+
+#define _OUTPUT_GATE        3 /* [ 0.50, 4.00] */
+
+#define _SW_CLOCK_HIGH     12 /* [ 8.00, 14.0] */
+#define _SW_CLOCK_LOW       1 /* [-0.50, 1.50] */
+
+#define _RG_CLOCK_HIGH     12 /* [ 8.00, 14.0] */
+#define _RG_CLOCK_LOW       0 /* [-0.50, 0.50] */
+
+#define _RESET_DRAIN       17 /* [ 15.0, 20.0] */
+#define _OUTPUT_DRAIN      29 /* [ 27.0, 32.0] */
+
+/** ---------------------------------------------------------------------------
+ * Define clock slew rates here
+ * units are Volts per microsecond, range from 0.001 to 1000
+ * For fast readout speeds the slew rate is dependant on the pulse width 
+ * Will be defined in waveform file
+ */
+/*
+ #define _PAR_CLOCK_SLEW_FAST   10
+ #define _PAR_CLOCK_SLEW_SLOW    1
+ #define _SER_CLOCK_SLEW_FAST  500
+ #define _SER_CLOCK_SLEW_SLOW    1
+ #define _TG_CLOCK_SLEW_FAST   500
+ #define _TG_CLOCK_SLEW_SLOW   100
+ #define _SW_CLOCK_SLEW_FAST   500
+ #define _SW_CLOCK_SLEW_SLOW   100 
+  */
+
+
+
+
