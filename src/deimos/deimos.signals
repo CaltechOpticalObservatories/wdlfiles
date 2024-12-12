@@ -27,14 +27,10 @@
  */
 
  
-#define SHUTTER 0 : 1 /* INT signal from the backplane   */
+#define SHUTTER  0 : 1 /* INT signal from the backplane   */
 #define FRAME	 0 : 2 /* FRAME signal from the backplane	*/
 #define LINE	 0 : 3 /* LINE signal from the backplane	*/
 #define PIXEL	 0 : 4 /* PIXEL signal from the backplane	*/
-
-#define FSS     x : x /* Front Substrate    */
-#define BSS     x : x /* Back Substrate     */
-#define GD      x : x /* Guard Drain        */
 
 /**** Parallel Phase Signal Definitions ****/
 /* Each detector is made of two 2048x2048  
@@ -76,7 +72,8 @@
 #define AC_Clamp 12 : 12
 #define SW_1     12 : 15
 #define SW_2     12 : 16 
-
+/* NOP Definition - NEEDS TO BE UNUSED */
+#define NOP      12 : 1
 
 /****     Bias Voltage Definitions      ****/
 

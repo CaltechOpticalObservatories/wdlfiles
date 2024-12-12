@@ -68,7 +68,7 @@
 
 
 WAVEFORM LineTransfer {
- /* wLine done in sequence */
+ /* wLine done in sequence 
  0: 
  .+TDRT:	    SET TG TO _TG_CLOCK_HIGH, SLOW;
  .+TOI:			SET CD3     TO _PAR_CLOCK_LOW, SLOW;
@@ -88,6 +88,7 @@ WAVEFORM LineTransfer {
 			    SET AB1     TO _PAR_CLOCK_LOW, SLOW;			
  .+TOI:         SET CD1     TO _PAR_CLOCK_HIGH, SLOW;
                 SET AB4     TO _PAR_CLOCK_HIGH, SLOW;
+ */
 }
 
 WAVEFORM wPixel {
@@ -101,11 +102,11 @@ WAVEFORM wPixel {
  TWX:           SET RG_2    TO LOW;
 /* Do something with summing well (following RG)    */
 /* Do something with serial clocks (starting at 0:) */
- 0:         SET sci_serial1 TO HIGH
-            SET sci_serial3 TO LOW
- .+TOR:     SET sci_serial2 TO HIGH
- .+TOR:     SET sci_serial1 TO LOW
-            SET sci_serial3 TO HIGH
+ 0:         SET sci_serial1 TO HIGH;
+            SET sci_serial3 TO LOW;
+ .+TOR:     SET sci_serial2 TO HIGH;
+ .+TOR:     SET sci_serial1 TO LOW;
+            SET sci_serial3 TO HIGH;
  .+TOR:     RETURN;
 }
 
@@ -130,6 +131,19 @@ WAVEFORM OS_Clamp_ {
             SET AC_Clamp TO LOW;  
 }
 
+
+/*****************************************/
+/*         ARCHON Timing Control         */
+/*****************************************/
+
+WAVEFORM Wait1us {
+ 0: 	SET NOP TO HIGH;
+ .+1us:	SET NOP TO HIGH;
+}
+
+
+
+
 /*****************************************/
 /*    ARCHON control signal waveforms    */
 /*****************************************/
@@ -152,9 +166,9 @@ WAVEFORM wPixel {
 			SET FRAME    TO LOW;
 			SET LINE     TO LOW;
 }
-
+/* Where are these defined??*/
 WAVEFORM AD_Clamp {
- 0:			SET AD1      TO HIGH;
+/* 0:			SET AD1      TO HIGH;
 			SET AD2      TO HIGH;
 			SET AD3      TO HIGH;
 			SET AD4      TO HIGH;
@@ -169,10 +183,10 @@ WAVEFORM AD_Clamp {
             SET AD15     TO HIGH;
             SET AD16     TO HIGH;
             SET AD18     TO HIGH;
-}
+*/}
 
 WAVEFORM AD_Clamp_ {
- 0:			SET AD1      TO LOW;
+/* 0:			SET AD1      TO LOW;
 			SET AD2      TO LOW;
 			SET AD3      TO LOW;
 			SET AD4      TO LOW;
@@ -187,4 +201,4 @@ WAVEFORM AD_Clamp_ {
             SET AD15     TO LOW;
             SET AD16     TO LOW;
             SET AD18     TO LOW;
-}
+*/}

@@ -26,7 +26,7 @@ param trigger_ScienceRead   = 0
 /** Science Readout Control Parameters **/
 
 param param_ScienceLines    = _LINENUM
-param param_SciencePixels   = _PIXELSNUM
+param param_SciencePixels   = 1000/*_PIXELNUM*/
 param param_ExposeTime      = 0
 
 
@@ -67,7 +67,7 @@ SEQUENCE ScienceReadout {
 }
 
 SEQUENCE ScienceLineRead{
-    SynchedLineTransfer(); 
+    LineTransfer(); 
     wLine();
     /* Initialize Serial Clocks */ 
     /* Flush desired number of post pixels */
@@ -85,7 +85,6 @@ SEQUENCE ScienceLineRead{
     OS_Clamp_();
     AD_Clamp_();
     return;
-    RETURN();
 }
 
 SEQUENCE BiasInit {
@@ -100,4 +99,5 @@ SEQUENCE BiasLow {
 SEQUENCE ACReset {
     /* Clamp and unclamp AC clamp */
 }
+
 
