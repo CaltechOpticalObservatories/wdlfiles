@@ -1,57 +1,57 @@
 
 #define temp 1
 
-SLOT 1 drvr {
-  DRV  1 [temp,1,1];
-  DRV  2 [temp,1,1];
-  DRV  3 [temp,1,1];
-  DRV  4 [temp,1,1];
-  DRV  5 [temp,1,1];
-  DRV  6 [temp,1,1];
-  DRV  7 [temp,1,1];
-  DRV  8 [temp,1,1];
-  DRV  9 [temp,1,1];
-  DRV 10 [temp,1,1];
-  DRV 11 [temp,1,1];
-  DRV 12 [temp,1,1];
+SLOT 1 driverx {
+  DRVX  1 [temp,1,1];
+  DRVX  2 [temp,1,1];
+  DRVX  3 [temp,1,1];
+  DRVX  4 [temp,1,1];
+  DRVX  5 [temp,1,1];
+  DRVX  6 [temp,1,1];
+  DRVX  7 [temp,1,1];
+  DRVX  8 [temp,1,1];
+  DRVX  9 [temp,1,1];
+  DRVX 10 [temp,1,1];
+  DRVX 11 [temp,1,1];
+  DRVX 12 [temp,1,1];
 }
-SLOT 2 drvr {
-  DRV  1 [temp,1,1];
-  DRV  2 [temp,1,1];
-  DRV  3 [temp,1,1];
-  DRV  4 [temp,1,1];
-  DRV  5 [temp,1,1];
-  DRV  6 [temp,1,1];
-  DRV  7 [temp,1,1];
-  DRV  8 [temp,1,1];
-  DRV  9 [temp,1,1];
-  DRV 10 [temp,1,1];
-  DRV 11 [temp,1,1];
-  DRV 12 [temp,1,1];
+SLOT 2 driverx {
+  DRVX  1 [temp,1,1];
+  DRVX  2 [temp,1,1];
+  DRVX  3 [temp,1,1];
+  DRVX  4 [temp,1,1];
+  DRVX  5 [temp,1,1];
+  DRVX  6 [temp,1,1];
+  DRVX  7 [temp,1,1];
+  DRVX  8 [temp,1,1];
+  DRVX  9 [temp,1,1];
+  DRVX 10 [temp,1,1];
+  DRVX 11 [temp,1,1];
+  DRVX 12 [temp,1,1];
 }
-SLOT 3 drvr {
-  DRV  1 [temp,1,1];
-  DRV  2 [temp,1,1];
-  DRV  3 [temp,1,1];
-  DRV  4 [temp,1,1];
-  DRV  5 [temp,1,1];
-  DRV  6 [temp,1,1];
-  DRV  7 [temp,1,1];
-  DRV  8 [temp,1,1];
-  DRV  9 [temp,1,1];
-  DRV 10 [temp,1,1];
-  DRV 11 [temp,1,1];
-  DRV 12 [temp,1,1];
+SLOT 3 driverx {
+  DRVX  1 [temp,1,1];
+  DRVX  2 [temp,1,1];
+  DRVX  3 [temp,1,1];
+  DRVX  4 [temp,1,1];
+  DRVX  5 [temp,1,1];
+  DRVX  6 [temp,1,1];
+  DRVX  7 [temp,1,1];
+  DRVX  8 [temp,1,1];
+  DRVX  9 [temp,1,1];
+  DRVX 10 [temp,1,1];
+  DRVX 11 [temp,1,1];
+  DRVX 12 [temp,1,1];
 }
 SLOT 4 xvbias {
-  DRV 1 [temp,1,1];
-  DRV 2 [temp,1,1];
-  DRV 3 [temp,1,1];
-  DRV 4 [temp,1,1];
-  DRV 5 [temp,1,1];
-  DRV 6 [temp,1,1];
-  DRV 7 [temp,1,1];
-  DRV 8 [temp,1,1];
+  DRVX 1 [temp,1,1];
+  DRVX 2 [temp,1,1];
+  DRVX 3 [temp,1,1];
+  DRVX 4 [temp,1,1];
+  DRVX 5 [temp,1,1];
+  DRVX 6 [temp,1,1];
+  DRVX 7 [temp,1,1];
+  DRVX 8 [temp,1,1];
 }
 /* review */
 SLOT 7 ad {
@@ -67,15 +67,15 @@ SLOT 9 hvbias {
 }
 
 
-Slot 10 lvbias {
+SLOT 10 lvbias {
   HVLC 1 [0,0]; /* Unused */
     
 }
 
-Slot 12 lvds {
-  DIO  7 [0,0];
-  DIO  8 [0,0];
-  DIO 12 [0,0];
-  DIO 15 [0,0];
-  DIO 16 [0,0];
+SLOT 12 lvds {
+  DIO 1 [0,0];
+  DIO 2 [0,0];
+  DIO 3 [0,0];
+  DIO 4 [0,0];
+  DIOPOWER = 0;
 }

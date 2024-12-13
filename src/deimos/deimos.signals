@@ -67,13 +67,15 @@
 #define SP_F1     2 : 6
 
 /****  LVDS Driver Signal definitions   ****/
+
 #define RG_1     12 : 7
 #define RG_2     12 : 8
 #define AC_Clamp 12 : 12
 #define SW_1     12 : 15
 #define SW_2     12 : 16 
 /* NOP Definition - NEEDS TO BE UNUSED */
-#define NOP      12 : 1
+#define NOP      12 : 1 
+
 
 /****     Bias Voltage Definitions      ****/
 
