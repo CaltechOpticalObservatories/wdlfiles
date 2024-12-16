@@ -44,7 +44,7 @@ SLOT 3 driverx {
   DRVX 12 [temp,1,1];
 }
 SLOT 4 xvbias {
-  XVLC 1 [temp,1,1];
+  NBIAS 1 [0,-100];
 }
 /* review */
 SLOT 7 ad {
@@ -56,15 +56,15 @@ SLOT 7 ad {
 }
 
 SLOT 9 hvbias {
-  HVLC 1 [0,0];             /* Unused */
-  HVLC 2 [0,0];             /* Guard Drain     Science */
-  HVLC 3 [3.0,0];           /* Reset Drain    E   Science */
-  HVLC 4 [12.0,0];          /* Reset Drain    F   Science */
-  HVLC 5 [19,0];            /*  */
-  HVLC 6 [19,0];            /* Reset Drain    A 1 FCS */
-  HVLC 7 [19,0];            /* Reset Drain    B 1 FCS */
-  HVLC 8 [29,0];            /* Reset Drain    A 2 FCS */
-  HVLC 9 [3.5,0];           /* Reset Drain    B 2 FCS */
+  HVLC  1 [0,0];             /* Unused */
+  HVLC  2 [0,0];             /* Guard Drain        SCI */
+  HVLC  3 [3.0,0];           /* Reset Drain    E   SCI */
+  HVLC  4 [12.0,0];          /* Reset Drain    F   SCI */
+  HVLC  5 [19,0];            /*  */
+  HVLC  6 [19,0];            /* Reset Drain    A 1 FCS */
+  HVLC  7 [19,0];            /* Reset Drain    B 1 FCS */
+  HVLC  8 [29,0];            /* Reset Drain    A 2 FCS */
+  HVLC  9 [3.5,0];           /* Reset Drain    B 2 FCS */
   HVLC 10 [0,0];            /* Overflow Drain     FCS */
   HVLC 11 [19,0];           /*  */
   HVLC 12 [30,0];           /*  */
@@ -80,12 +80,12 @@ SLOT 9 hvbias {
   HVLC 22 [24,0];           /*  */
   HVLC 23 [24,0];           /*  */
   HVLC 24 [15,0];           /*  */
-  HVLC 25 [15,0];           /* Output Drain   E   SCI */
-  HVLC 26 [15,0];           /* Output Drain   F   SCI */
-  HVLC 27 [15,0];           /* Output Drain   A 1 FCS */
-  HVLC 28 [15,0];           /* Output Drain   B 1 FCS */
-  HVLC 29 [15,0];           /* Output Drain   A 2 FCS */
-  HVLC 30 [15,0];           /* Output Drain   B 2 FCS */
+  HVHC  1 [15,0,0,1];       /* Output Drain   E   SCI */
+  HVHC  2 [15,0,0,1];       /* Output Drain   F   SCI */
+  HVHC  3 [15,0,0,1];       /* Output Drain   A 1 FCS */
+  HVHC  4 [15,0,0,1];       /* Output Drain   B 1 FCS */
+  HVHC  5 [15,0,0,1];       /* Output Drain   A 2 FCS */
+  HVHC  6 [15,0,0,1];       /* Output Drain   B 2 FCS */
 }
 
 

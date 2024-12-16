@@ -46,7 +46,7 @@
 # set to path to gpp
 GPP       = /usr/bin/gpp
 # set to path to wdl code
-WDLPATH   = $(HOME)/Software/wdl/wdl
+WDLPATH   = $(HOME)/Software/wdl/wdl/
 # output for *.acf file
 ACFPATH   = $(HOME)/Software/wdlfiles/src/deimos/
 
@@ -107,8 +107,8 @@ generate_wdl:
 	@cat $(MODFILE) | $(GPP) $(GFLAGS) $(INCL) | $(MODPARSER) -
 	$(call debug_message, "Processed MODULE_FILE: $(MODFILE)")
 
-	@$(WAVGEN) $(F_TMP) $(PLOT) || { echo "Waveform generation failed"; exit 1; }
-	$(call debug_message, "Finished waveform generation for $(F_TMP) with plot: $(PLOT)")
+	# @$(WAVGEN) $(F_TMP) $(PLOT) || { echo "Waveform generation failed"; exit 1; }
+	# $(call debug_message, "Finished waveform generation for $(F_TMP) with plot: $(PLOT)")
 
 # Rule for generating script states
 generate_script_states:
