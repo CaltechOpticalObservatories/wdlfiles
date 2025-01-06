@@ -74,7 +74,7 @@
 #define SLOW 			0
 
 WAVEFORM LineTransfer {
- 0:				SET NOP TO 0,0; /*Need to define behaviour before transfer gate */
+ 0:				SET NOP TO 0,SLOW; /*Need to define behaviour before transfer gate */
  .+TDRT:	    SET TG 			  TO _TG_CLOCK_HIGH , SLOW;
 				SET sci_parallel3 TO _PAR_CLOCK_HIGH, SLOW;
  .+TOI:			SET sci_parallel2 TO _PAR_CLOCK_LOW , SLOW;
