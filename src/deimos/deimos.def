@@ -36,7 +36,7 @@
  */
  
 #define  _SECTIONROWS           2052  /* Number of rows in one section
-#defien  _SECTIONCOLS           2048  /* Number of columns in one section 
+#define  _SECTIONCOLS           2048  /* Number of columns in one section 
 /* #define _CDS_WIDTH            10  /* width of each CDS integration component in clocks */
 #define  _SKIP_LINES               0
 #define  _SERIALPRESCAN           50
@@ -61,6 +61,8 @@
  */
 
 #define Pixel_T       100 /* Full pixel time : 10s of ns */
+
+/* TODO CLARIFY VLAYES FOR RG AND SW settling time */
 #define RG_settleT    17 /*32*/  /* Settling Time for the reset gate 310ns */ /* Static */ /* Used in CDS Window calculation */ /* Shifted to 1 less from previous */
 #define SW_settleT    16 /*32*/  /* Settling Time for charge dump    310ns */ /* Static */ /* Used in CDS Window calculation */ /* Shifted to 1 less from previous */
 

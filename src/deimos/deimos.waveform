@@ -57,38 +57,33 @@
 #define TOR 130 ns /* Serial Clock Overlap */
 
 /*****************************************/
+/*       Serial Clock Slew Rate          */
+/*****************************************/
+/* Usually defined in .def				 */
+#define _SER_CLOCK_SLEW_SLOW #eval (_SER_CLOCK_HIGH-_SER_CLOCK_LOW)/(T_Pixel/3)
+
+
+/*****************************************/
 /*             LOGIC STATES              */
 /*****************************************/
 #define OPEN		    1
 #define CLOSE		    0
 #define HIGH		    1
 #define LOW		        0
-
-
-
+#define FAST			1
+#define SLOW 			0
 
 WAVEFORM LineTransfer {
- /* wLine done in sequence 
  0: 
- .+TDRT:	    SET TG TO _TG_CLOCK_HIGH, SLOW;
- .+TOI:			SET CD3     TO _PAR_CLOCK_LOW, SLOW;
-			    SET AB2     TO _PAR_CLOCK_LOW, SLOW;
- .+TOI:			SET CD4     TO _PAR_CLOCK_HIGH, SLOW;
-			    SET AB1     TO _PAR_CLOCK_HIGH, SLOW;
- .+TOI:			SET CD2     TO _PAR_CLOCK_LOW, SLOW;
-			    SET AB3     TO _PAR_CLOCK_LOW, SLOW;
- .+TOI:			SET CD3     TO _PAR_CLOCK_HIGH, SLOW;
-			    SET AB2     TO _PAR_CLOCK_HIGH, SLOW;			
- .+TOI:			SET CD1     TO _PAR_CLOCK_LOW, SLOW;
-			    SET AB4     TO _PAR_CLOCK_LOW, SLOW;
-			    SET TG  TO _TG_CLOCK_LOW, SLOW;
- .+TOI:			SET CD2     TO _PAR_CLOCK_HIGH, SLOW;
-			    SET AB3     TO _PAR_CLOCK_HIGH, SLOW;
- .+TOI:			SET CD4     TO _PAR_CLOCK_LOW, SLOW;
-			    SET AB1     TO _PAR_CLOCK_LOW, SLOW;			
- .+TOI:         SET CD1     TO _PAR_CLOCK_HIGH, SLOW;
-                SET AB4     TO _PAR_CLOCK_HIGH, SLOW;
- */
+ .+TDRT:	    SET TG 			  TO _TG_CLOCK_HIGH , SLOW;
+				SET sci_parallel3 TO _PAR_CLOCK_HIGH, SLOW;
+ .+TOI:			SET sci_parallel2 TO _PAR_CLOCK_LOW , SLOW;
+ .+TOI:			SET sci_parallel1 TO _PAR_CLOCK_HIGH, SLOW;
+ .+TOI:			SET TG			  TO _TG_CLOCK_LOW  , SLOW;
+ 				SET sci_parallel3 TO _PAR_CLOCK_LOW , SLOW;
+ .+TOI:			SET sci_parallel2 TO _PAR_CLOCK_HIGH, SLOW;		
+ .+TOI:			SET sci_parallel1 TO _PAR_CLOCK_LOW , SLOW;
+ .+TDRT:		RETURN;
 }
 
 WAVEFORM wPixel {
@@ -97,17 +92,19 @@ WAVEFORM wPixel {
  .+TICK:	    SET PIXEL   TO LOW;
 			    SET FRAME   TO LOW;
 			    SET LINE    TO LOW;
+
  /* Starts at beginning of waveform */
  0:             SET RG_1    TO HIGH; 
- TWX:           SET RG_2    TO LOW;
+ .+TWX:         SET RG_2    TO LOW;
 /* Do something with summing well (following RG)    */
-/* Do something with serial clocks (starting at 0:) */
- 0:         SET sci_serial1 TO HIGH;
-            SET sci_serial3 TO LOW;
- .+TOR:     SET sci_serial2 TO HIGH;
- .+TOR:     SET sci_serial1 TO LOW;
-            SET sci_serial3 TO HIGH;
- .+TOR:     RETURN;
+
+/* Starts at beginning of waveform */
+ 0:         	SET sci_serial1 TO HIGH, SLOW;
+           		SET sci_serial3 TO LOW , SLOW;
+ .+T_Pixel/3:   SET sci_serial2 TO HIGH, SLOW;
+ .+T_Pixel/3:   SET sci_serial1 TO LOW , SLOW;
+           		SET sci_serial3 TO HIGH, SLOW;
+ .+T_Pixel/3:   RETURN;
 }
 
 /*****************************************/
@@ -141,9 +138,6 @@ WAVEFORM Wait1us {
  .+1us:	SET NOP TO HIGH;
 }
 
-
-
-
 /*****************************************/
 /*    ARCHON control signal waveforms    */
 /*****************************************/
@@ -166,39 +160,11 @@ WAVEFORM wPixel {
 			SET FRAME    TO LOW;
 			SET LINE     TO LOW;
 }
-/* Where are these defined??*/
+
 WAVEFORM AD_Clamp {
-/* 0:			SET AD1      TO HIGH;
-			SET AD2      TO HIGH;
-			SET AD3      TO HIGH;
-			SET AD4      TO HIGH;
-            SET AD5      TO HIGH;
-            SET AD6      TO HIGH;
-            SET AD7      TO HIGH;
-            SET AD8      TO HIGH;
-            SET AD11     TO HIGH;
-			SET AD12     TO HIGH;
-			SET AD13     TO HIGH;
-			SET AD14     TO HIGH;
-            SET AD15     TO HIGH;
-            SET AD16     TO HIGH;
-            SET AD18     TO HIGH;
-*/}
+ 0:			SET AD7      TO HIGH;
+}
 
 WAVEFORM AD_Clamp_ {
-/* 0:			SET AD1      TO LOW;
-			SET AD2      TO LOW;
-			SET AD3      TO LOW;
-			SET AD4      TO LOW;
-            SET AD5      TO LOW;
-            SET AD6      TO LOW;
-            SET AD7      TO LOW;
-            SET AD8      TO LOW;
-            SET AD11     TO LOW;
-			SET AD12     TO LOW;
-			SET AD13     TO LOW;
-			SET AD14     TO LOW;
-            SET AD15     TO LOW;
-            SET AD16     TO LOW;
-            SET AD18     TO LOW;
-*/}
+ 0:			SET AD7      TO LOW;
+}
