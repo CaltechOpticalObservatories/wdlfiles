@@ -67,7 +67,7 @@ SEQUENCE ScienceReadout {
 }
 
 SEQUENCE ScienceLineRead{
-    LineTransfer(); 
+    /*LineTransfer(); 
     wLine();
     /* Initialize Serial Clocks */ 
     /* Flush desired number of post pixels */
@@ -84,7 +84,7 @@ SEQUENCE ScienceLineRead{
     Wait1us();
     OS_Clamp_();
     AD_Clamp_();
-    return;
+    return;*/
 }
 
 SEQUENCE BiasInit {

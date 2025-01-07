@@ -42,7 +42,7 @@
 #define 10us          #eval 10 us
 #define 20us          #eval 20 us
 #define 25us          #eval 25 us
-/* #define 1ms	          #eval 99999 clicks	  /* 999 usec */ /* WHY */
+/* #define 1ms	          #eval 99999 clicks	  /* 999 usec WHY */
 #define 10ms          #eval 10 ms
 
 
@@ -60,7 +60,7 @@
 /*       Serial Clock Slew Rate          */
 /*****************************************/
 /* Usually defined in .def				 */
-#define _SER_CLOCK_SLEW_SLOW #eval (_SER_CLOCK_HIGH-_SER_CLOCK_LOW)/(T_Pixel/3)
+#define _SER_CLOCK_SLEW_SLOW #eval (_SER_CLOCK_HIGH-_SER_CLOCK_LOW)/(Pixel_T/3)
 
 
 /*****************************************/
@@ -70,8 +70,6 @@
 #define CLOSE		    0
 #define HIGH		    1
 #define LOW		        0
-#define FAST			1
-#define SLOW 			0
 
 WAVEFORM LineTransfer {
  0:				SET NOP TO 0,SLOW; /*Need to define behaviour before transfer gate */
@@ -94,17 +92,17 @@ WAVEFORM wPixel {
 			    SET LINE    TO LOW;
 
  /* Starts at beginning of waveform */
- 0:             SET RG_1    TO HIGH; 
- .+TWX:         SET RG_2    TO LOW;
+ 0:             SET RG    TO HIGH; 
+ .+TWX:         SET RG    TO LOW;
 /* Do something with summing well (following RG)    */
 
 /* Starts at beginning of waveform */
  0:         	SET sci_serial1 TO HIGH, SLOW;
            		SET sci_serial3 TO LOW , SLOW;
- .+T_Pixel/3:   SET sci_serial2 TO HIGH, SLOW;
- .+T_Pixel/3:   SET sci_serial1 TO LOW , SLOW;
+ .+Pixel_T/3:   SET sci_serial2 TO HIGH, SLOW;
+ .+Pixel_T/3:   SET sci_serial1 TO LOW , SLOW;
            		SET sci_serial3 TO HIGH, SLOW;
- .+T_Pixel/3:   RETURN;
+ .+Pixel_T/3:   RETURN;
 }
 
 /*****************************************/
@@ -112,20 +110,20 @@ WAVEFORM wPixel {
 /*****************************************/
 
 WAVEFORM wReset {
- 0:         SET RG       TO _RG_CLOCK_HIGH; 
+ 0:        SET RG       TO _RG_CLOCK_HIGH; 
 }
 
 WAVEFORM wUnsetReset {
- 0:        SET RG        TO _RG_CLOCK_LOW; 
+ 0:        SET RG       TO _RG_CLOCK_LOW; 
 }
 
 
 WAVEFORM OS_Clamp {
-            SET AC_Clamp TO HIGH;
+ 0:        SET AC_Clamp TO HIGH;
 }
 
 WAVEFORM OS_Clamp_ {
-            SET AC_Clamp TO LOW;  
+ 0:        SET AC_Clamp TO LOW;  
 }
 
 
