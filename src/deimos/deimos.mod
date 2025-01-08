@@ -1,50 +1,69 @@
 
-#define temp 1
+/* Fast and Slow slew rates are defined here */
+/* A boolean is set during a SET..TO command */
+/* to select between fast and slow slew rate */
+
+
+/* Expressions to be determined */
+#define SCLK_fast 500
+#define SCLK_slow 100
+#define PCLK_fast  10
+#define PCLK_slow   1
+#define SW_fast   500
+#define SW_slow   100
+#define TG_fast   500
+#define TG_slow   100
 
 SLOT 1 driverx {
-  DRVX  1 [temp,1,1];
-  DRVX  2 [temp,1,1];
-  DRVX  3 [temp,1,1];
-  DRVX  4 [temp,1,1];
-  DRVX  5 [temp,1,1];
-  DRVX  6 [temp,1,1];
-  DRVX  7 [temp,1,1];
-  DRVX  8 [temp,1,1];
-  DRVX  9 [temp,1,1];
-  DRVX 10 [temp,1,1];
-  DRVX 11 [temp,1,1];
-  DRVX 12 [temp,1,1];
+  DRVX  1 [PCLK_fast,PCLK_slow,1];
+  DRVX  2 [PCLK_fast,PCLK_slow,1];
+  DRVX  3 [PCLK_fast,PCLK_slow,1];
+  DRVX  4 [PCLK_fast,PCLK_slow,1];
+  DRVX  5 [PCLK_fast,PCLK_slow,1];
+  DRVX  6 [PCLK_fast,PCLK_slow,1];
+  DRVX  7 [PCLK_fast,PCLK_slow,1];
+  DRVX  8 [PCLK_fast,PCLK_slow,1];
+  DRVX 10 [PCLK_fast,PCLK_slow,1];
+  DRVX 11 [PCLK_fast,PCLK_slow,1];
+  DRVX 12 [PCLK_fast,PCLK_slow,1];
 }
 SLOT 2 driverx {
-  DRVX  1 [temp,1,1];
-  DRVX  2 [temp,1,1];
-  DRVX  3 [temp,1,1];
-  DRVX  4 [temp,1,1];
-  DRVX  5 [temp,1,1];
-  DRVX  6 [temp,1,1];
-  DRVX  7 [temp,1,1];
-  DRVX  8 [temp,1,1];
-  DRVX  9 [temp,1,1];
-  DRVX 10 [temp,1,1];
-  DRVX 11 [temp,1,1];
-  DRVX 12 [temp,1,1];
+  DRVX  1 [TG_fast,TG_slow,1];
+  DRVX  2 [SCLK_fast,SCLK_slow,1];
+  DRVX  3 [SCLK_fast,SCLK_slow,1];
+  DRVX  4 [SCLK_fast,SCLK_slow,1];
+  DRVX  5 [SCLK_fast,SCLK_slow,1];
+  DRVX  6 [SCLK_fast,SCLK_slow,1];
+  DRVX  7 [1,1,0];
+  DRVX  8 [1,1,0];
+  DRVX  9 [1,1,0];
+  DRVX 10 [1,1,0];
+  DRVX 11 [1,1,0];
+  DRVX 12 [1,1,0];
 }
 SLOT 3 driverx {
-  DRVX  1 [temp,1,1];
-  DRVX  2 [temp,1,1];
-  DRVX  3 [temp,1,1];
-  DRVX  4 [temp,1,1];
-  DRVX  5 [temp,1,1];
-  DRVX  6 [temp,1,1];
-  DRVX  7 [temp,1,1];
-  DRVX  8 [temp,1,1];
-  DRVX  9 [temp,1,1];
-  DRVX 10 [temp,1,1];
-  DRVX 11 [temp,1,1];
-  DRVX 12 [temp,1,1];
+  DRVX  1 [1,1,0];
+  DRVX  2 [1,1,0];
+  DRVX  3 [1,1,0];
+  DRVX  4 [1,1,0];
+  DRVX  5 [1,1,0];
+  DRVX  6 [1,1,0];
+  DRVX  7 [1,1,0];
+  DRVX  8 [1,1,0];
+  DRVX  9 [1,1,0];
+  DRVX 10 [1,1,0];
+  DRVX 11 [1,1,0];
+  DRVX 12 [1,1,0];
 }
 SLOT 4 xvbias {
-  NBIAS 1 [0,-100];
+  PBIAS 1 [0,0];
+  PBIAS 2 [0,0];
+  PBIAS 3 [0,0];
+  PBIAS 4 [0,0];
+  NBIAS 1 [0,-100] "SCI Backside";
+  NBIAS 2 [0,-0];
+  NBIAS 3 [0,-0];
+  NBIAS 4 [0,-0];
 }
 /* review */
 SLOT 7 ad {
@@ -56,42 +75,70 @@ SLOT 7 ad {
 }
 
 SLOT 9 hvbias {
-  HVLC  1 [0,0];             /* Unused */
-  HVLC  2 [0,0];             /* Guard Drain        SCI */
-  HVLC  3 [3.0,0];           /* Reset Drain    E   SCI */
-  HVLC  4 [12.0,0];          /* Reset Drain    F   SCI */
-  HVLC  5 [19,0];            /*  */
-  HVLC  6 [19,0];            /* Reset Drain    A 1 FCS */
-  HVLC  7 [19,0];            /* Reset Drain    B 1 FCS */
-  HVLC  8 [29,0];            /* Reset Drain    A 2 FCS */
-  HVLC  9 [3.5,0];           /* Reset Drain    B 2 FCS */
-  HVLC 10 [0,0];            /* Overflow Drain     FCS */
-  HVLC 11 [19,0];           /*  */
-  HVLC 12 [30,0];           /*  */
-  HVLC 13 [15,0];           /*  */
-  HVLC 14 [15,0];           /*  */
-  HVLC 15 [1,0];            /*  */
-  HVLC 16 [24,0];           /*  */
-  HVLC 17 [15,0];           /*  */
-  HVLC 18 [1,0];            /*  */
-  HVLC 19 [24,0];           /*  */
-  HVLC 20 [15,0];           /*  */
-  HVLC 21 [24,0];           /*  */
-  HVLC 22 [24,0];           /*  */
-  HVLC 23 [24,0];           /*  */
-  HVLC 24 [15,0];           /*  */
-  HVHC  1 [15,0,0,1];       /* Output Drain   E   SCI */
-  HVHC  2 [15,0,0,1];       /* Output Drain   F   SCI */
-  HVHC  3 [15,0,0,1];       /* Output Drain   A 1 FCS */
-  HVHC  4 [15,0,0,1];       /* Output Drain   B 1 FCS */
-  HVHC  5 [15,0,0,1];       /* Output Drain   A 2 FCS */
-  HVHC  6 [15,0,0,1];       /* Output Drain   B 2 FCS */
+  HVLC  1 [0.00,0];             
+  HVLC  2 [20.0,0] "SCI Guard Drain";
+  HVLC  3 [0.00,0];
+  HVLC  4 [0.00,0];
+  HVLC  5 [17.0,0] "SCI E Reset Drain";
+  HVLC  6 [17.0,0] "SCI F Reset Drain";
+  HVLC  7 [0.00,0];
+  HVLC  8 [0.00,0];
+  HVLC  9 [0.00,0];
+  HVLC 10 [0.00,0];
+  HVLC 11 [0.00,0];
+  HVLC 12 [0.00,0];
+  HVLC 13 [0.00,0];
+  HVLC 14 [0.00,0];
+  HVLC 15 [0.00,0];
+  HVLC 16 [0.00,0];
+  HVLC 17 [0.00,0];
+  HVLC 18 [0.00,0];
+  HVLC 19 [0.00,0];
+  HVLC 20 [0.00,0];
+  HVLC 21 [0.00,0];
+  HVLC 22 [0.00,0];
+  HVLC 23 [0.00,0];
+  HVLC 24 [0.00,0];
+  HVHC  1 [29.0,0.1,0,1] "SCI E Output Drain";
+  HVHC  2 [29.0,0.1,0,1] "SCI F Output Drain";
+  HVHC  3 [29.0,0.0,0,0];
+  HVHC  4 [29.0,0.0,0,0];
+  HVHC  5 [29.0,0.0,0,0];
+  HVHC  6 [29.0,0.0,0,0];
 }
 
 
 SLOT 10 lvbias {
-  HVLC 1 [0,0]; /* Unused */
-    
+   LVLC  1 [00.0,0]; 
+   LVLC  2 [00.0,0]; 
+   LVLC  3 [3.00,0] "SCI E Output Gate"; 
+   LVLC  4 [3.00,0] "SCI F Output Gate"; 
+   LVLC  5 [1.00,0] "SCI Summing Well - Low"; 
+   LVLC  6 [12.0,0] "SCI Summing Well - High"; 
+   LVLC  7 [1.00,0] "SCI Reset Gate - Low"; 
+   LVLC  8 [12.0,0] "SCI Reset Gate - High"; 
+   LVLC  9 [00.0,0]; 
+   LVLC 10 [00.0,0]; 
+   LVLC 11 [00.0,0]; 
+   LVLC 12 [00.0,0]; 
+   LVLC 13 [00.0,0]; 
+   LVLC 14 [00.0,0]; 
+   LVLC 15 [00.0,0]; 
+   LVLC 16 [00.0,0]; 
+   LVLC 17 [00.0,0]; 
+   LVLC 18 [00.0,0]; 
+   LVLC 19 [00.0,0]; 
+   LVLC 20 [00.0,0]; 
+   LVLC 21 [00.0,0]; 
+   LVLC 22 [00.0,0]; 
+   LVLC 23 [00.0,0]; 
+   LVLC 24 [00.0,0];
+   LVHC  1 [0.00,0.0,0,0];
+   LVHC  2 [0.00,0.0,0,0];
+   LVHC  3 [0.00,0.0,0,0];
+   LVHC  4 [0.00,0.0,0,0];
+   LVHC  5 [0.00,0.0,0,0];
+   LVHC  6 [0.00,0.0,0,0];
 }
 
 SLOT 12 lvds {

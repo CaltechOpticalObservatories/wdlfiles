@@ -59,55 +59,42 @@
 /*****************************************/
 /*             LOGIC STATES              */
 /*****************************************/
-#define OPEN		    1
-#define CLOSE		    0
-#define HIGH		    1
-#define LOW		        0
-
-
-
+#define OPEN  1
+#define CLOSE 0
+#define HIGH  1
+#define LOW   0
 
 WAVEFORM LineTransfer {
- /* wLine done in sequence 
- 0: 
- .+TDRT:	    SET TG TO _TG_CLOCK_HIGH, SLOW;
- .+TOI:			SET CD3     TO _PAR_CLOCK_LOW, SLOW;
-			    SET AB2     TO _PAR_CLOCK_LOW, SLOW;
- .+TOI:			SET CD4     TO _PAR_CLOCK_HIGH, SLOW;
-			    SET AB1     TO _PAR_CLOCK_HIGH, SLOW;
- .+TOI:			SET CD2     TO _PAR_CLOCK_LOW, SLOW;
-			    SET AB3     TO _PAR_CLOCK_LOW, SLOW;
- .+TOI:			SET CD3     TO _PAR_CLOCK_HIGH, SLOW;
-			    SET AB2     TO _PAR_CLOCK_HIGH, SLOW;			
- .+TOI:			SET CD1     TO _PAR_CLOCK_LOW, SLOW;
-			    SET AB4     TO _PAR_CLOCK_LOW, SLOW;
-			    SET TG  TO _TG_CLOCK_LOW, SLOW;
- .+TOI:			SET CD2     TO _PAR_CLOCK_HIGH, SLOW;
-			    SET AB3     TO _PAR_CLOCK_HIGH, SLOW;
- .+TOI:			SET CD4     TO _PAR_CLOCK_LOW, SLOW;
-			    SET AB1     TO _PAR_CLOCK_LOW, SLOW;			
- .+TOI:         SET CD1     TO _PAR_CLOCK_HIGH, SLOW;
-                SET AB4     TO _PAR_CLOCK_HIGH, SLOW;
- */
+ /* INITIAL STATE NEEDS TO BE DEFINED  
+ 0: 		SET NOP 		TO HIGH;
+ .+TDRT:	SET TG  		TO _TG_CLOCK_HIGH, SLOW;
+		SET sci_parallel3 	TO _PAR_CLOCK_HIGH, SLOW;
+ .+TOI:		SET sci_parallel2	TO _PAR_CLOCK_LOW, SLOW;
+ .+TOI:		SET sci_parallel1 	TO _PAR_CLOCK_LOW, SLOW;
+ .+TOI:		SET TG			TO _TG_CLOCK_LOW, SLOW;
+ .+TOI:		SET sci_parallel3	TO _PAR_CLOCK_LOW, SLOW;
+ .+TOI:		SET sci_parallel2       TO _PAR_CLOCK_HIGH, SLOW;
+ .+TOI:		SET sci_parallel1	TO _PAR_CLOCK_LOW, SLOW;
+ .+TDRT:	RETURN;
 }
 
 WAVEFORM wPixel {
  /* Starts at beginning of waveform */
- 0:		        SET PIXEL   TO HIGH; 
- .+TICK:	    SET PIXEL   TO LOW;
-			    SET FRAME   TO LOW;
-			    SET LINE    TO LOW;
+ 0:		SET PIXEL   TO HIGH; 
+ .+TICK:	SET PIXEL   TO LOW;
+		SET FRAME   TO LOW;
+		SET LINE    TO LOW;
  /* Starts at beginning of waveform */
- 0:             SET RG_1    TO HIGH; 
- TWX:           SET RG_2    TO LOW;
+ 0:		SET RG	    TO HIGH; 
+ .+TWX:		SET RG	    TO LOW;
 /* Do something with summing well (following RG)    */
 /* Do something with serial clocks (starting at 0:) */
- 0:         SET sci_serial1 TO HIGH;
-            SET sci_serial3 TO LOW;
- .+TOR:     SET sci_serial2 TO HIGH;
- .+TOR:     SET sci_serial1 TO LOW;
-            SET sci_serial3 TO HIGH;
- .+TOR:     RETURN;
+ 0:	SET sci_serial1 TO HIGH;
+ 	SET sci_serial3 TO LOW;
+ .+TOR:	SET sci_serial2 TO HIGH;
+ .+TOR:	SET sci_serial1 TO LOW;
+ 	SET sci_serial3 TO HIGH;
+ .+TOR:	RETURN;
 }
 
 /*****************************************/
@@ -115,20 +102,19 @@ WAVEFORM wPixel {
 /*****************************************/
 
 WAVEFORM wReset {
- 0:         SET RG       TO _RG_CLOCK_HIGH; 
+ 0:	SET RG       TO _RG_CLOCK_HIGH; 
 }
 
 WAVEFORM wUnsetReset {
- 0:        SET RG        TO _RG_CLOCK_LOW; 
+ 0:	SET RG        TO _RG_CLOCK_LOW; 
 }
 
-
 WAVEFORM OS_Clamp {
-            SET AC_Clamp TO HIGH;
+ 0:	SET AC_Clamp TO HIGH;
 }
 
 WAVEFORM OS_Clamp_ {
-            SET AC_Clamp TO LOW;  
+ 0:	SET AC_Clamp TO LOW;  
 }
 
 
@@ -149,56 +135,28 @@ WAVEFORM Wait1us {
 /*****************************************/
 
 WAVEFORM wOpenShutter {
- 0:			SET SHUTTER TO OPEN;
+ 0:	SET SHUTTER TO OPEN;
 }
 WAVEFORM wCloseShutter {
- 0:			SET SHUTTER TO CLOSE;
+ 0:	SET SHUTTER TO CLOSE;
 }
 WAVEFORM wFrame {
- 0:			SET FRAME TO HIGH;
+ 0:	SET FRAME TO HIGH;
 }
 WAVEFORM wLine {
- 0:			SET LINE TO HIGH;
+ 0:	SET LINE TO HIGH;
 }
 WAVEFORM wPixel {
- 0:			SET PIXEL    TO HIGH;
- .+TICK:	SET PIXEL    TO LOW;
-			SET FRAME    TO LOW;
-			SET LINE     TO LOW;
+ 0:	 SET PIXEL    TO HIGH;
+ .+TICK: SET PIXEL    TO LOW;
+	 SET FRAME    TO LOW;
+	 SET LINE     TO LOW;
 }
-/* Where are these defined??*/
+
 WAVEFORM AD_Clamp {
-/* 0:			SET AD1      TO HIGH;
-			SET AD2      TO HIGH;
-			SET AD3      TO HIGH;
-			SET AD4      TO HIGH;
-            SET AD5      TO HIGH;
-            SET AD6      TO HIGH;
-            SET AD7      TO HIGH;
-            SET AD8      TO HIGH;
-            SET AD11     TO HIGH;
-			SET AD12     TO HIGH;
-			SET AD13     TO HIGH;
-			SET AD14     TO HIGH;
-            SET AD15     TO HIGH;
-            SET AD16     TO HIGH;
-            SET AD18     TO HIGH;
-*/}
+ /*0:	 SET AD7      TO HIGH;*/
+}
 
 WAVEFORM AD_Clamp_ {
-/* 0:			SET AD1      TO LOW;
-			SET AD2      TO LOW;
-			SET AD3      TO LOW;
-			SET AD4      TO LOW;
-            SET AD5      TO LOW;
-            SET AD6      TO LOW;
-            SET AD7      TO LOW;
-            SET AD8      TO LOW;
-            SET AD11     TO LOW;
-			SET AD12     TO LOW;
-			SET AD13     TO LOW;
-			SET AD14     TO LOW;
-            SET AD15     TO LOW;
-            SET AD16     TO LOW;
-            SET AD18     TO LOW;
-*/}
+ /*0:	 SET AD7      TO LOW;*/
+}

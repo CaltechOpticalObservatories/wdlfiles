@@ -107,8 +107,8 @@ generate_wdl:
 	@cat $(MODFILE) | $(GPP) $(GFLAGS) $(INCL) | $(MODPARSER) -
 	$(call debug_message, "Processed MODULE_FILE: $(MODFILE)")
 
-	# @$(WAVGEN) $(F_TMP) $(PLOT) || { echo "Waveform generation failed"; exit 1; }
-	# $(call debug_message, "Finished waveform generation for $(F_TMP) with plot: $(PLOT)")
+	@$(WAVGEN) $(F_TMP) $(PLOT) || { echo "Waveform generation failed"; exit 1; }
+	$(call debug_message, "Finished waveform generation for $(F_TMP) with plot: $(PLOT)")
 
 # Rule for generating script states
 generate_script_states:
