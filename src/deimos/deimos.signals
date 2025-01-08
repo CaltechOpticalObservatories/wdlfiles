@@ -95,7 +95,7 @@
    #define sci_serial3 SP_EF
 #endif
 /* Reset Gate Combine */
-#define RG [ RG_1, RG_2]
+#define RG [RG_1, RG_2]
 
 /* Science Parallels */
 #define sci_parallel1 [PP_A1_1, PP_A1_2, PP_B1_1, PP_B1_2]
