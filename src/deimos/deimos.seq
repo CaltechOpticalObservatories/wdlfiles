@@ -67,16 +67,16 @@ SEQUENCE ScienceReadout {
 }
 
 SEQUENCE ScienceLineRead{
-    /*LineTransfer(); 
+    LineTransfer(); 
     wLine();
-    */
+    
     /* Initialize Serial Clocks */ 
     /* Flush desired number of post pixels */
 
-    /*wPixel(param_SciencePixels); */
+    wPixel(param_SciencePixels);
     /* Flush desired number of pre serial pixels */
 
-    /* Serial Recieving??
+    /* Serial Recieving?? */
     
     wReset();
     Wait1us();
@@ -86,5 +86,4 @@ SEQUENCE ScienceLineRead{
     OS_Clamp_();
     AD_Clamp_();
     return;
-    */
 }

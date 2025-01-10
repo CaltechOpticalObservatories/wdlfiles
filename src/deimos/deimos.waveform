@@ -174,9 +174,9 @@ WAVEFORM wPixel {
 }
 
 WAVEFORM AD_Clamp {
- /*0:	 SET AD7      TO HIGH;*/
+ 0:	 SET AD7      TO HIGH;
 }
 
 WAVEFORM AD_Clamp_ {
- /*0:	 SET AD7      TO LOW;*/
+ 0:	 SET AD7      TO LOW;
 }
