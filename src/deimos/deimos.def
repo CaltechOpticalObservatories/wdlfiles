@@ -85,6 +85,7 @@
 
 #define _SER_CLOCK_HIGH    12 /* [ 8.00, 14.0] */
 #define _SER_CLOCK_LOW      1 /* [-0.50, 1.50] */
+#define _SER_CLOCK_RCV     13 /* Higher than serial clock high */
 
 #define _OUTPUT_GATE        3 /* [ 0.50, 4.00] */
 

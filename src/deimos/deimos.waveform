@@ -71,17 +71,22 @@
 #define HIGH  1
 #define LOW   0
 
+WAVEFORM SerialRecieving {
+ 0: SET SCI_SCLK1 to _SER_CLOCK_RCV, FAST;
+	SET SCI_SCLK2 to _SER_CLOCK_RCV, FAST;
+}
+
 WAVEFORM LineTransfer {
  /* INITIAL STATE NEEDS TO BE DEFINED  
  0: 		SET NOP 		TO HIGH;
  .+TDRT:	SET TG  		TO _TG_CLOCK_HIGH, SLOW;
-		SET sci_parallel3 	TO _PAR_CLOCK_HIGH, SLOW;
- .+TOI:		SET sci_parallel2	TO _PAR_CLOCK_LOW, SLOW;
- .+TOI:		SET sci_parallel1 	TO _PAR_CLOCK_LOW, SLOW;
+			SET SCI_PCLK3 	TO _PAR_CLOCK_HIGH, SLOW;
+ .+TOI:		SET SCI_PCLK2	TO _PAR_CLOCK_LOW, SLOW;
+ .+TOI:		SET SCI_PCLK1 	TO _PAR_CLOCK_LOW, SLOW;
  .+TOI:		SET TG			TO _TG_CLOCK_LOW, SLOW;
- .+TOI:		SET sci_parallel3	TO _PAR_CLOCK_LOW, SLOW;
- .+TOI:		SET sci_parallel2       TO _PAR_CLOCK_HIGH, SLOW;
- .+TOI:		SET sci_parallel1	TO _PAR_CLOCK_LOW, SLOW;
+ .+TOI:		SET sSCI_PCLK3	TO _PAR_CLOCK_LOW, SLOW;
+ .+TOI:		SET SCI_PCLK2   TO _PAR_CLOCK_HIGH, SLOW;
+ .+TOI:		SET SCI_PCLK1	TO _PAR_CLOCK_LOW, SLOW;
  .+TDRT:	RETURN;
 }
 
@@ -93,14 +98,14 @@ WAVEFORM wPixel {
 		SET LINE    TO LOW;
  /* Starts at beginning of waveform */
  0:		SET RG	    TO HIGH; 
- .+TWX:		SET RG	    TO LOW;
+ .+TWX:	SET RG	    TO LOW;
 /* Do something with summing well (following RG)    */
 /* Do something with serial clocks (starting at 0:) */
- 0:	SET sci_serial1 TO HIGH;
- 	SET sci_serial3 TO LOW;
- .+TOR:	SET sci_serial2 TO HIGH;
- .+TOR:	SET sci_serial1 TO LOW;
- 	SET sci_serial3 TO HIGH;
+ 0:	SET SCI_SCLK1 TO HIGH;
+ 	SET SCI_SCLK3 TO LOW;
+ .+TOR:	SET SCI_SCLK2 TO HIGH;
+ .+TOR:	SET SCI_SCLK1 TO LOW;
+ 		SET SCI_SCLK3 TO HIGH;
  .+TOR:	RETURN;
 }
 
