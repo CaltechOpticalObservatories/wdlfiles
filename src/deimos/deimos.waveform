@@ -53,10 +53,10 @@
 
 /* Serial transfer timing definitions */
 
-#define #eval SCLK_RCV_RESET 60 ns /* Serial clock recieving to reset */
-#define #eval TWX 170 ns /* Reset Pulse Width    */
-#define #eval TOR 130 ns /* Serial Clock Overlap */
-#define #eval TSW Pixel_T/2
+#define SCLK_RCV_RESET #eval 60 ns /* Serial clock recieving to reset */
+#define TWX #eval 170 ns /* Reset Pulse Width    */
+#define TOR #eval 130 ns /* Serial Clock Overlap */
+#define TSW #eval Pixel_T/2
 
 
 /*****************************************/
@@ -77,7 +77,7 @@
 WAVEFORM SerialRecieving {
  0: 			SET SCI_SCLK1	TO _SER_CLOCK_RCV, FAST;
 			SET SCI_SCLK2	TO _SER_CLOCK_RCV, FAST;
- .+SCLK_RCV_RESET	SET RG		TO _RG_CLOCK_HIGH, FAST;
+ .+SCLK_RCV_RESET:	SET RG		TO _RG_CLOCK_HIGH, FAST;
 }
 
 WAVEFORM LineTransfer {
@@ -106,7 +106,7 @@ WAVEFORM wPixel {
  0:				SET RG	    TO HIGH, FAST;
  .+TWX:			SET RG	    TO LOW, FAST;
  TSW:			SET SW 		TO LOW, FAST;
- .+SW_settleT	SET SW		TO HIGH, SLOW;
+ .+SW_settleT:	SET SW		TO HIGH, SLOW;
 
 /* Do something with summing well (following RG)    */
  0:			SET SCI_SCLK1 TO HIGH;
