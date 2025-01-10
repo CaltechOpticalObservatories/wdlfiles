@@ -50,7 +50,7 @@ WDLPATH   = $(HOME)/Software/wdl/wdl/
 # output for *.acf file
 ACFPATH   = $(HOME)/Software/wdlfiles/src/deimos/
 
-PLOT      = True # True   # show waveform plots by default, True | False
+PLOT      = False # True   # show waveform plots by default, True | False
 GFLAGS    = +c "/*" "*/" +c "//" "\n" +c "\\\n" ""
 SEQPARSER = $(WDLPATH)/seqParserDriver.py
 INCPARSER = $(WDLPATH)/incParserDriver.py

@@ -31,14 +31,14 @@ param param_ExposeTime      = 0
 
 
 SEQUENCE StartSeq {
-    BiasLow();
+    /*BiasLow();*/
     if start GOTO InitSeq();
     GOTO StartSeq();
 }
 
 SEQUENCE InitSeq {
-    BiasInit();
-    ACReset();
+    /* BiasInit(); */
+    /* ACReset(); */
     /* Initialize Serial and Parallel Lines - What is serial recieving???? */
     /* Do something to parallel lines to prepare for exposure - GUARDS UP*/
     GOTO DetectorSel();
@@ -69,13 +69,14 @@ SEQUENCE ScienceReadout {
 SEQUENCE ScienceLineRead{
     /*LineTransfer(); 
     wLine();
+    */
     /* Initialize Serial Clocks */ 
     /* Flush desired number of post pixels */
 
-    wPixel(param_SciencePixels);
+    /*wPixel(param_SciencePixels); */
     /* Flush desired number of pre serial pixels */
 
-    /* Serial Recieving?? */
+    /* Serial Recieving??
     
     wReset();
     Wait1us();
@@ -84,20 +85,6 @@ SEQUENCE ScienceLineRead{
     Wait1us();
     OS_Clamp_();
     AD_Clamp_();
-    return;*/
+    return;
+    */
 }
-
-SEQUENCE BiasInit {
-    /* Initialize all biases as required in datasheet */
-    /* Bias Settling time wait??? */
-}
-
-SEQUENCE BiasLow {
-    /* Initialize all biases to low */
-}
-
-SEQUENCE ACReset {
-    /* Clamp and unclamp AC clamp */
-}
-
-
