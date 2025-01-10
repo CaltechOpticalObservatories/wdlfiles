@@ -53,9 +53,9 @@
 
 /* Serial transfer timing definitions */
 
-#define TWX 170 ns /* Reset Pulse Width    */
-#define TOR 130 ns /* Serial Clock Overlap */
-#define SCLK_RCV_RESET 60 ns /* Serial clock recieving to reset */
+#define #eval TWX 170 ns /* Reset Pulse Width    */
+#define #eval TOR 130 ns /* Serial Clock Overlap */
+#define #eval SCLK_RCV_RESET 60 ns /* Serial clock recieving to reset */
 
 /*****************************************/
 /*       Serial Clock Slew Rate          */
@@ -73,9 +73,9 @@
 #define LOW   0
 
 WAVEFORM SerialRecieving {
- 0: 				SET SCI_SCLK1	TO _SER_CLOCK_RCV, FAST;
-					SET SCI_SCLK2	TO _SER_CLOCK_RCV, FAST;
- .+SCLK_RCV_RESET	SET RG			TO _RG_CLOCK_HIGH, FAST;
+ 0: 			SET SCI_SCLK1	TO _SER_CLOCK_RCV, FAST;
+			SET SCI_SCLK2	TO _SER_CLOCK_RCV, FAST;
+ .+SCLK_RCV_RESET	SET RG		TO _RG_CLOCK_HIGH, FAST;
 }
 
 WAVEFORM LineTransfer {
