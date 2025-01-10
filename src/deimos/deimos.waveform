@@ -53,9 +53,11 @@
 
 /* Serial transfer timing definitions */
 
+#define #eval SCLK_RCV_RESET 60 ns /* Serial clock recieving to reset */
 #define #eval TWX 170 ns /* Reset Pulse Width    */
 #define #eval TOR 130 ns /* Serial Clock Overlap */
-#define #eval SCLK_RCV_RESET 60 ns /* Serial clock recieving to reset */
+#define #eval TSW Pixel_T/2
+
 
 /*****************************************/
 /*       Serial Clock Slew Rate          */
@@ -100,10 +102,13 @@ WAVEFORM wPixel {
 			SET FRAME   TO LOW;
 			SET LINE    TO LOW;
  /* Starts at beginning of waveform */
- 0:			SET RG	    TO HIGH; 
- .+TWX:		SET RG	    TO LOW;
+ /* NEED TO CLARIFY SUMMING WELL BEHAVIOUR */
+ 0:				SET RG	    TO HIGH, FAST;
+ .+TWX:			SET RG	    TO LOW, FAST;
+ TSW:			SET SW 		TO LOW, FAST;
+ .+SW_settleT	SET SW		TO HIGH, SLOW;
+
 /* Do something with summing well (following RG)    */
-/* Do something with serial clocks (starting at 0:) */
  0:			SET SCI_SCLK1 TO HIGH;
  			SET SCI_SCLK3 TO LOW;
  .+TOR:		SET SCI_SCLK2 TO HIGH;

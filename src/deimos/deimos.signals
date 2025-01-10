@@ -27,10 +27,12 @@
  */
 
  
-#define SHUTTER  0 : 1 /* INT signal from the backplane   */
+#define SHUTTER 0 : 1 /* INT signal from the backplane   */
 #define FRAME	 0 : 2 /* FRAME signal from the backplane	*/
 #define LINE	 0 : 3 /* LINE signal from the backplane	*/
 #define PIXEL	 0 : 4 /* PIXEL signal from the backplane	*/
+
+#define AD7     7 : 1 /* Access to AC Clamp */
 
 /**** Parallel Phase Signal Definitions ****/
 /* Each detector is made of two 2048x2048  
@@ -59,7 +61,7 @@
 
 /****  Serial Phase Signal Definitions  ****/
 
-#define TG        2 : 1
+#define TG          2 : 1
 #define SCLK_EF     2 : 2
 #define SCLK_E2     2 : 3
 #define SCLK_E1     2 : 4

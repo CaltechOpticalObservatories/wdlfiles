@@ -88,6 +88,22 @@ SLOT 7 ad {
   PREAMPGAIN = low;
 }
 
+/****** Bias Power Up Order ******/
+/* 1 : Front Substrate           */
+/* 1 : Back Substrate to 0V      */
+/* 2 : Guard Drain               */
+/* 2 : Reset Drain               */
+/* 2 : Ouput Drain               */
+/* 3 : Output Gate               */
+/* 4 : Image Clock High          */
+/* 4 : Image Clock Low           */
+/* 4 : Register Clock High       */
+/* 4 : Register Clock Low        */
+/* 4 : Reset Gate High           */
+/* 4 : Reset Gate Low            */
+/* 5 : Back Substrate to -100V   */
+
+
 SLOT 9 hvbias {
   HVLC  1 [0.00,0];             
   HVLC  2 [20.0,0] "SCI Guard Drain";
