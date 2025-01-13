@@ -75,9 +75,9 @@
 #define LOW   0
 
 WAVEFORM SerialRecieving {
- 0: 			SET SCI_SCLK1	TO _SER_CLOCK_RCV, FAST;
+ 0: 		SET SCI_SCLK1	TO _SER_CLOCK_RCV, FAST;
 			SET SCI_SCLK2	TO _SER_CLOCK_RCV, FAST;
- .+SCLK_RCV_RESET:	SET RG		TO _RG_CLOCK_HIGH, FAST;
+ .+SCLK_RCV_RESET:	SET RG	TO LOW;
 }
 
 WAVEFORM LineTransfer {
@@ -103,10 +103,10 @@ WAVEFORM wPixel {
 			SET LINE    TO LOW;
  /* Starts at beginning of waveform */
  /* NEED TO CLARIFY SUMMING WELL BEHAVIOUR */
- 0:				SET RG	    TO HIGH, FAST;
- .+TWX:			SET RG	    TO LOW, FAST;
- TSW:			SET SW 		TO LOW, FAST;
- .+SW_settleT:	SET SW		TO HIGH, SLOW;
+ 0:				SET RG	    TO HIGH;
+ .+TWX:			SET RG	    TO LOW;
+ TSW:			SET SW 		TO LOW;
+ .+SW_settleT:	SET SW		TO HIGH;
 
 /* Do something with summing well (following RG)    */
  0:			SET SCI_SCLK1 TO HIGH;
@@ -122,15 +122,11 @@ WAVEFORM wPixel {
 /*****************************************/
 
 WAVEFORM wReset {
- 0:        SET RG       TO _RG_CLOCK_HIGH; 
+ 0:        SET RG TO HIGH; 
 }
 
 WAVEFORM wUnsetReset {
- 0:        SET RG       TO _RG_CLOCK_LOW; 
-}
-
-WAVEFORM wUnsetReset {
- 0:	SET RG        TO _RG_CLOCK_LOW; 
+ 0:        SET RG TO LOW; 
 }
 
 WAVEFORM OS_Clamp {
