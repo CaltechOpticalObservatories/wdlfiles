@@ -88,14 +88,6 @@
 #define _SER_CLOCK_LOW      1 /* [-0.50, 1.50] */
 #define _SER_CLOCK_RCV     13 /* Higher than serial clock high */
 
-#define _OUTPUT_GATE        3 /* [ 0.50, 4.00] */
-
-#define _SW_CLOCK_HIGH    3.3 /* Gate driven see .mod for voltage def */
-#define _SW_CLOCK_LOW     0.0
-
-#define _RG_CLOCK_HIGH    3.3 /* Gate driven see .mod for voltage def */
-#define _RG_CLOCK_LOW     0.0
-
 #define _RESET_DRAIN       17 /* [ 15.0, 20.0] */
 #define _OUTPUT_DRAIN      29 /* [ 27.0, 32.0] */
 
