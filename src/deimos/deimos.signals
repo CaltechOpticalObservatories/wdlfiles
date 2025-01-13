@@ -46,12 +46,12 @@
 
 /****  Serial Phase Signal Definitions  ****/
 
-#define TG          11 : 1
-#define SCLK_EF     11 : 2
-#define SCLK_E2     11 : 3
-#define SCLK_E1     11 : 4
-#define SCLK_F2     11 : 5
-#define SCLK_F1     11 : 6
+#define TG          10 : 1
+#define SCLK_EF     10 : 2
+#define SCLK_E2     10 : 3
+#define SCLK_E1     10 : 4
+#define SCLK_F2     10 : 5
+#define SCLK_F1     10 : 6
 
 /**** Parallel Phase Signal Definitions ****/
 /* Each detector is made of two 2048x2048  

@@ -127,7 +127,7 @@ SLOT 9 xvbias {
   NBIAS 4 [0,-0];
 }
 
-SLOT 10 driverx {
+SLOT 11 driverx {
   DRVX  1 [1,1,0];
   DRVX  2 [1,1,0];
   DRVX  3 [1,1,0];
@@ -142,7 +142,7 @@ SLOT 10 driverx {
   DRVX 12 [1,1,0];
 }
 
-SLOT 11 driverx {
+SLOT 10 driverx {
   DRVX  1 [TG_fast,TG_slow,1];
   DRVX  2 [SCLK_fast,SCLK_slow,1];
   DRVX  3 [SCLK_fast,SCLK_slow,1];
