@@ -13,7 +13,7 @@
  * Configuration modes
  */
 
-#define _SCI_SER_CLOCK_DIR       SPLIT   /* SPLIT | | E_LEFT | F_RIGHT */
+#define _SCI_SER_CLOCK_DIR       SPLIT   /* SPLIT || E_LEFT || F_RIGHT */
 
 
  /** --------------------------------------------------------------------------
@@ -50,7 +50,8 @@
 /* Number of Pixels depends on if both output
 #if _SCI_SER_CLOCK_DIR == SPLIT
    #define _PIXELNUM          #eval _IMAGECOLS/2 + _SERIALPRESCAN + _SERIALOVERSCAN
-#elif _SCI_SER_CLOCK_DIR == F_RIGHT || _SCI_SER_CLOCK_DIR == E_LEFT
+#endif
+#if _SCI_SER_CLOCK_DIR == F_RIGHT || _SCI_SER_CLOCK_DIR == E_LEFT
    #define _PIXELNUM          #eval _IMAGECOLS + _SERIALPRESCAN + _SERIALOVERSCAN
 #endif
 
