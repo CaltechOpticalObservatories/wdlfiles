@@ -27,13 +27,65 @@
 #define TG_fast   500 /* Evaluate Expression? */
 #define TG_slow   100 /* Evaluate Expression? */
 
-SLOT 1 lvds {
-  DIO 1 [0,0];
-  DIO 2 [0,0];
-  DIO 3 [0,0];
-  DIO 4 [0,0];
-  DIOPOWER = 0;
+SLOT 1 driverx {
+  DRVX  1 [PCLK_fast,PCLK_slow,1];
+  DRVX  2 [PCLK_fast,PCLK_slow,1];
+  DRVX  3 [PCLK_fast,PCLK_slow,1];
+  DRVX  4 [PCLK_fast,PCLK_slow,1];
+  DRVX  5 [PCLK_fast,PCLK_slow,1];
+  DRVX  6 [PCLK_fast,PCLK_slow,1];
+  DRVX  7 [PCLK_fast,PCLK_slow,1];
+  DRVX  8 [PCLK_fast,PCLK_slow,1];
+  DRVX  9 [PCLK_fast,PCLK_slow,1];
+  DRVX 10 [PCLK_fast,PCLK_slow,1];
+  DRVX 11 [PCLK_fast,PCLK_slow,1];
+  DRVX 12 [PCLK_fast,PCLK_slow,1];
 }
+
+/* Remove comment when adding FCS 
+SLOT 2 driverx {
+  DRVX  1 [1,1,0];
+  DRVX  2 [1,1,0];
+  DRVX  3 [1,1,0];
+  DRVX  4 [1,1,0];
+  DRVX  5 [1,1,0];
+  DRVX  6 [1,1,0];
+  DRVX  7 [1,1,0];
+  DRVX  8 [1,1,0];
+  DRVX  9 [1,1,0];
+  DRVX 10 [1,1,0];
+  DRVX 11 [1,1,0];
+  DRVX 12 [1,1,0];
+}
+**********************************/
+
+SLOT 3 driverx {
+  DRVX  1 [TG_fast,TG_slow,1];
+  DRVX  2 [SCLK_fast,SCLK_slow,1];
+  DRVX  3 [SCLK_fast,SCLK_slow,1];
+  DRVX  4 [SCLK_fast,SCLK_slow,1];
+  DRVX  5 [SCLK_fast,SCLK_slow,1];
+  DRVX  6 [SCLK_fast,SCLK_slow,1];
+  DRVX  7 [1,1,0];
+  DRVX  8 [1,1,0];
+  DRVX  9 [1,1,0];
+  DRVX 10 [1,1,0];
+  DRVX 11 [1,1,0];
+  DRVX 12 [1,1,0];
+}
+
+SLOT 4 xvbias {
+  PBIAS 1 [0,0];
+  PBIAS 2 [0,0];
+  PBIAS 3 [0,0];
+  PBIAS 4 [0,0];  
+  NBIAS 1 [0,-95] "SCI Backside";
+  NBIAS 2 [0,-0];
+  NBIAS 3 [0,-0];
+  NBIAS 4 [0,-0];
+}
+
+/* SLOT 7 ADM */ 
 
 /****** Bias Power Up Order ******/
 /* 1 : Front Substrate           */
@@ -50,7 +102,7 @@ SLOT 1 lvds {
 /* 4 : Reset Gate Low            */
 /* 5 : Back Substrate to -100V   */
 
-SLOT 3 hvbias {
+SLOT 9 hvbias {
   HVLC  1 [0.00,0];             
   HVLC  2 [20.0,0] "SCI Guard Drain";
   HVLC  3 [0.00,0];
@@ -83,7 +135,7 @@ SLOT 3 hvbias {
   HVHC  6 [29.0,0.0,0,0];
 }
 
-SLOT 4 lvbias {
+SLOT 10 lvbias {
    LVLC  1 [00.0,0]; 
    LVLC  2 [00.0,0]; 
    LVLC  3 [3.00,0] "SCI E Output Gate"; 
@@ -116,61 +168,15 @@ SLOT 4 lvbias {
    LVHC  6 [0.00,0.0,0,0];
 }
 
-SLOT 9 xvbias {
-  PBIAS 1 [0,0];
-  PBIAS 2 [0,0];
-  PBIAS 3 [0,0];
-  PBIAS 4 [0,0];  
-  NBIAS 1 [0,-95] "SCI Backside";
-  NBIAS 2 [0,-0];
-  NBIAS 3 [0,-0];
-  NBIAS 4 [0,-0];
+SLOT 12 lvds {
+  DIO 1 [0,0];
+  DIO 2 [0,0];
+  DIO 3 [0,0];
+  DIO 4 [0,0];
+  DIOPOWER = 0;
 }
 
-SLOT 11 driverx {
-  DRVX  1 [1,1,0];
-  DRVX  2 [1,1,0];
-  DRVX  3 [1,1,0];
-  DRVX  4 [1,1,0];
-  DRVX  5 [1,1,0];
-  DRVX  6 [1,1,0];
-  DRVX  7 [1,1,0];
-  DRVX  8 [1,1,0];
-  DRVX  9 [1,1,0];
-  DRVX 10 [1,1,0];
-  DRVX 11 [1,1,0];
-  DRVX 12 [1,1,0];
-}
 
-SLOT 10 driverx {
-  DRVX  1 [TG_fast,TG_slow,1];
-  DRVX  2 [SCLK_fast,SCLK_slow,1];
-  DRVX  3 [SCLK_fast,SCLK_slow,1];
-  DRVX  4 [SCLK_fast,SCLK_slow,1];
-  DRVX  5 [SCLK_fast,SCLK_slow,1];
-  DRVX  6 [SCLK_fast,SCLK_slow,1];
-  DRVX  7 [1,1,0];
-  DRVX  8 [1,1,0];
-  DRVX  9 [1,1,0];
-  DRVX 10 [1,1,0];
-  DRVX 11 [1,1,0];
-  DRVX 12 [1,1,0];
-}
-
-SLOT 12 driverx {
-  DRVX  1 [PCLK_fast,PCLK_slow,1];
-  DRVX  2 [PCLK_fast,PCLK_slow,1];
-  DRVX  3 [PCLK_fast,PCLK_slow,1];
-  DRVX  4 [PCLK_fast,PCLK_slow,1];
-  DRVX  5 [PCLK_fast,PCLK_slow,1];
-  DRVX  6 [PCLK_fast,PCLK_slow,1];
-  DRVX  7 [PCLK_fast,PCLK_slow,1];
-  DRVX  8 [PCLK_fast,PCLK_slow,1];
-  DRVX  9 [PCLK_fast,PCLK_slow,1];
-  DRVX 10 [PCLK_fast,PCLK_slow,1];
-  DRVX 11 [PCLK_fast,PCLK_slow,1];
-  DRVX 12 [PCLK_fast,PCLK_slow,1];
-}
 
 
 
