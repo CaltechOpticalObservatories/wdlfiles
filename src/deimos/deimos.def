@@ -42,16 +42,16 @@
 #define  _SERIALPRESCAN           50
 #define  _SERIALOVERSCAN         100 
 #define  _PARALLELOVERSCAN        50
-#defeval _IMAGEROWS            #eval _SECTIONROWS*2 
-#defeval _IMAGECOLS            #eval _SECTIONCOLS
-#defeval _IDLE_LINES           #eval _SKIP_LINES + _IMAGEROWS
+#define _IMAGEROWS            #eval _SECTIONROWS*2 
+#define _IMAGECOLS            #eval _SECTIONCOLS
+#define _IDLE_LINES           #eval _SKIP_LINES + _IMAGEROWS
 
-#defeval _LINENUM              #eval _IMAGEROWS + _PARALLELOVERSCAN - _SKIP_LINES
+#define _LINENUM              #eval _IMAGEROWS + _PARALLELOVERSCAN - _SKIP_LINES
 /* Number of Pixels depends on if both output
 #if _SCI_SER_CLOCK_DIR == SPLIT
-   #defeval _PIXELNUM          #eval _IMAGECOLS/2 + _SERIALPRESCAN + _SERIALOVERSCAN
+   #define _PIXELNUM          #eval _IMAGECOLS/2 + _SERIALPRESCAN + _SERIALOVERSCAN
 #elif _SCI_SER_CLOCK_DIR == F_RIGHT || _SCI_SER_CLOCK_DIR == E_LEFT
-   #defeval _PIXELNUM          #eval _IMAGECOLS + _SERIALPRESCAN + _SERIALOVERSCAN
+   #define _PIXELNUM          #eval _IMAGECOLS + _SERIALPRESCAN + _SERIALOVERSCAN
 #endif
 
 
