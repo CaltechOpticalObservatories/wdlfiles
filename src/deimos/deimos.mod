@@ -116,21 +116,12 @@ SLOT 4 lvbias {
    LVHC  6 [0.00,0.0,0,0];
 }
 
-/* review */
-SLOT 6 ad {
-  CLAMP 1 = 0;
-  CLAMP 2 = 0;
-  CLAMP 3 = 1.5;
-  CLAMP 4 = 1.5;
-  PREAMPGAIN = low;
-}
-
 SLOT 9 xvbias {
   PBIAS 1 [0,0];
   PBIAS 2 [0,0];
   PBIAS 3 [0,0];
   PBIAS 4 [0,0];  
-  NBIAS 1 [0,-100] "SCI Backside";
+  NBIAS 1 [0,-95] "SCI Backside";
   NBIAS 2 [0,-0];
   NBIAS 3 [0,-0];
   NBIAS 4 [0,-0];
