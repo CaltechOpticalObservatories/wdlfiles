@@ -73,13 +73,14 @@
 #define CLOSE 0
 #define HIGH  1
 #define LOW   0
-
+/*
 WAVEFORM SerialRecieving {
  0: 		SET SCI_SCLK1	TO _SER_CLOCK_RCV, FAST;
 			SET SCI_SCLK2	TO _SER_CLOCK_RCV, FAST;
  .+SCLK_RCV_RESET:	SET RG	TO LOW;
 }
-
+*/
+/*
 WAVEFORM LineTransfer {
  0: 		SET SCI_PCLK1	TO _PAR_CLOCK_LOW, FAST;
 			SET SCI_PCLK2	TO _PAR_CLOCK_HIGH, FAST;
@@ -94,21 +95,17 @@ WAVEFORM LineTransfer {
  .+TOI:		SET SCI_PCLK1	TO _PAR_CLOCK_LOW, SLOW;
  .+TDRT:	RETURN;
 }
-
+*/
+/*
 WAVEFORM wPixel {
- /* Starts at beginning of waveform */
  0:			SET PIXEL   TO HIGH; 
  .+TICK:	SET PIXEL   TO LOW;
 			SET FRAME   TO LOW;
 			SET LINE    TO LOW;
- /* Starts at beginning of waveform */
- /* NEED TO CLARIFY SUMMING WELL BEHAVIOUR */
  0:				SET RG	    TO HIGH;
  .+TWX:			SET RG	    TO LOW;
  TSW:			SET SW 		TO LOW;
  .+SW_settleT:	SET SW		TO HIGH;
-
-/* Do something with summing well (following RG)    */
  0:			SET SCI_SCLK1 TO HIGH;
  			SET SCI_SCLK3 TO LOW;
  .+TOR:		SET SCI_SCLK2 TO HIGH;
@@ -116,63 +113,77 @@ WAVEFORM wPixel {
  			SET SCI_SCLK3 TO HIGH;
  .+TOR:		RETURN;
 }
-
+*/
 /*****************************************/
 /* Basic DEIMOS control signal waveforms */
 /*****************************************/
-
+/*
 WAVEFORM wReset {
  0:        SET RG TO HIGH; 
 }
-
+*/
+/*
 WAVEFORM wUnsetReset {
  0:        SET RG TO LOW; 
 }
-
+*/
+/*
 WAVEFORM OS_Clamp {
  0:        SET AC_Clamp TO HIGH;
 }
-
+*/
+/*
 WAVEFORM OS_Clamp_ {
  0:        SET AC_Clamp TO LOW;  
 }
-
+*/
 /*****************************************/
 /*         ARCHON Timing Control         */
 /*****************************************/
-
+/*
 WAVEFORM Wait1us {
  0: 	SET NOP TO HIGH;
  .+1us:	SET NOP TO HIGH;
 }
-
+*/
 /*****************************************/
 /*    ARCHON control signal waveforms    */
 /*****************************************/
-
+/*
 WAVEFORM wOpenShutter {
  0:	SET SHUTTER TO OPEN;
 }
+*/
+/*
 WAVEFORM wCloseShutter {
  0:	SET SHUTTER TO CLOSE;
 }
+*/
+/*
 WAVEFORM wFrame {
  0:	SET FRAME TO HIGH;
 }
+*/
+/*
 WAVEFORM wLine {
  0:	SET LINE TO HIGH;
 }
+*/
+/*
 WAVEFORM wPixel {
  0:	 SET PIXEL    TO HIGH;
  .+TICK: SET PIXEL    TO LOW;
 	 SET FRAME    TO LOW;
 	 SET LINE     TO LOW;
 }
-
+*/
+/*
 WAVEFORM AD_Clamp {
  0:	 SET AD7      TO HIGH;
 }
-
+*/
+/*
 WAVEFORM AD_Clamp_ {
  0:	 SET AD7      TO LOW;
 }
+*/
