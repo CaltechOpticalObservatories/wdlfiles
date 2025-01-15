@@ -32,8 +32,6 @@
 #define LINE	 0 : 3 /* LINE signal from the backplane	*/
 #define PIXEL	 0 : 4 /* PIXEL signal from the backplane	*/
 
-#define AD7     7 : 1 /* Access to AC Clamp */
-
 /**** Parallel Phase Signal Definitions ****/
 /* Each detector is made of two 2048x2048  
    vertically stacked image areas. The top 
