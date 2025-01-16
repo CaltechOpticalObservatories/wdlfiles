@@ -149,21 +149,19 @@ WAVEFORM Wait1us {
 /*****************************************/
 /*    ARCHON control signal waveforms    */
 /*****************************************/
-/*
+
 WAVEFORM wOpenShutter {
  0:	SET SHUTTER TO OPEN;
 }
-*/
 
 WAVEFORM wCloseShutter {
  0:	SET SHUTTER TO CLOSE;
 }
 
-/*
 WAVEFORM wFrame {
  0:	SET FRAME TO HIGH;
 }
-*/
+
 /*
 WAVEFORM wLine {
  0:	SET LINE TO HIGH;
