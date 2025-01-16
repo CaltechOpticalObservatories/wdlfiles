@@ -57,15 +57,15 @@ SEQUENCE SelectScienceReadoutMode {
 SEQUENCE ScienceReadout {
     
     wCloseShutter();
-    /* Prep Image Area *
+    /* Prep Image Area */
     wOpenShutter();
     wFrame();
-    * Flush lines? *
+    /* Flush lines? *
     ScienceLineRead(param_ScienceLines);
-    * Dump Extra lines? *
-    * Put serial clocks in ready for charge state after readout, via serial recieving?? *
+    * Dump Extra lines? */
+    /* Put serial clocks in ready for charge state after readout, via serial recieving?? */
     wCloseShutter();
-    */
+    
 }
 
 SEQUENCE ScienceLineRead{
