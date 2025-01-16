@@ -60,34 +60,31 @@ SEQUENCE ScienceReadout {
     /* Prep Image Area */
     wOpenShutter();
     wFrame();
-    /* Flush lines? *
+    /* Flush lines? */
     ScienceLineRead(param_ScienceLines);
-    * Dump Extra lines? */
+    /* Dump Extra lines? */
     /* Put serial clocks in ready for charge state after readout, via serial recieving?? */
     wCloseShutter();
     
 }
 
 SEQUENCE ScienceLineRead{
-    /*
+    
     LineTransfer(); 
     wLine();
     
-    * Initialize Serial Clocks *
-    * Flush desired number of post pixels *
+    /* Initialize Serial Clocks */
+    /* Flush desired number of post pixels */
 
     wPixel(param_SciencePixels);
-    * Flush desired number of pre serial pixels *
+    /* Flush desired number of pre serial pixels */
 
-    * Serial Recieving?? *
+    /* Serial Recieving?? */
     
     wReset();
     Wait1us();
     OS_Clamp();
-    AD_Clamp();
     Wait1us();
     OS_Clamp_();
-    AD_Clamp_();
-    */
     return;
 }
