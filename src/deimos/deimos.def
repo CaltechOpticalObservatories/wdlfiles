@@ -72,42 +72,5 @@
 #define _FIRST_VIDEO_SAMPLE      #eval Pixel_T/2 - 1 + SW_settleT /* Start video sample after reset pedestal and summing well settle */
 #define _LAST_VIDEO_SAMPLE       #eval Pixel_T - 2                /* Stop video sample at end of pixel time                          */
 
-/** ---------------------------------------------------------------------------
- * Define clock voltage levels here (units are volts)
- * All voltages are set relative to front substrate voltage (typ. 0V)
- * evaluations relative to FSS should be implemented if variability is required
-/*/     
-
-#define _PAR_CLOCK_HIGH    12 /* [ 8.00, 14.0] */
-#define _PAR_CLOCK_LOW      0 /* [-0.50, 0.50] */
-
-#define _TG_CLOCK_HIGH     12 /* [ 8.00, 14.0] */
-#define _TG_CLOCK_LOW       0 /* [-0.50, 0.50] */
-
-#define _SER_CLOCK_HIGH    12 /* [ 8.00, 14.0] */
-#define _SER_CLOCK_LOW      1 /* [-0.50, 1.50] */
-#define _SER_CLOCK_RCV     13 /* Higher than serial clock high */
-
-#define _RESET_DRAIN       17 /* [ 15.0, 20.0] */
-#define _OUTPUT_DRAIN      29 /* [ 27.0, 32.0] */
-
-/** ---------------------------------------------------------------------------
- * Define clock slew rates here
- * units are Volts per microsecond, range from 0.001 to 1000
- * For fast readout speeds the slew rate is dependant on the pulse width 
- * Will be defined in waveform file
- */
-/*
- #define _PAR_CLOCK_SLEW_FAST   10
- #define _PAR_CLOCK_SLEW_SLOW    1
- #define _SER_CLOCK_SLEW_FAST  500
- #define _SER_CLOCK_SLEW_SLOW    1
- #define _TG_CLOCK_SLEW_FAST   500
- #define _TG_CLOCK_SLEW_SLOW   100
- #define _SW_CLOCK_SLEW_FAST   500
- #define _SW_CLOCK_SLEW_SLOW   100 
-  */
-
-
 
 

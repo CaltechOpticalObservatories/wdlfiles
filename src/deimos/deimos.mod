@@ -1,12 +1,29 @@
+/** ---------------------------------------------------------------------------
+ * Define clock voltage levels here (units are volts)
+ * All voltages are set relative to front substrate voltage (typ. 0V)
+ * evaluations relative to FSS should be implemented if variability is required
+/*/     
+
+#define _PAR_CLOCK_HIGH    12 /* [ 8.00, 14.0] */
+#define _PAR_CLOCK_LOW      0 /* [-0.50, 0.50] */
+
+#define _TG_CLOCK_HIGH     12 /* [ 8.00, 14.0] */
+#define _TG_CLOCK_LOW       0 /* [-0.50, 0.50] */
+
+#define _SER_CLOCK_HIGH    12 /* [ 8.00, 14.0] */
+#define _SER_CLOCK_LOW      1 /* [-0.50, 1.50] */
+#define _SER_CLOCK_RCV     13 /* Higher than serial clock high */
+
+#define _RESET_DRAIN       17 /* [ 15.0, 20.0] */
+#define _OUTPUT_DRAIN      29 /* [ 27.0, 32.0] */
 
 /* Fast and Slow slew rates are defined here */
 /* A boolean is set during a SET..TO command */
 /* to select between fast and slow slew rate */
 
-
 /* Expressions to be determined */
 #define SCLK_fast 500
-#define SCLK_slow 100
+#define SCLK_slow (_SER_CLOCK_HIGH - _SER_CLOCK_LOW) / PIXEL_T * 1ns )
 #define PCLK_fast  10
 #define PCLK_slow   1
 #define SW_fast   500
