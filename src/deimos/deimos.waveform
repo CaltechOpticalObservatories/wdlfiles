@@ -28,13 +28,6 @@
 #include voltage_timing_parameters.h
 
 /*****************************************/
-/*       Serial Clock Slew Rate          */
-/*****************************************/
-/* Usually defined in .def				 */
-#define _SER_CLOCK_SLEW_SLOW #eval (_SER_CLOCK_HIGH-_SER_CLOCK_LOW)/(Pixel_T/3)
-
-
-/*****************************************/
 /*             LOGIC STATES              */
 /*****************************************/
 #define OPEN  1
