@@ -23,7 +23,7 @@
 
 /* Expressions to be determined */
 #define SCLK_fast 500
-#define SCLK_slow (_SER_CLOCK_HIGH - _SER_CLOCK_LOW) / PIXEL_T * 1ns )
+#define SCLK_slow (_SER_CLOCK_HIGH - _SER_CLOCK_LOW) / ( PIXEL_T * 1ns )
 #define PCLK_fast  10
 #define PCLK_slow   1
 #define SW_fast   500
