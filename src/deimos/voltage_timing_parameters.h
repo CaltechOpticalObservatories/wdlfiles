@@ -50,8 +50,8 @@
 
 /* Serial transfer timing definitions */
 
-#define SCLK_RCV_RESET #eval 60 ns /* Serial clock recieving to reset */
-#define TWX #eval 170 ns /* Reset Pulse Width    */
-#define TOR #eval 130 TICK /* Serial Clock Overlap */
-#define TSW #eval Pixel_T/2 ns
-#define TSR #eval Pixel_T/3 ns
+#define SCLK_RCV_RESET #eval 60 TICK /* Serial clock recieving to reset */
+#define TWX #eval 8 TICK /* Reset Pulse Width    */
+#define TOR #eval 56 TICK  /* Serial Clock Overlap */
+#define TSW #eval Pixel_T/2 TICK 
+#define TSR #eval Pixel_T/3 TICK

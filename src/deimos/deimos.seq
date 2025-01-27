@@ -81,10 +81,10 @@ SEQUENCE ScienceLineRead{
 
     /* Serial Recieving?? */
     
-    wReset();
+    /* wReset();
     Wait1us();
     OS_Clamp();
     Wait1us();
-    OS_Clamp_();
-    return;
+    OS_Clamp_();*/
+    RETURN;
 }
