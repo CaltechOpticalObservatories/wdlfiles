@@ -72,6 +72,12 @@
 #define _FIRST_VIDEO_SAMPLE      #eval Pixel_T/2 - 1 + SW_settleT /* Start video sample after reset pedestal and summing well settle */
 #define _LAST_VIDEO_SAMPLE       #eval Pixel_T - 2                /* Stop video sample at end of pixel time                          */
 
+#define CDS_RESET_LENGTH   1
+#define CDS_SIGNAL_LENGTH  1
+#define COINC_SW_DELAY 1
+#define COINC_SCLK_LAST_DELAY 1
+
+
 /** ---------------------------------------------------------------------------
  * Define clock voltage levels here (units are volts)
  * All voltages are set relative to front substrate voltage (typ. 0V)

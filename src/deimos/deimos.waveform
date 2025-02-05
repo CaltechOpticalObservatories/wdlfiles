@@ -140,11 +140,30 @@ WAVEFORM ParallelForwardSegment3
 WAVEFORM ReadPixels
 {
   //NB using slow slew rate for triangular serial clocking
- 0: SET SCI_SCLK3 TO _SER_CLOCK_HIGH, SLOW;
+ 0:=PIX_BEGIN
   //SW and RG are on LVDS  signals
-  SET SW TO HIGH;
   SET RG TO HIGH;
-  .+ 
+
+  PIX_BEGIN+RG_settleT: SET RG to LOW;
+  SET PIXEL TO HIGH;
+  .+1:=CDS_RESET_BEGIN SET PIXEL TO LOW;
+  //serials COINCIDENT, start moving charge immediately
+  //when CDS reset begins
+  SET SCI_SCLK2 TO _SER_CLOCK_LOW, SLOW;
+  SET SCI_SCLK3 TO _SER_CLOCK_HIGH, SLOW;
+
+  //...except the summing wells at the output which we pulse just when we
+  //finish CDS first integration period
+  CDS_RESET_BEGIN+COINC_SW_DELAY:=SWPULSE_START SET SW TO HIGH;
+  SWPULSE_START+SW_settleT: SET SW TO LOW;
+
+  //now we're in the CDS signal period begin triangular shuffling serials again
+  CDS_RESET_BEGIN+CDS_RESET_LENGTH: SET SCI_SCLK3 TO _SER_CLOCK_LOW, SLOW;
+  SET SCI_SCLK1 TO _SER_CLOCK_HIGH, SLOW;
+
+  .+COINC_SCLK_LAST_DELAY: SET SCI_SCLK1 TO _SER_CLOCK_LOW, SLOW;
+  SET SCI_SCLK2 TO _SER_CLOCK_HIGH, SLOW;
+  
 }
 
 

@@ -17,11 +17,11 @@
 #define _RESET_DRAIN       17 /* [ 15.0, 20.0] */
 #define _OUTPUT_DRAIN      29 /* [ 27.0, 32.0] */
 
-//#define _RG_LOW            _SER_CLOCK_LOW /* [-0.5, 1.0] */
-//#define _RG_HIGH           _SER_CLOCK_HIGH /* [8.0, 14.0] */
+#define _RG_LOW            0.0 /* [-0.5, 1.0] */
+#define _RG_HIGH           12.0 /* [8.0, 14.0] */
 
-//#define _SW_LOW            _SER_CLOCK_LOW /* [-0.5, 1.0] */
-//#define _SW_HIGH           _SER_CLOCK_HIGH /* [8.0, 14.0] */
+#define _SW_LOW            1.0 /* [-0.5, 1.0] */
+#define _SW_HIGH           12.0 /* [8.0, 14.0] */
 
 
 /** ---------------------------------------------------------------------------
@@ -59,7 +59,7 @@
 #define TGDELAY 20us
 #define SERTRANSDELAY 10us
 
-#define PIX_SCLK_DELAY
+
 
 /* Serial transfer timing definitions */
 
