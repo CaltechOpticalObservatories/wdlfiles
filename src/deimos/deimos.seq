@@ -16,8 +16,6 @@
 */
 
 
-#define PIXELS_PER_SEG 1
-#define LINE_PIXELS 1
 
 /** System Control Triggers **/
 param readout_enable = 1 //will be pulled externally when we want a frame
@@ -48,13 +46,26 @@ SEQUENCE Integrate
   TearDownIntegration();
 }
 
+
+
+#define LINE_COLS #eval _SERIALPRESCAN + _AMPCOLS
+
+
+//segment calculations
+//this does floor arithmetic, so might end up with wrong number
+//if number cols changes
+#define PIXELS_PER_SEG #eval _AMPCOLS / 3
+#define REMAINDER_PIX #eval _AMPCOLS - (PIXELS_PER_SEG * 3)
+
+
 SEQUENCE FrameReadout
 {
   ReadoutBegin();
   //single serial read to flush the register
-  ReadPixels(LINE_PIXELS);
+  ReadPixels(_AMPREADCOLS);
   //read all image rows
   LineReadout(_IMAGEROWS);
+  //and the desired overscan
   LineReadout(_PARALLELOVERSCAN);
 }
 
@@ -62,11 +73,17 @@ SEQUENCE FrameReadout
 SEQUENCE LineReadout
 {
   TransferToSerialRegister();
+  ReadPixels(_SERIALPRESCAN)
   ParallelForwardSegment1();
   ReadPixels(PIXELS_PER_SEG);
   ParallelForwardSegment2();
   ReadPixels(PIXELS_PER_SEG);
   ParallelForwardSegment3();
   ReadPixels(PIXELS_PER_SEG);
+  //if there are leftover pixels, do them here
+  #if _AMPCOLS % 3
+  ReadPixels(REMAINDER_PIX);
+
+  #endif
 }
   
