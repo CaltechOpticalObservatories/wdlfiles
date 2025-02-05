@@ -24,7 +24,7 @@ param integrate_enable = 0 // to be set externally if we want an integration tim
 param integrate_ms = 0 // will be set externally to choose integration ms
 param integrate_s = 0 // will be set externally to choose integration seconds
 
-  param framecount = 0 //will be set 
+param framecount = 0 //will be set 
 
 SEQUENCE StartSeq {
     if integrate_enable CheckIntegrate();
@@ -82,7 +82,7 @@ SEQUENCE LineReadout
   ReadPixels(PIXELS_PER_SEG);
   //if there are leftover pixels, do them here
   #if _AMPCOLS % 3
-  ReadPixels(REMAINDER_PIX);
+   ReadPixels(REMAINDER_PIX);
 
   #endif
 }

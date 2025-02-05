@@ -4,28 +4,7 @@
 /* A boolean is set during a SET..TO command */
 /* to select between fast and slow slew rate */
 
-/* Expressions to be determined */
-#define SCLK_fast 500
-#define SCLK_slow (_SER_CLOCK_HIGH - _SER_CLOCK_LOW) / ( TSR )
-#define PCLK_fast  10
-#define PCLK_slow (_PAR_CLOCK_HIGH - _PAR_CLOCK_LOW) / ( 2 * TOI )
-#define SW_fast   500
-#define SW_slow   100
-#define TG_fast   500
-#define TG_slow   100
 
-/* Fast and Slow slew rates are defined here */
-/* A boolean is set during a SET..TO command */
-/* to select between fast and slow slew rate */
-
-#define SCLK_fast 500 /* Evaluate Expression  */
-#define SCLK_slow 100 /* Evaluate Expression  */
-#define PCLK_fast 10
-#define PCLK_slow 1
-#define SW_fast   500 /* Evaluate Expression  */
-#define SW_slow   100 /* Evaluate Expression  */
-#define TG_fast   500 /* Evaluate Expression? */
-#define TG_slow   100 /* Evaluate Expression? */
 
 SLOT 1 driverx {
   DRVX  1 [PCLK_fast,PCLK_slow,1];

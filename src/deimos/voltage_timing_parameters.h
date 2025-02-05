@@ -68,3 +68,35 @@
 #define TOR #eval 56 TICK  /* Serial Clock Overlap */
 #define TSW #eval Pixel_T/2 TICK 
 #define TSR #eval Pixel_T/3 TICK
+
+/** basic constants to assist in somewhat automating slew rate for triange clocking.
+    For now we are just entering a slew time manually, then calculating the rate to make
+    sure we hit the intended voltage at the top of the triangle waveform **/
+
+#define PAR_SLEW_TIME_US           15
+#define SER_SLEW_TIME_US           1
+
+
+//NOTE: OH DEAR, does GPP not do floating point calculations?
+//UGLY HACK: for now we call a command line calculator to do it
+
+//NOTE archon slew rates are defined in Volts per microsecond, NOT in volts per Archon clock tick
+//NOTE waveforms currently use parallel SLOW slew rate to mean triangular clock,
+// and FAST to mean immediate clock
+
+#define P_TRI_SLEW_RATE    #exec printf '%2.1f' $(bc  <<< "scale=2; (_PAR_CLOCK_HIGH - _PAR_CLOCK_LOW) / PAR_SLEW_TIME_US")
+#define S_TRI_SLEW_RATE    #exec printf '%2.1f' $(bc  <<< "scale=2; (_SER_CLOCK_HIGH - _SER_CLOCK_LOW) / SER_SLEW_TIME_US")
+
+
+#define PCLK_slow           P_TRI_SLEW_RATE
+#define PCLK_fast           200  //nominal value for now
+
+//NOTE: waveforms currently use serial "slow" slew rate for triangular waveform
+// serial "FAST" is for immediate changes (like e.g. resetting serial register)
+#define SCLK_fast           S_TRI_SLEW_RATE
+#define SCLK_slow           500   //nominal value for now
+
+//transfer gate uses only one slew rate
+
+#define TG_fast              100
+#define TG_slow              100

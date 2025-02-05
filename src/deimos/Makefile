@@ -46,12 +46,12 @@
 # set to path to gpp
 GPP       = /usr/bin/gpp
 # set to path to wdl code
-WDLPATH   = $(HOME)/Software/wdl/wdl/
+WDLPATH   = $(HOME)/Software/wdl/wdl
 # output for *.acf file
 ACFPATH   = $(HOME)/Software/wdlfiles/src/deimos/
 
-PLOT      = False # True   # show waveform plots by default, True | False
-GFLAGS    = +c "/*" "*/" +c "//" "\n" +c "\\\n" ""
+PLOT      = True # True   # show waveform plots by default, True | False
+GFLAGS    = +c "/*" "*/" +c "//" "\n" +c "\\\n" "" -x
 SEQPARSER = $(WDLPATH)/seqParserDriver.py
 INCPARSER = $(WDLPATH)/incParserDriver.py
 WDLPARSER = $(WDLPATH)/wdlParserDriver.py
@@ -62,7 +62,7 @@ I2A       = $(WDLPATH)/ini2acf.pl
 INCL      = -I$(CURDIR)
 
 # Global variable to store the filename
-FILE_NAME :=
+FILE_NAME=deimos
 
 SCAN_CDSFILE = cat $(FILE_NAME).conf | $(GPP) $(GFLAGS) $(INCL) | \
 		awk -F= '{gsub(" |\t","",$$1)} $$1=="CDS_FILE"{print $$2}' | cut -d'"' -f2
