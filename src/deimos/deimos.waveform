@@ -56,45 +56,13 @@ WAVEFORM LineTransfer {
  .+TDRT:	RETURN;
 }
 
-WAVEFORM wPixel {
- 0:		SET PIXEL   TO HIGH; 
- .+TICK:	SET PIXEL   TO LOW;
-		SET FRAME   TO LOW;
-		SET LINE    TO LOW;
- 0:		SET RG	    TO HIGH;
- .+10:		SET RG	    TO LOW;
- 
- 50:		SET SW 		TO LOW;
- .+20:		SET SW		TO HIGH;
- 
- 0:		SET SCI_SCLK1 TO _SER_CLOCK_HIGH,FAST;
- 		SET SCI_SCLK3 TO _SER_CLOCK_LOW,FAST;
- .+33:		SET SCI_SCLK2 TO _SER_CLOCK_HIGH,FAST;
- 		SET SCI_SCLK1 TO _SER_CLOCK_LOW,FAST;
- .+33:		SET SCI_SCLK3 TO _SER_CLOCK_HIGH,FAST;
- 		SET SCI_SCLK2 TO _SER_CLOCK_LOW,FAST;
- .+33:		RETURN;
+
+WAVEFORM TransferToSerialRegister {
+
+
 }
 
-/*****************************************/
-/* Basic DEIMOS control signal waveforms */
-/*****************************************/
 
-WAVEFORM wReset {
- 0:        SET RG TO HIGH; 
-}
-
-WAVEFORM wUnsetReset {
- 0:        SET RG TO LOW; 
-}
-
-WAVEFORM OS_Clamp {
- 0:        SET AC_Clamp TO HIGH;
-}
-
-WAVEFORM OS_Clamp_ {
- 0:        SET AC_Clamp TO LOW;  
-}
 
 /*****************************************/
 /*         ARCHON Timing Control         */
@@ -105,25 +73,83 @@ WAVEFORM Wait1us {
  .+1us:	RETURN;
 }
 
+WAVEFORM Wait1ms {
+ 0:   SET NOP TO HIGH;
+ .+1ms: RETURN;
+}
+
+WAVEFORM Wait1s {
+ 0: SET NOP TO HIGH;
+ .+1s: RETURN;
+}
+
+
 /*****************************************/
-/*    ARCHON control signal waveforms    */
+/*       Integration related waveforms   */
 /*****************************************/
 
-WAVEFORM wOpenShutter {
- 0:	SET SHUTTER TO OPEN;
+WAVEFORM SetupIntegration {
+ 0: SET SHUTTER TO OPEN;
+
 }
 
-WAVEFORM wCloseShutter {
- 0:	SET SHUTTER TO CLOSE;
+WAVEFORM TearDownIntegration {
+ 0: SET SHUTTER TO CLOSE;
 }
 
-WAVEFORM wFrame {
- 0:	SET FRAME TO HIGH;
+WAVEFORM ReadoutBegin
+{
+ 0: SET FRAME TO HIGH;
+  .+1: SET FRAME TO LOW;
 }
 
-WAVEFORM wLine {
- 0:	SET LINE TO HIGH;
+WAVEFORM TransferToSerialRegister
+{
+  //set serials to receive charge
+ 0: SET SCI_SCLK1 TO _SER_CLOCK_RCV, FAST;
+    SET SCI_SCLK2 TO _SER_CLOCK_RCV, FAST;
+ .+SERTRANSDELAY: SET TG TO _TG_CLOCK_HIGH, FAST;
+ .+TGDELAY: SET TG TO _TG_CLOCK_LOW, FAST;
+    SET SCI_SCLK1 TO _SER_CLOCK_LOW, FAST;
+    SET SCI_SCLK2 TO _SER_CLOCK_HIGH, FAST;
 }
+
+
+//waveforms for coincident (triangular) parallel clocking
+WAVEFORM ParallelForwardSegment1
+{
+  //NOTE: after integration, if done properly
+  //all charge should be under SCI_PCLK3
+  // the transfer to serial reg is done before this happens
+ 0: SET SCI_PCLK3 to _PAR_CLOCK_LOW, FAST;
+    SET SCI_PCLK1 to _PAR_CLOCK_HIGH, FAST;
+}
+
+WAVEFORM ParallelForwardSegment2
+{
+ 0: SET SCI_PCLK1 TO _PAR_CLOCK_LOW, FAST;
+  SET SCI_PCLK2 TO _PAR_CLOCK_HIGH, FAST;
+}
+
+WAVEFORM ParallelForwardSegment3
+{
+ 0: SET SCI_PCLK2 TO _PAR_CLOCK_LOW, FAST;
+  SET SCI_PCLK3 TO _PAR_CLOCK_HIGH, FAST;
+}
+
+WAVEFORM ReadPixels
+{
+  //NB using slow slew rate for triangular serial clocking
+ 0: SET SCI_SCLK3 TO _SER_CLOCK_HIGH, SLOW;
+  //SW and RG are on LVDS  signals
+  SET SW TO HIGH;
+  SET RG TO HIGH;
+  .+ 
+}
+
+
+
+
 
 /*
 WAVEFORM wPixel {

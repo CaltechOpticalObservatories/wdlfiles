@@ -15,76 +15,58 @@
  * syntax: param paramname=value
 */
 
+
+#define PIXELS_PER_SEG 1
+#define LINE_PIXELS 1
+
 /** System Control Triggers **/
-param abort=0
-param start=0
+param readout_enable = 1 //will be pulled externally when we want a frame
+param integrate_enable = 0 // to be set externally if we want an integration time
 
-/** Science Readout Control Triggers **/
-param trigger_ScienceExpose = 0
-param trigger_ScienceRead   = 0
+param integrate_ms = 0 // will be set externally to choose integration ms
+param integrate_s = 0 // will be set externally to choose integration seconds
 
-/** Science Readout Control Parameters **/
-
-param param_ScienceLines    = _LINENUM
-param param_SciencePixels   = 1000/*_PIXELNUM*/
-param param_ExposeTime      = 0
-
+  param framecount = 0 //will be set 
 
 SEQUENCE StartSeq {
-    /*BiasLow();*/
-    if start GOTO InitSeq();
+    if integrate_enable CheckIntegrate();
+    if readout_enable FrameReadout();
     GOTO StartSeq();
 }
 
-SEQUENCE InitSeq {
-    /* BiasInit(); */
-    /* ACReset(); */
-    /* Initialize Serial and Parallel Lines - What is serial recieving???? */
-    /* Do something to parallel lines to prepare for exposure - GUARDS UP*/
-    GOTO DetectorSel();
+SEQUENCE CheckIntegrate
+{
+  if framecount Integrate();
+  framecount--;
+}
+  
+SEQUENCE Integrate
+{
+  SetupIntegration();
+  Wait1ms(integrate_ms);
+  Wait1s(integrate_s);
+  TearDownIntegration();
 }
 
-SEQUENCE DetectorSel {
-    if trigger_ScienceExpose SelectScienceReadoutMode();
-    GOTO DetectorSel();
+SEQUENCE FrameReadout
+{
+  ReadoutBegin();
+  //single serial read to flush the register
+  ReadPixels(LINE_PIXELS);
+  //read all image rows
+  LineReadout(_IMAGEROWS);
+  LineReadout(_PARALLELOVERSCAN);
 }
 
-SEQUENCE SelectScienceReadoutMode {
-    if trigger_ScienceRead ScienceReadout();
-    GOTO SelectScienceReadoutMode();
+
+SEQUENCE LineReadout
+{
+  TransferToSerialRegister();
+  ParallelForwardSegment1();
+  ReadPixels(PIXELS_PER_SEG);
+  ParallelForwardSegment2();
+  ReadPixels(PIXELS_PER_SEG);
+  ParallelForwardSegment3();
+  ReadPixels(PIXELS_PER_SEG);
 }
-
-SEQUENCE ScienceReadout {
-    
-    wCloseShutter();
-    /* Prep Image Area */
-    wOpenShutter();
-    wFrame();
-    /* Flush lines? */
-    ScienceLineRead(param_ScienceLines);
-    /* Dump Extra lines? */
-    /* Put serial clocks in ready for charge state after readout, via serial recieving?? */
-    wCloseShutter();
-    
-}
-
-SEQUENCE ScienceLineRead{
-    
-    LineTransfer(); 
-    wLine();
-    
-    /* Initialize Serial Clocks */
-    /* Flush desired number of post pixels */
-
-    wPixel(param_SciencePixels);
-    /* Flush desired number of pre serial pixels */
-
-    /* Serial Recieving?? */
-    
-    /* wReset();
-    Wait1us();
-    OS_Clamp();
-    Wait1us();
-    OS_Clamp_();*/
-    RETURN;
-}
+  

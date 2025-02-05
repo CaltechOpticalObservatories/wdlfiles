@@ -140,10 +140,10 @@ SLOT 10 lvbias {
    LVLC  2 [00.0,0]; 
    LVLC  3 [3.00,0] "SCI E Output Gate"; 
    LVLC  4 [3.00,0] "SCI F Output Gate"; 
-   LVLC  5 [1.00,0] "SCI Summing Well - Low"; 
-   LVLC  6 [12.0,0] "SCI Summing Well - High"; 
-   LVLC  7 [1.00,0] "SCI Reset Gate - Low"; 
-   LVLC  8 [12.0,0] "SCI Reset Gate - High"; 
+   LVLC  5 [_SW_LOW,0] "SCI Summing Well - Low"; 
+   LVLC  6 [_SW_HIGH,0] "SCI Summing Well - High"; 
+   LVLC  7 [_RG_LOW,0] "SCI Reset Gate - Low"; 
+   LVLC  8 [_RG_HIGH,0] "SCI Reset Gate - High"; 
    LVLC  9 [00.0,0]; 
    LVLC 10 [00.0,0]; 
    LVLC 11 [00.0,0]; 

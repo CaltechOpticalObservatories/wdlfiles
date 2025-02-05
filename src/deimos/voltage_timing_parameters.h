@@ -17,6 +17,13 @@
 #define _RESET_DRAIN       17 /* [ 15.0, 20.0] */
 #define _OUTPUT_DRAIN      29 /* [ 27.0, 32.0] */
 
+//#define _RG_LOW            _SER_CLOCK_LOW /* [-0.5, 1.0] */
+//#define _RG_HIGH           _SER_CLOCK_HIGH /* [8.0, 14.0] */
+
+//#define _SW_LOW            _SER_CLOCK_LOW /* [-0.5, 1.0] */
+//#define _SW_HIGH           _SER_CLOCK_HIGH /* [8.0, 14.0] */
+
+
 /** ---------------------------------------------------------------------------
  * Define timing parameters here (units are in ticks - 10ns)
  * Evaluations are used for specific timing parameters and slew rates
@@ -39,14 +46,20 @@
 #define 10us          #eval 10 us
 #define 20us          #eval 20 us
 #define 25us          #eval 25 us
-/* #define 1ms	          #eval 99999 clicks	  /* 999 usec WHY */
+#define 1ms	      #eval 100000 clicks	  /* 999 usec WHY */
 #define 10ms          #eval 10 ms
+#define 1s            #eval 1000 ms
 
 
 /* Line transfer timing definitions */
 #define TDRT 20us
 #define TOI  20us
 #define TDTR 20us
+
+#define TGDELAY 20us
+#define SERTRANSDELAY 10us
+
+#define PIX_SCLK_DELAY
 
 /* Serial transfer timing definitions */
 
