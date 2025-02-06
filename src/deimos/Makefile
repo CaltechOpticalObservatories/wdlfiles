@@ -46,11 +46,11 @@
 # set to path to gpp
 GPP       = /usr/bin/gpp
 # set to path to wdl code
-WDLPATH   = $(HOME)/Software/wdl/wdl
+WDLPATH   = $(HOME)/wdl/wdl
 # output for *.acf file
-ACFPATH   = $(HOME)/Software/wdlfiles/src/deimos/
+ACFPATH   = $(HOME)/wdlfiles/src/deimos/
 
-PLOT      = True # True   # show waveform plots by default, True | False
+PLOT      = False # True   # show waveform plots by default, True | False
 GFLAGS    = +c "/*" "*/" +c "//" "\n" +c "\\\n" "" -x
 SEQPARSER = $(WDLPATH)/seqParserDriver.py
 INCPARSER = $(WDLPATH)/incParserDriver.py

@@ -84,8 +84,14 @@
 //NOTE waveforms currently use parallel SLOW slew rate to mean triangular clock,
 // and FAST to mean immediate clock
 
-#define P_TRI_SLEW_RATE    #exec printf '%2.1f' $(bc  <<< "scale=2; (_PAR_CLOCK_HIGH - _PAR_CLOCK_LOW) / PAR_SLEW_TIME_US")
-#define S_TRI_SLEW_RATE    #exec printf '%2.1f' $(bc  <<< "scale=2; (_SER_CLOCK_HIGH - _SER_CLOCK_LOW) / SER_SLEW_TIME_US")
+//these exec constructs only work on bash shell, and therefore fail on ubuntu where /bin/sh
+//is still INEXPLICABLY dash rather than bash. wah wah.
+//#define P_TRI_SLEW_RATE    #exec printf '%2.1f' $(bc  <<< "scale=2; (_PAR_CLOCK_HIGH - _PAR_CLOCK_LOW) / PAR_SLEW_TIME_US")
+//#define S_TRI_SLEW_RATE    #exec printf '%2.1f' $(bc  <<< "scale=2; (_SER_CLOCK_HIGH - _SER_CLOCK_LOW) / SER_SLEW_TIME_US")
+#define P_TRI_SLEW_RATE    #exec printf "%2.2f" $(echo "scale=2; (_PAR_CLOCK_HIGH - _PAR_CLOCK_LOW) / PAR_SLEW_TIME_US" | bc)
+#define S_TRI_SLEW_RATE    #exec printf "%2.2f" $(echo "scale=2; (_SER_CLOCK_HIGH - _SER_CLOCK_LOW) / SER_SLEW_TIME_US" | bc)
+
+
 
 
 #define PCLK_slow           P_TRI_SLEW_RATE
