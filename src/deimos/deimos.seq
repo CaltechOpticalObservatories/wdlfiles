@@ -70,6 +70,14 @@ SEQUENCE FrameReadout
 }
 
 
+//NOTE this has to be a sequence because can't call
+//enough repeats in 1ms archon limit of repeats
+SEQUENCE Wait1s {
+  Wait1ms(1000);
+
+}
+
+
 SEQUENCE LineReadout
 {
   TransferToSerialRegister();

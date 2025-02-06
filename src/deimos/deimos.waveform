@@ -78,10 +78,10 @@ WAVEFORM Wait1ms {
  .+1ms: RETURN;
 }
 
-WAVEFORM Wait1s {
- 0: SET NOP TO HIGH;
- .+1s: RETURN;
-}
+/* WAVEFORM Wait1s { */
+/*  0: SET NOP TO HIGH; */
+/*  .+1s: RETURN; */
+/* } */
 
 
 /*****************************************/
