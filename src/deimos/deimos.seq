@@ -36,6 +36,7 @@ SEQUENCE CheckIntegrate
 {
   if framecount Integrate();
   framecount--;
+  RETURN;
 }
   
 SEQUENCE Integrate
@@ -44,6 +45,7 @@ SEQUENCE Integrate
   Wait1ms(integrate_ms);
   Wait1s(integrate_s);
   TearDownIntegration();
+  RETURN;
 }
 
 
@@ -67,6 +69,7 @@ SEQUENCE FrameReadout
   LineReadout(_IMAGEROWS);
   //and the desired overscan
   LineReadout(_PARALLELOVERSCAN);
+  RETURN;
 }
 
 
@@ -74,7 +77,7 @@ SEQUENCE FrameReadout
 //enough repeats in 1ms archon limit of repeats
 SEQUENCE Wait1s {
   Wait1ms(1000);
-
+  RETURN;
 }
 
 
@@ -93,5 +96,6 @@ SEQUENCE LineReadout
    ReadPixels(REMAINDER_PIX);
 
   #endif
+   RETURN;
 }
   
