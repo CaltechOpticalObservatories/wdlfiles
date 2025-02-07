@@ -8,11 +8,11 @@ deimos
 
 
 SLOT 1 driverx {
-  DRVX  1 [PCLK_fast,PCLK_slow,1];
-  DRVX  2 [PCLK_fast,PCLK_slow,1];
-  DRVX  3 [PCLK_fast,PCLK_slow,1];
-  DRVX  4 [PCLK_fast,PCLK_slow,1];
-  DRVX  5 [PCLK_fast,PCLK_slow,1];
+  DRVX  1 [PCLK_fast,PCLK_slow,1] "PCLK_B3_2";
+  DRVX  2 [PCLK_fast,PCLK_slow,1] "PCLK_A3_2";
+  DRVX  3 [PCLK_fast,PCLK_slow,1] "PCLK_B2_2";
+  DRVX  4 [PCLK_fast,PCLK_slow,1] "PCLK_A2_2";
+  DRVX  5 [PCLK_fast,PCLK_slow,1] "PCLK_B1_2";
   DRVX  6 [PCLK_fast,PCLK_slow,1];
   DRVX  7 [PCLK_fast,PCLK_slow,1];
   DRVX  8 [PCLK_fast,PCLK_slow,1];
@@ -59,7 +59,7 @@ SLOT 4 xvbias {
   PBIAS 2 [0,0];
   PBIAS 3 [0,0];
   PBIAS 4 [0,0];  
-  NBIAS 1 [0,-95] "SCI Backside";
+  NBIAS 1 [0, -0] "SCI Backside";
   NBIAS 2 [0,-0];
   NBIAS 3 [0,-0];
   NBIAS 4 [0,-0];
@@ -84,11 +84,11 @@ SLOT 4 xvbias {
 
 SLOT 9 hvbias {
   HVLC  1 [0.00,0];             
-  HVLC  2 [20.0,0] "SCI Guard Drain";
+  HVLC  2 [20.0,1] "SCI Guard Drain";
   HVLC  3 [0.00,0];
   HVLC  4 [0.00,0];
-  HVLC  5 [17.0,0] "SCI E Reset Drain";
-  HVLC  6 [17.0,0] "SCI F Reset Drain";
+  HVLC  5 [17.0,2] "SCI E Reset Drain";
+  HVLC  6 [17.0,2] "SCI F Reset Drain";
   HVLC  7 [0.00,0];
   HVLC  8 [0.00,0];
   HVLC  9 [0.00,0];
@@ -107,8 +107,8 @@ SLOT 9 hvbias {
   HVLC 22 [0.00,0];
   HVLC 23 [0.00,0];
   HVLC 24 [0.00,0];
-  HVHC  1 [29.0,0.1,0,1] "SCI E Output Drain";
-  HVHC  2 [29.0,0.1,0,1] "SCI F Output Drain";
+  HVHC  1 [29.0,0.1,3,1] "SCI E Output Drain";
+  HVHC  2 [29.0,0.1,3,1] "SCI F Output Drain";
   HVHC  3 [29.0,0.0,0,0];
   HVHC  4 [29.0,0.0,0,0];
   HVHC  5 [29.0,0.0,0,0];
@@ -118,12 +118,12 @@ SLOT 9 hvbias {
 SLOT 10 lvbias {
    LVLC  1 [00.0,0]; 
    LVLC  2 [00.0,0]; 
-   LVLC  3 [3.00,0] "SCI E Output Gate"; 
-   LVLC  4 [3.00,0] "SCI F Output Gate";
-   LVLC  5 [1.00,0] "SCI Summing Well - Low";  // NB goes through a line driver 
-   LVLC  6 [11.50,0] "SCI Summing Well - High";  // NB goes through a line driver 
-   LVLC  7 [1.00,0] "SCI Reset Gate - Low";  // NB goes through a line driver 
-   LVLC  8 [11.5,0] "SCI Reset Gate - High";  // NB goes through a line driver 
+   LVLC  3 [3.00,4] "SCI E Output Gate"; 
+   LVLC  4 [3.00,4] "SCI F Output Gate";
+   LVLC  5 [1.00,5] "SCI Summing Well - Low";  // NB goes through a line driver 
+   LVLC  6 [11.50,5] "SCI Summing Well - High";  // NB goes through a line driver 
+   LVLC  7 [1.00,5] "SCI Reset Gate - Low";  // NB goes through a line driver 
+   LVLC  8 [11.5,5] "SCI Reset Gate - High";  // NB goes through a line driver 
    LVLC  9 [00.0,0]; 
    LVLC 10 [00.0,0]; 
    LVLC 11 [00.0,0]; 
