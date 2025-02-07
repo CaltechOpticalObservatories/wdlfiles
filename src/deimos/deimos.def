@@ -42,12 +42,14 @@
 #define _AMPCOLS                #eval _IMAGECOLS / 2
 #define _IMAGEROWS              #eval _SECTION_A_ROWS + _SECTION_B_ROWS
 
+
 /* #define _CDS_WIDTH            10  /* width of each CDS integration component in clocks */
 #define  _SERIALPRESCAN           50
 #define  _SERIALOVERSCAN         100 
 #define  _PARALLELOVERSCAN        50
 
 #define _AMPREADCOLS            #eval _AMPCOLS + _SERIALPRESCAN
+#define _LINENUM                #eval _IMAGEROWS + _PARALLELOVERSCAN
 
 
 /* Number of Pixels depends on if both output

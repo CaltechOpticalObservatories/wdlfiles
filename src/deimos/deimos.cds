@@ -4,11 +4,12 @@
  * @brief  CDS/Deinterlace parameters for WaSP instrument
  */
 
+#include "voltage_timing_parameters.h"
 
 BIGBUF        = _ARCHON_FRAMEBUFS
 FRAMEMODE     = _ARCHON_FRAMEMODE
 LINECOUNT     = _LINENUM
-PIXELCOUNT    = 100 /* _PIXELNUM */
+PIXELCOUNT    = _AMPREADCOLS
 RAWENABLE     = _RAW_ENABLE
 RAWENDLINE    = _RAW_ENDLINE
 RAWSAMPLES    = _RAW_SAMPLES
