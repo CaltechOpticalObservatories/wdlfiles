@@ -41,28 +41,6 @@ WAVEFORM SerialRecieving {
  .+SCLK_RCV_RESET:	SET RG	TO LOW;
 }
 */
-WAVEFORM LineTransfer {
- 0: 		SET SCI_PCLK1	TO _PAR_CLOCK_LOW, FAST;
-			SET SCI_PCLK2	TO _PAR_CLOCK_HIGH, FAST;
-			SET SCI_PCLK3	TO _PAR_CLOCK_LOW, FAST;
- .+TDRT:	SET TG  		TO _TG_CLOCK_HIGH, SLOW;
-			SET SCI_PCLK3 	TO _PAR_CLOCK_HIGH, SLOW;
- .+TOI:		SET SCI_PCLK2	TO _PAR_CLOCK_LOW, SLOW;
- .+TOI:		SET SCI_PCLK1 	TO _PAR_CLOCK_LOW, SLOW;
- .+TOI:		SET TG			TO _TG_CLOCK_LOW, SLOW;
- .+TOI:		SET SCI_PCLK3	TO _PAR_CLOCK_LOW, SLOW;
- .+TOI:		SET SCI_PCLK2   TO _PAR_CLOCK_HIGH, SLOW;
- .+TOI:		SET SCI_PCLK1	TO _PAR_CLOCK_LOW, SLOW;
- .+TDRT:	RETURN;
-}
-
-
-WAVEFORM TransferToSerialRegister {
-
-
-}
-
-
 
 /*****************************************/
 /*         ARCHON Timing Control         */
@@ -124,20 +102,20 @@ WAVEFORM ParallelForwardSegment1
   //NOTE: after integration, if done properly
   //all charge should be under SCI_PCLK3
   // the transfer to serial reg is done before this happens
- 0: SET SCI_PCLK3 to _PAR_CLOCK_LOW, FAST;
-    SET SCI_PCLK1 to _PAR_CLOCK_HIGH, FAST;
+ 0: SET SCI_PCLK3 to _PAR_CLOCK_LOW, SLOW;
+    SET SCI_PCLK1 to _PAR_CLOCK_HIGH, SLOW;
 }
 
 WAVEFORM ParallelForwardSegment2
 {
- 0: SET SCI_PCLK1 TO _PAR_CLOCK_LOW, FAST;
-  SET SCI_PCLK2 TO _PAR_CLOCK_HIGH, FAST;
+ 0: SET SCI_PCLK1 TO _PAR_CLOCK_LOW, SLOW;
+  SET SCI_PCLK2 TO _PAR_CLOCK_HIGH, SLOW;
 }
 
 WAVEFORM ParallelForwardSegment3
 {
- 0: SET SCI_PCLK2 TO _PAR_CLOCK_LOW, FAST;
-  SET SCI_PCLK3 TO _PAR_CLOCK_HIGH, FAST;
+ 0: SET SCI_PCLK2 TO _PAR_CLOCK_LOW, SLOW;
+  SET SCI_PCLK3 TO _PAR_CLOCK_HIGH, SLOW;
 }
 
 WAVEFORM ReadPixels

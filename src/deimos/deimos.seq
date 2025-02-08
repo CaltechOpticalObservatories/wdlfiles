@@ -84,7 +84,7 @@ SEQUENCE Wait1s {
 SEQUENCE LineReadout
 {
   TransferToSerialRegister();
-  ReadPixels(_SERIALPRESCAN)
+  ReadPixels(_SERIALPRESCAN);
   ParallelForwardSegment1();
   ReadPixels(PIXELS_PER_SEG);
   ParallelForwardSegment2();

@@ -73,7 +73,10 @@
     For now we are just entering a slew time manually, then calculating the rate to make
     sure we hit the intended voltage at the top of the triangle waveform **/
 
-#define PAR_SLEW_TIME_US           341
+/** basic slew rate logic: you are doing 1024 serial transfer cycles (for each amp), each lasing around 1us. In this time 3 parallel clock transfers happen, up and down once each. Therefore in 2048us we need to do 6 slews from top to bottom, hence the slew time is 1024 / 6 = 171 */
+
+
+#define PAR_SLEW_TIME_US           171
 #define SER_SLEW_TIME_US           0.33
 
 
@@ -99,8 +102,8 @@
 
 //NOTE: waveforms currently use serial "slow" slew rate for triangular waveform
 // serial "FAST" is for immediate changes (like e.g. resetting serial register)
-#define SCLK_fast           S_TRI_SLEW_RATE
-#define SCLK_slow           500   //nominal value for now
+#define SCLK_fast           500
+#define SCLK_slow           S_TRI_SLEW_RATE   //nominal value for now
 
 //transfer gate uses only one slew rate
 
