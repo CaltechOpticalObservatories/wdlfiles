@@ -32,7 +32,7 @@
 #define _RAW_SELECT                7 /* AD channel for raw data capture, 0-15 */
 
  /** ---------------------------------------------------------------------------
- * Detector Array Parameters
+* Detector Array Parameters
  */
 
 #define _SECTION_A_ROWS         2056
@@ -70,8 +70,8 @@
 #define Pixel_T       100 /* Full pixel time : 10s of ns */
 
 /* TODO CLARIFY VLAYES FOR RG AND SW settling time */
-#define RG_settleT    17 /*32*/  /* Settling Time for the reset gate 310ns */ /* Static */ /* Used in CDS Window calculation */ /* Shifted to 1 less from previous */
-#define SW_settleT    16 /*32*/  /* Settling Time for charge dump    310ns */ /* Static */ /* Used in CDS Window calculation */ /* Shifted to 1 less from previous */
+#define RG_settleT    32 /*32*/  /* Settling Time for the reset gate 310ns */ /* Static */ /* Used in CDS Window calculation */ /* Shifted to 1 less from previous */
+#define SW_settleT    32 /*32*/  /* Settling Time for charge dump    310ns */ /* Static */ /* Used in CDS Window calculation */ /* Shifted to 1 less from previous */
 
 #define _FIRST_RESET_SAMPLE      #eval RG_settleT                 /* Start Reset sample after reset settling time                    */
 #define _LAST_RESET_SAMPLE       #eval Pixel_T/2 - 1              /* Half of the pixel time to reset pedestal                        */
@@ -87,12 +87,4 @@
 /** basic constants to assist in somewhat automating slew rate for triange clocking.
     For now we are just entering a slew time manually, then calculating the rate to make
     sure we hit the intended voltage at the top of the triangle waveform **/
-
-#define PAR_SLEW_TIME_US           15
-#define SER_SLEW_TIME_US           1
-
-
-//NOTE archon slew rates are defined in Volts per microsecond, NOT in volts per Archon clock tick
-#define PAR_SLEW_RATE           #eval (_PAR_CLOCK_HIGH - _PAR_CLOCK_LOW) / PAR_SLEW_TIME_US
-#define SER_SLEW_RATE           #eval (_SER_CLOCK_HIGH - _SER_CLOCK_LOW)  / SER_SLEW_TIME_US
 

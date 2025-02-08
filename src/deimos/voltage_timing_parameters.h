@@ -73,8 +73,8 @@
     For now we are just entering a slew time manually, then calculating the rate to make
     sure we hit the intended voltage at the top of the triangle waveform **/
 
-#define PAR_SLEW_TIME_US           15
-#define SER_SLEW_TIME_US           1
+#define PAR_SLEW_TIME_US           341
+#define SER_SLEW_TIME_US           0.33
 
 
 //NOTE: OH DEAR, does GPP not do floating point calculations?
