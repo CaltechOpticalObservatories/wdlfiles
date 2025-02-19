@@ -34,6 +34,12 @@
 #define CLOSE 0
 #define HIGH  1
 #define LOW   0
+
+#define INV_HIGH 0 //Some signals are inverted. Use this sigil to indicate that
+#define INV_LOW 1
+
+
+
 /*
 WAVEFORM SerialRecieving {
  0: 		SET SCI_SCLK1	TO _SER_CLOCK_RCV, FAST;
@@ -123,9 +129,9 @@ WAVEFORM ReadPixels
   //NB using slow slew rate for triangular serial clocking
  0:=PIX_BEGIN
   //SW and RG are on LVDS  signals
-  SET RG TO HIGH;
+    SET RG TO INV_HIGH; //NOTE reset gate is inverted
 
-  PIX_BEGIN+RG_settleT: SET RG to LOW;
+  PIX_BEGIN+RG_settleT: SET RG to INV_LOW;
   SET PIXEL TO HIGH;
   .+1:=CDS_RESET_BEGIN SET PIXEL TO LOW;
   //serials COINCIDENT, start moving charge immediately
@@ -135,8 +141,8 @@ WAVEFORM ReadPixels
 
   //...except the summing wells at the output which we pulse just when we
   //finish CDS first integration period
-  CDS_RESET_BEGIN+COINC_SW_DELAY:=SWPULSE_START SET SW TO HIGH;
-  SWPULSE_START+SW_settleT: SET SW TO LOW;
+  CDS_RESET_BEGIN+COINC_SW_DELAY:=SWPULSE_START SET SW TO INV_HIGH; //NOTE: summing well is inverted
+  SWPULSE_START+SW_settleT: SET SW TO INV_LOW;
 
   //now we're in the CDS signal period begin triangular shuffling serials again
   CDS_RESET_BEGIN+CDS_RESET_LENGTH: SET SCI_SCLK3 TO _SER_CLOCK_LOW, SLOW;
