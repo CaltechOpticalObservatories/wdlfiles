@@ -81,7 +81,10 @@
 #define CDS_RESET_LENGTH   35
 #define CDS_SIGNAL_LENGTH  35
 #define COINC_SW_DELAY 1
-#define COINC_SCLK_LAST_DELAY 1
+
+
+#define AC_CLAMP_ON_TIME 100
+#define AC_CLAMP_EXTRA_RECOVER 10
 
 
 /** basic constants to assist in somewhat automating slew rate for triange clocking.

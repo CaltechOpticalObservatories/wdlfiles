@@ -120,25 +120,25 @@ SLOT 10 lvbias {
    LVLC  2 [00.0,0]; 
    LVLC  3 [3.00,4] "SCI E Output Gate"; 
    LVLC  4 [3.00,4] "SCI F Output Gate";
-   LVLC  5 [1.00,5] "SCI Summing Well - Low";  // NB goes through a line driver 
-   LVLC  6 [11.50,5] "SCI Summing Well - High";  // NB goes through a line driver 
-   LVLC  7 [1.00,5] "SCI Reset Gate - Low";  // NB goes through a line driver 
-   LVLC  8 [11.5,5] "SCI Reset Gate - High";  // NB goes through a line driver 
+   LVLC  5 [1.00,0] "SCI Summing Well - Low";  // NB goes through a line driver 
+   LVLC  6 [11.50,0] "SCI Summing Well - High";  // NB goes through a line driver 
+   LVLC  7 [1.00,0] "SCI Reset Gate - Low";  // NB goes through a line driver 
+   LVLC  8 [11.5,0] "SCI Reset Gate - High";  // NB goes through a line driver 
    LVLC  9 [00.0,0]; 
-   LVLC 10 [00.0,0]; 
-   LVLC 11 [00.0,0]; 
-   LVLC 12 [00.0,0]; 
-   LVLC 13 [00.0,0]; 
+   LVLC 10 [3.0,0] "LastGateA FCS 1"; 
+   LVLC 11 [3.0,0] "LastGateB FCS 1"; 
+   LVLC 12 [3.0,0] "LastGateA FCS 2"; 
+   LVLC 13 [3.0,0] "LastGateB FCS 2";
    LVLC 14 [00.0,0]; 
-   LVLC 15 [00.0,0]; 
-   LVLC 16 [00.0,0]; 
-   LVLC 17 [00.0,0]; 
-   LVLC 18 [00.0,0]; 
-   LVLC 19 [00.0,0]; 
+   LVLC 15 [1.0,0] "FCS Summing Well - Low"; 
+   LVLC 16 [11.5,0] "FCS Summing Well - High"; 
+   LVLC 17 [00.0,0];
+   LVLC 18 [1.0,0] "FCS reset gate - Low";
+   LVLC 19 [11.5,0] "FCS reset gate - High";
    LVLC 20 [00.0,0]; 
    LVLC 21 [00.0,0]; 
-   LVLC 22 [00.0,0]; 
-   LVLC 23 [00.0,0]; 
+   LVLC 22 [00.0,0] "Video offset FCS"; 
+   LVLC 23 [00.0,0] "Video offset SCI"; 
    LVLC 24 [00.0,0];
    LVHC  1 [0.00,0.0,0,0];
    LVHC  2 [0.00,0.0,0,0];
@@ -162,6 +162,7 @@ SLOT 12 lvds {
   DIO 3 [0,0];
   DIO 4 [0,0];
   DIOPOWER = 0;
+    
 }
 
 
