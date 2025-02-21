@@ -29,7 +29,7 @@ param framecount = 0 //will be set
 SEQUENCE StartSeq {
     if integrate_enable CheckIntegrate();
     if readout_enable CheckReadout();
-    if framecount framecount--;
+    framecount--;
     GOTO StartSeq();
 }
 
