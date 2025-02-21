@@ -67,6 +67,10 @@ WAVEFORM Wait1ms {
 /*  .+1s: RETURN; */
 /* } */
 
+WAVEFORM KeepThisFrame {
+ 0: SET FRAME TO HIGH;
+}
+
 
 /*****************************************/
 /*       Integration related waveforms   */
@@ -84,7 +88,6 @@ WAVEFORM TearDownIntegration {
 WAVEFORM ReadoutBegin
 {
  0: SET FRAME TO HIGH;
-  .+1: SET FRAME TO LOW;
 }
 
 
@@ -94,11 +97,10 @@ WAVEFORM TransferToSerialRegister
  0:=BEGIN SET SCI_SCLK1 TO _SER_CLOCK_RCV, FAST;
     SET SCI_SCLK2 TO _SER_CLOCK_RCV, FAST;
  .+SERTRANSDELAY: SET TG TO _TG_CLOCK_HIGH, FAST;
- .+TGDELAY: SET TG TO _TG_CLOCK_LOW, FAST;
+ .+TGDELAY:=END_RECV SET TG TO _TG_CLOCK_LOW, FAST;
     SET SCI_SCLK1 TO _SER_CLOCK_LOW, FAST;
     SET SCI_SCLK2 TO _SER_CLOCK_HIGH, FAST;
     SET LINE TO HIGH;
-    .+1:=END_RECV SET LINE TO LOW;
 
     //simultaneously, operate the AC clamp
     BEGIN: SET AC_Clamp to HIGH;
@@ -141,6 +143,8 @@ WAVEFORM ReadPixels
   PIX_BEGIN+RG_settleT: SET RG to INV_LOW;
   SET PIXEL TO HIGH;
   .+1:=CDS_RESET_BEGIN SET PIXEL TO LOW;
+  SET LINE TO LOW;
+    SET FRAME TO LOW;
   //serials COINCIDENT, start moving charge immediately
   //when CDS reset begins
   SET SCI_SCLK2 TO _SER_CLOCK_LOW, SLOW;
