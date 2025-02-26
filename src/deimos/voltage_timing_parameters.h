@@ -73,10 +73,10 @@
     For now we are just entering a slew time manually, then calculating the rate to make
     sure we hit the intended voltage at the top of the triangle waveform **/
 
-/** basic slew rate logic: you are doing 1024 serial transfer cycles (for each amp), each lasing around 1us. In this time 3 parallel clock transfers happen, up and down once each. Therefore in 2048us we need to do 6 slews from top to bottom, hence the slew time is 1024 / 6 = 171 */
+/** basic slew rate logic: you are doing 1024 serial transfer cycles (for each amp), each lasing around 1us. In this time 3 parallel clock transfers happen, up and down once each. Therefore in 2048us we need to do 3 slews from top to bottom, hence the slew time is 1024 / 6 = 171 */
 
 
-#define PAR_SLEW_TIME_US           171
+#define PAR_SLEW_TIME_US           341
 #define SER_SLEW_TIME_US           0.33
 
 

@@ -40,12 +40,12 @@ SLOT 2 driverx {
 **********************************/
 
 SLOT 3 driverx {
-  DRVX  1 [TG_fast,TG_slow,1];
-  DRVX  2 [SCLK_fast,SCLK_slow,1];
-  DRVX  3 [SCLK_fast,SCLK_slow,1];
-  DRVX  4 [SCLK_fast,SCLK_slow,1];
-  DRVX  5 [SCLK_fast,SCLK_slow,1];
-  DRVX  6 [SCLK_fast,SCLK_slow,1];
+  DRVX  1 [TG_fast,TG_slow,1] "Transfer Gate";
+  DRVX  2 [SCLK_fast,SCLK_slow,1] "Serial EF";
+  DRVX  3 [SCLK_fast,SCLK_slow,1] "Serial E2";
+  DRVX  4 [SCLK_fast,SCLK_slow,1] "Serial E1";
+  DRVX  5 [SCLK_fast,SCLK_slow,1] "Serial F2";
+  DRVX  6 [SCLK_fast,SCLK_slow,1] "Serial F1";
   DRVX  7 [1,1,0];
   DRVX  8 [1,1,0];
   DRVX  9 [1,1,0];

@@ -52,7 +52,7 @@ SEQUENCE CheckReadout
 {
   if framecount KeepThisFrame();
   FrameReadout();
-
+  RETURN;
 }
 
 
@@ -104,4 +104,19 @@ SEQUENCE LineReadout
   #endif
    RETURN;
 }
+
+
+SEQUENCE ParallelDCMeasReadout
+{
+  ReadoutBegin();
+  //single line read to flush the register
+  ReadPixels(_AMPREADCOLS);
   
+  
+  //dump the 'A' image section
+  RETURN;
+
+}
+
+  
+
