@@ -25,6 +25,8 @@ param integrate_ms = 0 // will be set externally to choose integration ms
 param integrate_s = 0 // will be set externally to choose integration seconds
 
 param framecount = 0 //will be set 
+param abortintegrate = 0 //checked by the integration waiters and they bail out if it is set
+
 
 SEQUENCE StartSeq {
     if integrate_enable CheckIntegrate();
@@ -82,8 +84,14 @@ SEQUENCE FrameReadout
 //NOTE this has to be a sequence because can't call
 //enough repeats in 1ms archon limit of repeats
 SEQUENCE Wait1s {
+  if abortintegrate abortintegration();
   Wait1ms(1000);
   RETURN;
+}
+
+SEQUENCE abortintegration {
+  TearDownIntegration();
+  GOTO StartSeq();
 }
 
 
@@ -105,6 +113,23 @@ SEQUENCE LineReadout
    RETURN;
 }
 
+SEQUENCE LineReadoutDumpA
+{
+  TransferToSerialRegister();
+  ReadPixels(_SERIALPRESCAN);
+  ParallelForwardSectionASegment1();
+  ReadPixels(PIXELS_PER_SEG);
+  ParallelForwardSectionASegment2();
+  ReadPixels(PIXELS_PER_SEG);
+  ParallelForwardSectionASegment3();
+  ReadPixels(PIXELS_PER_SEG);
+
+  #if _AMPCOLS %3
+      ReadPixels(REMAINDER_PIX);
+  #endif
+      RETURN ;
+}
+
 
 SEQUENCE ParallelDCMeasReadout
 {
@@ -114,6 +139,8 @@ SEQUENCE ParallelDCMeasReadout
   
   
   //dump the 'A' image section
+  
+  
   RETURN;
 
 }

@@ -178,6 +178,27 @@ WAVEFORM ForwardParallelSectionA
 
 }
 
+WAVEFORM ParallelForwardSectionASegment1
+{
+ 0: SET SCI_PCLK3_A to _PAR_CLOCK_LOW, SLOW;
+  SET SCI_PCLK1_A to _PAR_CLOCK_HIGH, SLOW;
+}
+
+WAVEFORM ParallelForwardSectionASegment2
+{
+  0: SET SCI_PCLK1_A to _PAR_CLOCK_LOW, SLOW;
+  SET SCI_PCLK2_A TO _PAR_CLOCK_HIGH, SLOW;
+}
+
+WAVEFORM ParallelForwardSectionASegment3
+{
+  0: SET SCI_PCLK2_A TO _PAR_CLOCK_LOW, SLOW;
+  SET SCI_PCLK3_A TO _PAR_CLOCK_HIGH, SLOW;
+}
+
+
+
+
 WAVEFORM BackwardParallelSectionB
 {
  0: SET SCI_PCLK3_B TO _PAR_CLOCK_LOW, SLOW;
