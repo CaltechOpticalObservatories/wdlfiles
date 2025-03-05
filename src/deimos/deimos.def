@@ -13,7 +13,6 @@
  * Configuration modes
  */
 
-#define _SCI_SER_CLOCK_DIR       SPLIT   /* SPLIT || E_LEFT || F_RIGHT */
 
 
  /** --------------------------------------------------------------------------
@@ -49,17 +48,7 @@
 #define  _PARALLELOVERSCAN        50
 
 #define _AMPREADCOLS            #eval _AMPCOLS + _SERIALPRESCAN
-#define _LINENUM                #eval _IMAGEROWS + _PARALLELOVERSCAN
-
-
-/* Number of Pixels depends on if both output
-#if _SCI_SER_CLOCK_DIR == SPLIT
-   #define _PIXELNUM          #eval _IMAGECOLS/2 + _SERIALPRESCAN + _SERIALOVERSCAN
-#endif
-#if _SCI_SER_CLOCK_DIR == F_RIGHT || _SCI_SER_CLOCK_DIR == E_LEFT
-   #define _PIXELNUM          #eval _IMAGECOLS + _SERIALPRESCAN + _SERIALOVERSCAN
-#endif
-
+#define _LINENUM                #eval _IMAGEROWS + _PARALLELVERSCAN
 
 
 
@@ -85,6 +74,15 @@
 
 #define AC_CLAMP_ON_TIME 100
 #define AC_CLAMP_EXTRA_RECOVER 10
+
+
+// constants for use with parallel total deferred charge measurements
+#define LLEL_TDC_LINE_SPACING 10
+#define LLEL_TDC_BINS 1
+
+//could in principle calculate - based on line spacing and how many total lines are availablei
+#define LLEL_TDC_LOOPS 100
+    
 
 
 

@@ -113,7 +113,7 @@ SEQUENCE LineReadout
    RETURN;
 }
 
-SEQUENCE LineReadoutDumpA
+SEQUENCE LineReadoutAOnly
 {
   TransferToSerialRegister();
   ReadPixels(_SERIALPRESCAN);
@@ -130,20 +130,38 @@ SEQUENCE LineReadoutDumpA
       RETURN ;
 }
 
-
 SEQUENCE ParallelDCMeasReadout
+{
+  ReadoutBegin();
+  //single line read to flush the register
+  ReadPixels(_AMPREADCOLS);
+    
+  //dump the 'A' image section
+  LineReadoutAOnly(_SECTION_A_ROWS);
+  ParallelDCLineLoop(LLEL_TDC_LOOPS);
+  RETURN;
+
+}
+
+SEQUENCE ParallelDCLineLoop
+{
+  //now we have a bunch of charge in B section, A section is empty
+  //go forward on B clocks only, this gets a bright line into section A
+  //multiple forwards of section B bins charge into section A
+  ForwardParallelSectionB(LLEL_TDC_BINS);
+
+  //then forward for the number of line spacings
+  LineReadoutAOnly(LLEL_TDC_LINE_SPACING);
+  RETURN;
+}
+
+  
+SEQUENCE SerialDCMeasReadoutE
 {
   ReadoutBegin();
   //single line read to flush the register
   ReadPixels(_AMPREADCOLS);
   
   
-  //dump the 'A' image section
-  
-  
-  RETURN;
 
 }
-
-  
-

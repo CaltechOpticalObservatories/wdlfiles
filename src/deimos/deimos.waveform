@@ -166,7 +166,7 @@ WAVEFORM ReadPixels
 
 #define PCLK_NOREAD_DELAY 
 
-
+//definitions for llel total deferred charge measurement
 WAVEFORM ForwardParallelSectionA
 {
  0: SET SCI_PCLK3_A to _PAR_CLOCK_LOW, SLOW;
@@ -175,8 +175,18 @@ WAVEFORM ForwardParallelSectionA
   SET SCI_PCLK2_A TO _PAR_CLOCK_HIGH, SLOW;
   2*PAR_SLEW_TIME_US*100: SET SCI_PCLK2_A TO _PAR_CLOCK_LOW, SLOW;
   SET SCI_PCLK3_A TO _PAR_CLOCK_HIGH, SLOW;
-
 }
+
+WAVEFORM ForwardParallelSectionB
+{
+ 0: SET SCI_PCLK3_B TO _PAR_CLOCK_LOW, SLOW;
+  SET SCI_PCLK1_B TO _PAR_CLOCK_HIGH, SLOW;
+  PAR_SLEW_TIME_US*100: SET SCI_PCLK1_B TO _PAR_CLOCK_LOW, SLOW;
+  SET SCI_PCLK2_B TO _PAR_CLOCK_HIGH, SLOW;
+  2*PAR_SLEW_TIME_US*100: SET SCI_PCLK2_B TO _PAR_CLOCK_LOW, SLOW;
+  SET SCI_PCLK3_B TO _PAR_CLOCK_HIGH, SLOW; 
+}
+
 
 WAVEFORM ParallelForwardSectionASegment1
 {
@@ -197,17 +207,105 @@ WAVEFORM ParallelForwardSectionASegment3
 }
 
 
+//definitions for serial total deferred charge measurement
 
 
-WAVEFORM BackwardParallelSectionB
+//readout only clocking the E register (we have stored bright edge in the F for this one)
+WAVEFORM ReadPixelsEOnly
 {
- 0: SET SCI_PCLK3_B TO _PAR_CLOCK_LOW, SLOW;
-  SET SCI_PCLK1_B TO _PAR_CLOCK_LOW, SLOW;
-  PAR_SLEW_TIME_US*100: SET SCI_PCLK1_B TO _PAR_CLOCK_LOW, SLOW;
-  SET SCI_PCLK2_B TO _PAR_CLOCK_HIGH, SLOW;
-  2*PAR_SLEW_TIME_US*100: SET SCI_PCLK2_B TO _PAR_CLOCK_LOW, SLOW;
-  SET SCI_PCLK3_B TO _PAR_CLOCK_HIGH, SLOW;
+  //NB using slow slew rate for triangular serial clocking
+ 0:=PIX_BEGIN
+  //SW and RG are on LVDS  signals
+    SET RG TO INV_HIGH; //NOTE reset gate is inverted
+
+  PIX_BEGIN+RG_settleT: SET RG to INV_LOW;
+  SET PIXEL TO HIGH;
+  .+1:=CDS_RESET_BEGIN SET PIXEL TO LOW;
+  SET LINE TO LOW;
+    SET FRAME TO LOW;
+  //serials COINCIDENT, start moving charge immediately
+  //when CDS reset begins
+  SET SCI_SCLK2_EONLY TO _SER_CLOCK_LOW, SLOW;
+  SET SCI_SCLK3 TO _SER_CLOCK_HIGH, SLOW;
+
+  //...except the summing wells at the output which we pulse just when we
+  //finish CDS first integration period
+  CDS_RESET_BEGIN+COINC_SW_DELAY:=SWPULSE_START SET SW TO INV_HIGH; //NOTE: summing well is inverted
+  SWPULSE_START+SW_settleT: SET SW TO INV_LOW;
+
+  //now we're in the CDS signal period begin triangular shuffling serials again
+  CDS_RESET_BEGIN+CDS_RESET_LENGTH: SET SCI_SCLK3 TO _SER_CLOCK_LOW, SLOW;
+  SET SCI_SCLK1_EONLY TO _SER_CLOCK_HIGH, SLOW;
+
+  .+CDS_SIGNAL_LENGTH: SET SCI_SCLK1_EONLY TO _SER_CLOCK_LOW, SLOW;
+  SET SCI_SCLK2_EONLY TO _SER_CLOCK_HIGH, SLOW;
 }
+
+
+//similarly, read out only clocking the F register
+WAVEFORM ReadPixelsFOnly
+{
+  //NB using slow slew rate for triangular serial clocking
+ 0:=PIX_BEGIN
+  //SW and RG are on LVDS  signals
+    SET RG TO INV_HIGH; //NOTE reset gate is inverted
+
+  PIX_BEGIN+RG_settleT: SET RG to INV_LOW;
+  SET PIXEL TO HIGH;
+  .+1:=CDS_RESET_BEGIN SET PIXEL TO LOW;
+  SET LINE TO LOW;
+    SET FRAME TO LOW;
+  //serials COINCIDENT, start moving charge immediately
+  //when CDS reset begins
+  SET SCI_SCLK2_FONLY TO _SER_CLOCK_LOW, SLOW;
+  SET SCI_SCLK3 TO _SER_CLOCK_HIGH, SLOW;
+
+  //...except the summing wells at the output which we pulse just when we
+  //finish CDS first integration period
+  CDS_RESET_BEGIN+COINC_SW_DELAY:=SWPULSE_START SET SW TO INV_HIGH; //NOTE: summing well is inverted
+  SWPULSE_START+SW_settleT: SET SW TO INV_LOW;
+
+  //now we're in the CDS signal period begin triangular shuffling serials again
+  CDS_RESET_BEGIN+CDS_RESET_LENGTH: SET SCI_SCLK3 TO _SER_CLOCK_LOW, SLOW;
+  SET SCI_SCLK1_FONLY TO _SER_CLOCK_HIGH, SLOW;
+
+  .+CDS_SIGNAL_LENGTH: SET SCI_SCLK1_FONLY TO _SER_CLOCK_LOW, SLOW;
+  SET SCI_SCLK2_FONLY TO _SER_CLOCK_HIGH, SLOW;
+}
+
+//use this to move charge from F register back into E register
+WAVEFORM SerialFBackwards
+{
+ 0: SET SCI_SCLK2_FONLY TO _SER_CLOCK_LOW, SLOW;
+    SET SCI_SCLK1_FONLY TO _SER_CLOCK_HIGH, SLOW;
+ CDS_RESET_BEGIN+CDS_RESET_LENGTH:
+    SET SCI_SCLK1_FONLY TO _SER_CLOCK_LOW, SLOW;
+    SET SCI_SCLK3  TO _SER_CLOCK_HIGH, SLOW;
+
+    .+CDS_SIGNAL_LENGTH: SET SCI_SCLK3 TO _SER_CLOCK_LOW, SLOW;
+    SET SCI_SCLK2_FONLY TO _SER_CLOCK_HIGH, SLOW;
+}
+
+//use this to move charge from E register back into F register
+WAVEFORM SerialEBackwards
+{
+ 0: SET SCI_SCLK2_EONLY TO _SER_CLOCK_LOW, SLOW;
+  SET SCI_SCLK1_EONLY TO _SER_CLOCK_HIGH, SLOW;
+
+  CDS_RESET_BEGIN+CDS_RESET_LENGTH:
+  SET SCI_SCLK1_EONLY TO _SER_CLOCK_LOW, SLOW;
+  SET SCI_SCLK3 TO _SER_CLOCK_HIGH, SLOW;
+
+  .+CDS_SIGNAL_LENGTH: SET SCI_SCLK3 TO _SER_CLOCK_LOW, SLOW;
+  SET SCI_SCLK2_EONLY TO _SER_CLOCK_HIGH, SLOW;
+
+}
+
+
+
+
+
+
 
 
 
