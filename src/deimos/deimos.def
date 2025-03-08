@@ -84,6 +84,11 @@
 #define LLEL_TDC_LOOPS 100
     
 
+#define SER_TDC_LLEL_BINS 1
+#define SER_TDC_SER_BINS 1
+#define SER_TDC_ROW_SPACING 10
+
+
 
 
 

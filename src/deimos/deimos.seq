@@ -161,7 +161,34 @@ SEQUENCE SerialDCMeasReadoutE
   ReadoutBegin();
   //single line read to flush the register
   ReadPixels(_AMPREADCOLS);
+
+  //run the serial DC line loop
   
+
+}
+
+SEQUENCE SerialDCLineLoopE
+{
+  //first we dump a number of lines into the serial register (to build up the charge size)
+  ForwardParallelAll(SER_TDC_BINS);
+
+  //now empty the E side of the register
+  ReadPixelsEOnly(_AMPCOLS);
+
+  //read out pixels from E only - the number read out is the spacing
+  ReadPixelsEOnly(SER_TDC_ROW_SPACING);
   
+
+  RETURN;
+  
+}
+
+SEQUENCE SerialDCRowLoopE
+{
+  //back clock F the defined number of times this should get a bright line into E
+  SerialFBackwards(SER_TDC_SER_BINS);
+  //read out the pixels from E register only - NO NEED TO 
+  ReadPixelsEOnly(SER_TDC_ROW_SPACING);
+
 
 }
