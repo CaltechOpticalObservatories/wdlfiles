@@ -164,13 +164,13 @@ SEQUENCE SerialDCMeasReadoutE
 
   //run the serial DC line loop
   
-
+  RETURN;
 }
 
 SEQUENCE SerialDCLineLoopE
 {
   //first we dump a number of lines into the serial register (to build up the charge size)
-  ForwardParallelAll(SER_TDC_BINS);
+  ForwardParallelAll(SER_TDC_LLEL_BINS);
 
   //now empty the E side of the register
   ReadPixelsEOnly(_AMPCOLS);
@@ -190,5 +190,5 @@ SEQUENCE SerialDCRowLoopE
   //read out the pixels from E register only - NO NEED TO 
   ReadPixelsEOnly(SER_TDC_ROW_SPACING);
 
-
+  RETURN;
 }
