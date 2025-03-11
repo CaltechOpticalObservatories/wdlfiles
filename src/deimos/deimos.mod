@@ -13,13 +13,13 @@ SLOT 1 driverx {
   DRVX  3 [PCLK_fast,PCLK_slow,1] "PCLK_B2_2";
   DRVX  4 [PCLK_fast,PCLK_slow,1] "PCLK_A2_2";
   DRVX  5 [PCLK_fast,PCLK_slow,1] "PCLK_B1_2";
-  DRVX  6 [PCLK_fast,PCLK_slow,1];
-  DRVX  7 [PCLK_fast,PCLK_slow,1];
-  DRVX  8 [PCLK_fast,PCLK_slow,1];
-  DRVX  9 [PCLK_fast,PCLK_slow,1];
-  DRVX 10 [PCLK_fast,PCLK_slow,1];
-  DRVX 11 [PCLK_fast,PCLK_slow,1];
-  DRVX 12 [PCLK_fast,PCLK_slow,1];
+  DRVX  6 [PCLK_fast,PCLK_slow,1] "PCLK_A1_2";
+  DRVX  7 [PCLK_fast,PCLK_slow,1] "PCLK_B1_1";
+  DRVX  8 [PCLK_fast,PCLK_slow,1] "PCLK_A2_1";
+  DRVX  9 [PCLK_fast,PCLK_slow,1] "PCLK_A2_1";
+  DRVX 10 [PCLK_fast,PCLK_slow,1] "PCLK_B2_1";
+  DRVX 11 [PCLK_fast,PCLK_slow,1] "PCLK_A3_1";
+  DRVX 12 [PCLK_fast,PCLK_slow,1] "PCLK_B3_1";
 }
 
 /* Remove comment when adding FCS 

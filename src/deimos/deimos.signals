@@ -96,9 +96,9 @@
 
 
 /* Science parallels section A */
-#define SCI_PCLK1_A [PCLK_A1_1, PCLK_B1_2]
-#define SCI_PCLK2_A [PCLK_A2_1, PCLK_B2_2]
-#define SCI_PCLK3_A [PCLK_A3_1, PCLK_B3_2]
+#define SCI_PCLK1_A [PCLK_A1_1, PCLK_A1_2]
+#define SCI_PCLK2_A [PCLK_A2_1, PCLK_A2_2]
+#define SCI_PCLK3_A [PCLK_A3_1, PCLK_A3_2]
 
 #define SCI_PCLK1_B [PCLK_B1_1, PCLK_B1_2]
 #define SCI_PCLK2_B [PCLK_B2_1, PCLK_B2_2]
