@@ -48,7 +48,7 @@
 #define  _PARALLELOVERSCAN        50
 
 #define _AMPREADCOLS            #eval _AMPCOLS + _SERIALPRESCAN
-#define _LINENUM                #eval _IMAGEROWS + _PARALLELVERSCAN
+#define _LINENUM                #eval _IMAGEROWS + _PARALLELOVERSCAN
 
 
 
@@ -62,14 +62,18 @@
 #define RG_settleT    32 /*32*/  /* Settling Time for the reset gate 310ns */ /* Static */ /* Used in CDS Window calculation */ /* Shifted to 1 less from previous */
 #define SW_settleT    32 /*32*/  /* Settling Time for charge dump    310ns */ /* Static */ /* Used in CDS Window calculation */ /* Shifted to 1 less from previous */
 
-#define _FIRST_RESET_SAMPLE      #eval RG_settleT                 /* Start Reset sample after reset settling time                    */
-#define _LAST_RESET_SAMPLE       #eval Pixel_T/2 - 1              /* Half of the pixel time to reset pedestal                        */
-#define _FIRST_VIDEO_SAMPLE      #eval Pixel_T/2 - 1 + SW_settleT /* Start video sample after reset pedestal and summing well settle */
-#define _LAST_VIDEO_SAMPLE       #eval Pixel_T - 2                /* Stop video sample at end of pixel time                          */
 
 #define CDS_RESET_LENGTH   35
 #define CDS_SIGNAL_LENGTH  35
 #define COINC_SW_DELAY 1
+
+
+//pixel timing should be set up such that pixel trigger only happens when RG comes down, so we start at 0
+#define _FIRST_RESET_SAMPLE      0 
+#define _LAST_RESET_SAMPLE       35
+#define _FIRST_VIDEO_SAMPLE      36
+#define _LAST_VIDEO_SAMPLE       71
+
 
 
 #define AC_CLAMP_ON_TIME 100

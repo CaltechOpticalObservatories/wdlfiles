@@ -103,10 +103,10 @@ WAVEFORM TransferToSerialRegister
     SET LINE TO HIGH;
 
     //simultaneously, operate the AC clamp
-    BEGIN: SET AC_Clamp to HIGH;
-    .+AC_CLAMP_ON_TIME: SET AC_Clamp to LOW;
- END_RECV: SET NOP TO HIGH;
-    .+AC_CLAMP_EXTRA_RECOVER: RETURN;
+    //    BEGIN: SET AC_Clamp to HIGH;
+    //    .+AC_CLAMP_ON_TIME: SET AC_Clamp to LOW;
+    // END_RECV: SET NOP TO HIGH;
+    //    .+AC_CLAMP_EXTRA_RECOVER: RETURN;
 }
 
 
