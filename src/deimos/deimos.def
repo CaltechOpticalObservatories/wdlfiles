@@ -23,12 +23,25 @@
 #define _ARCHON_FRAMEMODE          2 /* 0=top, 1=bottom, 2=split            */
 #define _ARCHON_FRAMEBUFS          0 /* 0=3x512MB, 1=2x768MB, I.E. "BIGBUF" */
 
-#define _RAW_ENABLE                0 /* 0=no, 1=yes                         */
+#define _RAW_ENABLE                1 /* 0=no, 1=yes                         */
 #define _RAW_STARTLINE             0 /* first line of raw data, 0-65535     */
 #define _RAW_ENDLINE              10 /* last line of raw data, 0-65535      */
 #define _RAW_STARTPIXEL           50
 #define _RAW_SAMPLES            2000
-#define _RAW_SELECT                7 /* AD channel for raw data capture, 0-15 */
+#define _RAW_SELECT               11 /* AD channel for raw data capture, 0-15 */
+
+//NOTE correspondence from Greg Bredthauer to Dan W:
+//
+//Raw Channel Select 1-4 => ADM channels 1-4
+/* Raw Channel Select 5-8 => ADM channels 19-22 */
+/* Raw Channel Select 9-12 => ADM channels 37-40 */
+/* Raw Channel Select 13-16 => ADM channels 55-58 */
+/* Raw Channel Select 17-30 => ADM channels 5-18 */
+/* Raw Channel Select 31-44 => ADM channels 23-36 */
+/* Raw Channel Select 45-58 => ADM channels 41-54 */
+/* Raw Channel Select 59-72 => ADM channels 59-72 */
+// does not seem that obvious to guess tbh
+
 
  /** ---------------------------------------------------------------------------
 * Detector Array Parameters
@@ -59,13 +72,13 @@
 #define Pixel_T       100 /* Full pixel time : 10s of ns */
 
 /* TODO CLARIFY VLAYES FOR RG AND SW settling time */
-#define RG_settleT    32 /*32*/  /* Settling Time for the reset gate 310ns */ /* Static */ /* Used in CDS Window calculation */ /* Shifted to 1 less from previous */
-#define SW_settleT    32 /*32*/  /* Settling Time for charge dump    310ns */ /* Static */ /* Used in CDS Window calculation */ /* Shifted to 1 less from previous */
+#define RG_settleT    60 // TODO: reduce when get better damping
+#define SW_settleT    30 // TODO: reduce when get better damping
 
 
 #define CDS_RESET_LENGTH   35
 #define CDS_SIGNAL_LENGTH  35
-#define COINC_SW_DELAY 1
+#define COINC_SW_DELAY 2
 
 
 //pixel timing should be set up such that pixel trigger only happens when RG comes down, so we start at 0
@@ -76,8 +89,8 @@
 
 
 
-#define AC_CLAMP_ON_TIME 100
-#define AC_CLAMP_EXTRA_RECOVER 10
+#define AC_CLAMP_ON_TIME 1000
+#define AC_CLAMP_EXTRA_RECOVER 100
 
 
 // constants for use with parallel total deferred charge measurements

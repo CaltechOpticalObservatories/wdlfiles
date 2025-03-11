@@ -27,8 +27,13 @@ param integrate_s = 0 // will be set externally to choose integration seconds
 param framecount = 0 //will be set 
 param abortintegrate = 0 //checked by the integration waiters and they bail out if it is set
 
+param firsttimesetup = 1
+  
 
 SEQUENCE StartSeq {
+  if firsttimesetup FirstTimeSetup();
+  firsttimesetup--;
+  
     if integrate_enable CheckIntegrate();
     if readout_enable CheckReadout();
     framecount--;

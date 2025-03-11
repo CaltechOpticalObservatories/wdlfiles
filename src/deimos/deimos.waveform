@@ -76,9 +76,26 @@ WAVEFORM KeepThisFrame {
 /*       Integration related waveforms   */
 /*****************************************/
 
-WAVEFORM SetupIntegration {
- 0: SET SHUTTER TO OPEN;
+#define PAR_SLEW_TIME_TICKS #eval PAR_SLEW_TIME_US * 100
 
+
+WAVEFORM FirstTimeSetup {
+ 0: 
+  SET SCI_PCLK3 TO HIGH, SLOW;
+  SET SCI_PCLK1 TO LOW, SLOW;
+  SET SCI_PCLK2 TO LOW, SLOW;
+  .+PAR_SLEW_TIME_TICKS: SET NOP TO HIGH;
+
+}
+
+
+WAVEFORM SetupIntegration {
+ 0: 
+  SET SCI_PCLK3 TO HIGH, SLOW;
+  SET SCI_PCLK1 TO LOW, SLOW;
+  SET SCI_PCLK2 TO LOW, SLOW;
+  .+PAR_SLEW_TIME_TICKS:
+  SET SHUTTER TO OPEN;
 }
 
 WAVEFORM TearDownIntegration {
@@ -96,6 +113,7 @@ WAVEFORM TransferToSerialRegister
   //set serials to receive charge
  0:=BEGIN SET SCI_SCLK1 TO _SER_CLOCK_RCV, FAST;
     SET SCI_SCLK2 TO _SER_CLOCK_RCV, FAST;
+    SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
  .+SERTRANSDELAY: SET TG TO _TG_CLOCK_HIGH, FAST;
  .+TGDELAY:=END_RECV SET TG TO _TG_CLOCK_LOW, FAST;
     SET SCI_SCLK1 TO _SER_CLOCK_LOW, FAST;
@@ -103,10 +121,10 @@ WAVEFORM TransferToSerialRegister
     SET LINE TO HIGH;
 
     //simultaneously, operate the AC clamp
-    //    BEGIN: SET AC_Clamp to HIGH;
-    //    .+AC_CLAMP_ON_TIME: SET AC_Clamp to LOW;
-    // END_RECV: SET NOP TO HIGH;
-    //    .+AC_CLAMP_EXTRA_RECOVER: RETURN;
+        BEGIN: SET AC_Clamp to INV_HIGH;
+        .+AC_CLAMP_ON_TIME: SET AC_Clamp to INV_LOW;
+     END_RECV: SET NOP TO HIGH;
+        .+AC_CLAMP_EXTRA_RECOVER: RETURN;
 }
 
 
