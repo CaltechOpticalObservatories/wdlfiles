@@ -77,7 +77,7 @@
 
 
 #define PAR_SLEW_TIME_US           341
-#define SER_SLEW_TIME_US           0.33
+#define SER_SLEW_TIME_US           0.66
 
 
 //NOTE: OH DEAR, does GPP not do floating point calculations?

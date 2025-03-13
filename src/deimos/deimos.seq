@@ -113,6 +113,7 @@ SEQUENCE abortintegration {
 
 SEQUENCE LineReadout
 {
+  
   TransferToSerialRegister();
   ReadPixels(_SERIALPRESCAN);
   ParallelForwardSegment1();

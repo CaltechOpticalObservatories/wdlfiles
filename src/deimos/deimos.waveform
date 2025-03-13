@@ -77,6 +77,7 @@ WAVEFORM KeepThisFrame {
 /*****************************************/
 
 #define PAR_SLEW_TIME_TICKS #eval PAR_SLEW_TIME_US * 100
+#define SER_SLEW_TIME_TICKS #eval SER_SLEW_TIME_US * 100
 
 
 WAVEFORM FirstTimeSetup {
@@ -85,6 +86,13 @@ WAVEFORM FirstTimeSetup {
   SET SCI_PCLK1 TO LOW, SLOW;
   SET SCI_PCLK2 TO LOW, SLOW;
   SET AC_Clamp TO LOW;
+  SET SW TO 1;
+  SET RG TO 1;
+  SET SCI_SCLK1 TO _SER_CLOCK_RCV, FAST;
+  SET SCI_SCLK2 TO _SER_CLOCK_RCV, FAST;
+  SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
+  SET TG TO _TG_CLOCK_LOW, FAST;
+  
   .+PAR_SLEW_TIME_TICKS: SET NOP TO HIGH;
 }
 
@@ -104,6 +112,7 @@ WAVEFORM TearDownIntegration {
 
 WAVEFORM ReadoutBegin
 {
+  SET LINE TO HIGH;
 }
 
 
@@ -115,8 +124,8 @@ WAVEFORM TransferToSerialRegister
     SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
  .+SERTRANSDELAY: SET TG TO _TG_CLOCK_HIGH, FAST;
  .+TGDELAY:=END_RECV SET TG TO _TG_CLOCK_LOW, FAST;
-    SET SCI_SCLK1 TO _SER_CLOCK_LOW, FAST;
-    SET SCI_SCLK2 TO _SER_CLOCK_HIGH, FAST;
+    SET SCI_SCLK1 TO _SER_CLOCK_HIGH, FAST;
+    SET SCI_SCLK2 TO _SER_CLOCK_LOW, FAST;
     SET LINE TO HIGH;
 
     //simultaneously, operate the AC clamp
@@ -152,36 +161,39 @@ WAVEFORM ParallelForwardSegment3
 
 WAVEFORM ReadPixels
 {
-  //NB using slow slew rate for triangular serial clocking
+  //NB using slow slew rate for triangular serial clockingdef
  0:=PIX_BEGIN
     SET PIXEL  TO HIGH;
   .+1: SET PIXEL TO LOW;
        SET LINE TO LOW;
        SET FRAME TO LOW;
   
-    
-  //SW and RG are on LVDS  signals
+       //reset pulse at the start of the pixel
     SET RG TO INV_HIGH; //NOTE reset gate is inverted
+    PIX_BEGIN+RG_settleT: SET RG to INV_LOW;
 
-  PIX_BEGIN+RG_settleT: SET RG to INV_LOW;
-  .+1:=CDS_RESET_BEGIN
-  //serials COINCIDENT, start moving charge immediately
-  //when CDS reset begins
-  SET SCI_SCLK2 TO _SER_CLOCK_LOW, SLOW;
+
+  //triangular serial clocks, running as they please
+ 0: SET SCI_SCLK2 TO _SER_CLOCK_HIGH, SLOW;
+  SET SCI_SCLK1 TO _SER_CLOCK_LOW, SLOW;
+  .+SER_SLEW_TIME_TICKS:=CHARGE_UNDER_SCK2
   SET SCI_SCLK3 TO _SER_CLOCK_HIGH, SLOW;
-
-  //...except the summing wells at the output which we pulse just when we
-  //finish CDS first integration period
-  .+COINC_SW_DELAY:=SWPULSE_START SET SW TO INV_HIGH; //NOTE: summing well is inverted
-
-  //now we're in the CDS signal period begin triangular shuffling serials again
-  .+1: SET SCI_SCLK3 TO _SER_CLOCK_LOW, SLOW;
+  SET SCI_SCLK2 TO _SER_CLOCK_LOW, SLOW;
+  .+SER_SLEW_TIME_TICKS:
   SET SCI_SCLK1 TO _SER_CLOCK_HIGH, SLOW;
-  .+CDS_SIGNAL_LENGTH: SET SCI_SCLK1 TO _SER_CLOCK_LOW, SLOW;
-  SET SCI_SCLK2 TO _SER_CLOCK_HIGH, SLOW;
+  SET SCI_SCLK3 TO _SER_CLOCK_LOW, SLOW;
+  .+SER_SLEW_TIME_TICKS:
+  SET NOP TO HIGH;
 
+  //at the point where charge is under SCLK2, delay by a small amount then
+  //let SW RIP
 
-  SWPULSE_START + 24: SET SW TO INV_LOW;  
+ CHARGE_UNDER_SCK2+COINC_SW_DELAY:
+  SET SW TO INV_HIGH;
+  .+SW_settleT:
+  SET SW TO INV_LOW;
+  //at this point the charge has plopped over the OG and is in the node.
+  //should readout here
 }
 
 #define PCLK_NOREAD_DELAY 
@@ -257,11 +269,13 @@ WAVEFORM ReadPixelsEOnly
   //when CDS reset begins
   SET SCI_SCLK2_EONLY TO _SER_CLOCK_LOW, SLOW;
   SET SCI_SCLK3 TO _SER_CLOCK_HIGH, SLOW;
+  SET SW TO INV_HIGH;
 
-  //...except the summing wells at the output which we pulse just when we
-  //finish CDS first integration period
-  CDS_RESET_BEGIN+COINC_SW_DELAY:=SWPULSE_START SET SW TO INV_HIGH; //NOTE: summing well is inverted
-  SWPULSE_START+SW_settleT: SET SW TO INV_LOW;
+  .+SW_settleT: SET SW TO INV_LOW;
+
+
+  CDS_RESET_BEGIN + 
+
 
   //now we're in the CDS signal period begin triangular shuffling serials again
   CDS_RESET_BEGIN+CDS_RESET_LENGTH: SET SCI_SCLK3 TO _SER_CLOCK_LOW, SLOW;
