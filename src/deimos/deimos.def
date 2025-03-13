@@ -57,10 +57,10 @@
 
 /* #define _CDS_WIDTH            10  /* width of each CDS integration component in clocks */
 #define  _SERIALPRESCAN           50
-#define  _SERIALOVERSCAN         100 
+#define  _SERIALOVERSCAN          20 
 #define  _PARALLELOVERSCAN        50
 
-#define _AMPREADCOLS            #eval _AMPCOLS + _SERIALPRESCAN
+#define _AMPREADCOLS            #eval _AMPCOLS + _SERIALPRESCAN + _SERIALOVERSCAN
 #define _LINENUM                #eval _IMAGEROWS + _PARALLELOVERSCAN
 
 
@@ -72,7 +72,7 @@
 #define Pixel_T       100 /* Full pixel time : 10s of ns */
 
 /* TODO CLARIFY VLAYES FOR RG AND SW settling time */
-#define RG_settleT    60 // TODO: reduce when get better damping
+#define RG_settleT    10 // TODO: reduce when get better damping
 #define SW_settleT    30 // TODO: reduce when get better damping
 
 
@@ -90,7 +90,7 @@
 
 
 #define AC_CLAMP_ON_TIME 1000
-#define AC_CLAMP_EXTRA_RECOVER 100
+#define AC_CLAMP_EXTRA_RECOVER 1
 
 
 // constants for use with parallel total deferred charge measurements

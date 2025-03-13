@@ -84,8 +84,8 @@ WAVEFORM FirstTimeSetup {
   SET SCI_PCLK3 TO HIGH, SLOW;
   SET SCI_PCLK1 TO LOW, SLOW;
   SET SCI_PCLK2 TO LOW, SLOW;
+  SET AC_Clamp TO LOW;
   .+PAR_SLEW_TIME_TICKS: SET NOP TO HIGH;
-
 }
 
 
@@ -104,7 +104,6 @@ WAVEFORM TearDownIntegration {
 
 WAVEFORM ReadoutBegin
 {
- 0: SET FRAME TO HIGH;
 }
 
 
@@ -121,9 +120,9 @@ WAVEFORM TransferToSerialRegister
     SET LINE TO HIGH;
 
     //simultaneously, operate the AC clamp
-        BEGIN: SET AC_Clamp to INV_HIGH;
-        .+AC_CLAMP_ON_TIME: SET AC_Clamp to INV_LOW;
-     END_RECV: SET NOP TO HIGH;
+    BEGIN: SET AC_Clamp to HIGH;
+        .+AC_CLAMP_ON_TIME: SET AC_Clamp to LOW;
+   END_RECV: SET NOP TO HIGH;
         .+AC_CLAMP_EXTRA_RECOVER: RETURN;
 }
 
@@ -155,14 +154,17 @@ WAVEFORM ReadPixels
 {
   //NB using slow slew rate for triangular serial clocking
  0:=PIX_BEGIN
+    SET PIXEL  TO HIGH;
+  .+1: SET PIXEL TO LOW;
+       SET LINE TO LOW;
+       SET FRAME TO LOW;
+  
+    
   //SW and RG are on LVDS  signals
     SET RG TO INV_HIGH; //NOTE reset gate is inverted
 
   PIX_BEGIN+RG_settleT: SET RG to INV_LOW;
-  SET PIXEL TO HIGH;
-  .+1:=CDS_RESET_BEGIN SET PIXEL TO LOW;
-  SET LINE TO LOW;
-    SET FRAME TO LOW;
+  .+1:=CDS_RESET_BEGIN
   //serials COINCIDENT, start moving charge immediately
   //when CDS reset begins
   SET SCI_SCLK2 TO _SER_CLOCK_LOW, SLOW;
@@ -170,16 +172,16 @@ WAVEFORM ReadPixels
 
   //...except the summing wells at the output which we pulse just when we
   //finish CDS first integration period
-  CDS_RESET_BEGIN+COINC_SW_DELAY:=SWPULSE_START SET SW TO INV_HIGH; //NOTE: summing well is inverted
-  SWPULSE_START+SW_settleT: SET SW TO INV_LOW;
+  .+COINC_SW_DELAY:=SWPULSE_START SET SW TO INV_HIGH; //NOTE: summing well is inverted
 
   //now we're in the CDS signal period begin triangular shuffling serials again
-  CDS_RESET_BEGIN+CDS_RESET_LENGTH: SET SCI_SCLK3 TO _SER_CLOCK_LOW, SLOW;
+  .+1: SET SCI_SCLK3 TO _SER_CLOCK_LOW, SLOW;
   SET SCI_SCLK1 TO _SER_CLOCK_HIGH, SLOW;
-
   .+CDS_SIGNAL_LENGTH: SET SCI_SCLK1 TO _SER_CLOCK_LOW, SLOW;
   SET SCI_SCLK2 TO _SER_CLOCK_HIGH, SLOW;
-  
+
+
+  SWPULSE_START + 24: SET SW TO INV_LOW;  
 }
 
 #define PCLK_NOREAD_DELAY 
@@ -330,9 +332,26 @@ WAVEFORM SerialEBackwards
 }
 
 
+WAVEFORM bounceTGTest
+{
+ 0: SET TG to _TG_CLOCK_HIGH,FAST;
+ 30: SET TG to _TG_CLOCK_LOW, FAST;
+ 60: SET NOP to HIGH;
+ 0: SET PIXEL TO HIGH;
+  .+1: SET PIXEL TO LOW;
+  SET FRAME TO LOW;
+  SET LINE TO LOW;
+
+}
 
 
 
+WAVEFORM setupTGTest
+{
+ 0: SET FRAME TO HIGH;
+  SET LINE TO HIGH;
+
+}
 
 
 

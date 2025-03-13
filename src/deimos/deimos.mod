@@ -107,8 +107,8 @@ SLOT 9 hvbias {
   HVLC 22 [0.00,0];
   HVLC 23 [0.00,0];
   HVLC 24 [0.00,0];
-  HVHC  1 [29.0,0.1,3,1] "SCI E Output Drain";
-  HVHC  2 [29.0,0.1,3,1] "SCI F Output Drain";
+  HVHC  1 [29.0,2.0,3,1] "SCI E Output Drain";
+  HVHC  2 [29.0,7.0,3,1] "SCI F Output Drain"; //NOTE THE HIGH CURRENT SETTING HERE... INVESTIGATE
   HVHC  3 [29.0,0.0,0,0];
   HVHC  4 [29.0,0.0,0,0];
   HVHC  5 [29.0,0.0,0,0];

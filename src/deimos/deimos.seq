@@ -28,6 +28,18 @@ param framecount = 0 //will be set
 param abortintegrate = 0 //checked by the integration waiters and they bail out if it is set
 
 param firsttimesetup = 1
+
+#define NOISETEST 0
+
+#if NOISETEST
+SEQUENCE NoiseTest {
+  setupTGTest();
+  bounceTGTest(1000);
+  GOTO NoiseTest();
+  
+}
+#endif
+  
   
 
 SEQUENCE StartSeq {
@@ -63,14 +75,13 @@ SEQUENCE CheckReadout
 }
 
 
-#define LINE_COLS #eval _SERIALPRESCAN + _AMPCOLS
 
 
 //segment calculations
 //this does floor arithmetic, so might end up with wrong number
 //if number cols changes
-#define PIXELS_PER_SEG #eval _AMPCOLS / 3
-#define REMAINDER_PIX #eval _AMPCOLS - (PIXELS_PER_SEG * 3)
+#define PIXELS_PER_SEG #eval _AMPREADCOLS / 3
+#define REMAINDER_PIX #eval _AMPREADCOLS - (PIXELS_PER_SEG * 3)
 
 
 SEQUENCE FrameReadout
