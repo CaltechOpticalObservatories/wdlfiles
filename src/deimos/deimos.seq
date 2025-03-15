@@ -80,7 +80,7 @@ SEQUENCE CheckReadout
 //segment calculations
 //this does floor arithmetic, so might end up with wrong number
 //if number cols changes
-#define PIXELS_PER_SEG #eval _AMPREADCOLS / 3
+#define PIXELS_PER_SEG #eval _AMPREADCOLS  / 3
 #define REMAINDER_PIX #eval _AMPREADCOLS - (PIXELS_PER_SEG * 3)
 
 
@@ -114,16 +114,16 @@ SEQUENCE abortintegration {
 SEQUENCE LineReadout
 {
   
-  TransferToSerialRegister();
-  ReadPixels(_SERIALPRESCAN);
+  TransferToSerialRegisterBegin();
   ParallelForwardSegment1();
+  TransferToSerialRegisterEnd();
   ReadPixels(PIXELS_PER_SEG);
   ParallelForwardSegment2();
   ReadPixels(PIXELS_PER_SEG);
   ParallelForwardSegment3();
   ReadPixels(PIXELS_PER_SEG);
   //if there are leftover pixels, do them here
-  #if _AMPCOLS % 3
+  #if PIXELS_PER_SEG %3
    ReadPixels(REMAINDER_PIX);
 
   #endif
@@ -132,7 +132,7 @@ SEQUENCE LineReadout
 
 SEQUENCE LineReadoutAOnly
 {
-  TransferToSerialRegister();
+  TransferToSerialRegisterBegin();
   ReadPixels(_SERIALPRESCAN);
   ParallelForwardSectionASegment1();
   ReadPixels(PIXELS_PER_SEG);

@@ -75,9 +75,8 @@
 
 /** basic slew rate logic: you are doing 1024 serial transfer cycles (for each amp), each lasing around 1us. In this time 3 parallel clock transfers happen, up and down once each. Therefore in 2048us we need to do 3 slews from top to bottom, hence the slew time is 1024 / 6 = 171 */
 
-
-#define PAR_SLEW_TIME_US           341
-#define SER_SLEW_TIME_US           0.66
+#define PAR_SLEW_TIME_US           1823.3
+#define SER_SLEW_TIME_US           1.66
 
 
 //NOTE: OH DEAR, does GPP not do floating point calculations?
@@ -91,8 +90,8 @@
 //is still INEXPLICABLY dash rather than bash. wah wah.
 //#define P_TRI_SLEW_RATE    #exec printf '%2.1f' $(bc  <<< "scale=2; (_PAR_CLOCK_HIGH - _PAR_CLOCK_LOW) / PAR_SLEW_TIME_US")
 //#define S_TRI_SLEW_RATE    #exec printf '%2.1f' $(bc  <<< "scale=2; (_SER_CLOCK_HIGH - _SER_CLOCK_LOW) / SER_SLEW_TIME_US")
-#define P_TRI_SLEW_RATE    #exec printf "%2.2f" $(echo "scale=2; (_PAR_CLOCK_HIGH - _PAR_CLOCK_LOW) / PAR_SLEW_TIME_US" | bc)
-#define S_TRI_SLEW_RATE    #exec printf "%2.2f" $(echo "scale=2; (_SER_CLOCK_HIGH - _SER_CLOCK_LOW) / SER_SLEW_TIME_US" | bc)
+#define P_TRI_SLEW_RATE    #exec printf "%2.4f" $(echo "scale=4; (_PAR_CLOCK_HIGH - _PAR_CLOCK_LOW) / PAR_SLEW_TIME_US" | bc)
+#define S_TRI_SLEW_RATE    #exec printf "%2.4f" $(echo "scale=4; (_SER_CLOCK_HIGH - _SER_CLOCK_LOW) / SER_SLEW_TIME_US" | bc)
 
 
 
