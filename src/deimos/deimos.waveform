@@ -122,9 +122,12 @@ WAVEFORM TransferToSerialRegisterBegin
  0:=BEGIN SET SCI_SCLK1 TO _SER_CLOCK_RCV, FAST;
     SET SCI_SCLK2 TO _SER_CLOCK_RCV, FAST;
     SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
+    SET RG TO INV_HIGH;
  .+1000:=TGUP SET TG TO _TG_CLOCK_HIGH, FAST;
+    //NOTE: don't think we want to clamp with reset gate activated
+    SET RG TO INV_LOW;
     //simultaneously, operate the AC clamp
-    BEGIN: SET AC_Clamp to HIGH;
+    SET AC_Clamp to HIGH;
 
 }
 
@@ -165,6 +168,7 @@ WAVEFORM ParallelForwardSegment3
   SET SCI_PCLK3 TO _PAR_CLOCK_HIGH, SLOW;
 }
 
+
 WAVEFORM ReadPixels
 {
   //NB using slow slew rate for triangular serial clockingdef
@@ -196,7 +200,7 @@ WAVEFORM ReadPixels
 
  CHARGE_UNDER_SCK2:
   SET SW TO INV_HIGH;
-  .+SW_settleT:
+  CHARGE_UNDER_SCK3+SW_settleT:
   SET SW TO INV_LOW;
   //at this point the charge has plopped over the OG and is in the node.
   //should readout here

@@ -4,15 +4,15 @@
  * evaluations relative to FSS should be implemented if variability is required
 /*/     
 
-#define _PAR_CLOCK_HIGH    12 /* [ 8.00, 14.0] */
+#define _PAR_CLOCK_HIGH    11 /* [ 8.00, 14.0] */
 #define _PAR_CLOCK_LOW      0 /* [-0.50, 0.50] */
 
 #define _TG_CLOCK_HIGH     12 /* [ 8.00, 14.0] */
 #define _TG_CLOCK_LOW       0 /* [-0.50, 0.50] */
 
-#define _SER_CLOCK_HIGH    12 /* [ 8.00, 14.0] */
+#define _SER_CLOCK_HIGH    11 /* [ 8.00, 14.0] */
 #define _SER_CLOCK_LOW      1 /* [-0.50, 1.50] */
-#define _SER_CLOCK_RCV     13 /* Higher than serial clock high */
+#define _SER_CLOCK_RCV     12 /* Higher than serial clock high */
 
 #define _RESET_DRAIN       17 /* [ 15.0, 20.0] */
 #define _OUTPUT_DRAIN      29 /* [ 27.0, 32.0] */
@@ -75,8 +75,14 @@
 
 /** basic slew rate logic: you are doing 1024 serial transfer cycles (for each amp), each lasing around 1us. In this time 3 parallel clock transfers happen, up and down once each. Therefore in 2048us we need to do 3 slews from top to bottom, hence the slew time is 1024 / 6 = 171 */
 
-#define PAR_SLEW_TIME_US           1823.3
-#define SER_SLEW_TIME_US           1.66
+#define Pixel_T       1000 /* Full pixel time : 10s of ns */
+#define SER_SLEW_TIME_TICKS        333
+
+#define SER_SLEW_TIME_US          3.33
+
+#defeval PAR_SLEW_TIME_US          ((2048)/2 + 50 + 20) * (Pixel_T / 100)   / 3
+
+
 
 
 //NOTE: OH DEAR, does GPP not do floating point calculations?
@@ -106,5 +112,5 @@
 
 //transfer gate uses only one slew rate
 
-#define TG_fast              100
-#define TG_slow              100
+#define TG_fast              50
+#define TG_slow              10

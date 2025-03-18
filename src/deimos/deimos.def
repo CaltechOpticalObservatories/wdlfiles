@@ -69,7 +69,7 @@
  * CDS-Deinterlace options
  */
 
-#define Pixel_T       500 /* Full pixel time : 10s of ns */
+
 
 /* TODO CLARIFY VLAYES FOR RG AND SW settling time */
 #define RG_settleT    40 // TODO: reduce when get better damping
@@ -82,10 +82,10 @@
 
 
 //pixel timing should be set up such that pixel trigger only happens when RG comes down, so we start at 0
-#define _FIRST_RESET_SAMPLE      20
-#define _LAST_RESET_SAMPLE       30
-#define _FIRST_VIDEO_SAMPLE      40
-#define _LAST_VIDEO_SAMPLE       50
+#define _FIRST_RESET_SAMPLE      500
+#define _LAST_RESET_SAMPLE       600
+#define _FIRST_VIDEO_SAMPLE      800
+#define _LAST_VIDEO_SAMPLE       900
 
 
 
