@@ -4,15 +4,15 @@
  * evaluations relative to FSS should be implemented if variability is required
 /*/     
 
-#define _PAR_CLOCK_HIGH    11 /* [ 8.00, 14.0] */
+#define _PAR_CLOCK_HIGH    11.0 /* [ 8.00, 14.0] */
 #define _PAR_CLOCK_LOW      0 /* [-0.50, 0.50] */
 
-#define _TG_CLOCK_HIGH     12 /* [ 8.00, 14.0] */
+#define _TG_CLOCK_HIGH     12.0 /* [ 8.00, 14.0] */
 #define _TG_CLOCK_LOW       0 /* [-0.50, 0.50] */
 
-#define _SER_CLOCK_HIGH    11 /* [ 8.00, 14.0] */
+#define _SER_CLOCK_HIGH    10.0 /* [ 8.00, 14.0] */
 #define _SER_CLOCK_LOW      1 /* [-0.50, 1.50] */
-#define _SER_CLOCK_RCV     12 /* Higher than serial clock high */
+#define _SER_CLOCK_RCV     13.0 /* Higher than serial clock high */
 
 #define _RESET_DRAIN       17 /* [ 15.0, 20.0] */
 #define _OUTPUT_DRAIN      29 /* [ 27.0, 32.0] */
@@ -81,7 +81,7 @@
 #define SER_SLEW_TIME_US          3.33
 
 #defeval PAR_SLEW_TIME_US          ((2048)/2 + 50 + 20) * (Pixel_T / 100)   / 3
-
+#define PAR_SLEW_TIME_TICKS       PAR_SLEW_TIME_US * 100
 
 
 
@@ -103,14 +103,18 @@
 
 
 #define PCLK_slow           P_TRI_SLEW_RATE
-#define PCLK_fast           200  //nominal value for now
+#define PCLK_fast           20  //nominal value for now
 
 //NOTE: waveforms currently use serial "slow" slew rate for triangular waveform
 // serial "FAST" is for immediate changes (like e.g. resetting serial register)
-#define SCLK_fast           500
+#define SCLK_fast           20
 #define SCLK_slow           S_TRI_SLEW_RATE   //nominal value for now
 
 //transfer gate uses only one slew rate
 
-#define TG_fast              50
+#define TG_fast              20
 #define TG_slow              10
+
+
+#define NOISETEST 1
+#define CLAMPTEST 0 

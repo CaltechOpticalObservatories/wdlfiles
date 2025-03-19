@@ -82,9 +82,9 @@ WAVEFORM KeepThisFrame {
 
 WAVEFORM FirstTimeSetup {
  0: 
-  SET SCI_PCLK3 TO HIGH, SLOW;
+  SET SCI_PCLK3 TO LOW, SLOW;
   SET SCI_PCLK1 TO LOW, SLOW;
-  SET SCI_PCLK2 TO LOW, SLOW;
+  SET SCI_PCLK3 TO HIGH, SLOW;
   SET AC_Clamp TO LOW;
   SET SW TO 1;
   SET RG TO 1;
@@ -99,9 +99,9 @@ WAVEFORM FirstTimeSetup {
 
 WAVEFORM SetupIntegration {
  0: 
-  SET SCI_PCLK3 TO HIGH, SLOW;
   SET SCI_PCLK1 TO LOW, SLOW;
-  SET SCI_PCLK2 TO LOW, SLOW;
+  SET SCI_PCLK2 TO HIGH, SLOW;
+  SET SCI_PCLK3 TO LOW, SLOW;
   .+PAR_SLEW_TIME_TICKS:
   SET SHUTTER TO OPEN;
 }
@@ -123,10 +123,11 @@ WAVEFORM TransferToSerialRegisterBegin
     SET SCI_SCLK2 TO _SER_CLOCK_RCV, FAST;
     SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
     SET RG TO INV_HIGH;
- .+1000:=TGUP SET TG TO _TG_CLOCK_HIGH, FAST;
+ .+100:=TGUP SET TG TO _TG_CLOCK_HIGH, FAST;
     //NOTE: don't think we want to clamp with reset gate activated
     SET RG TO INV_LOW;
     //simultaneously, operate the AC clamp
+ .+100:
     SET AC_Clamp to HIGH;
 
 }
@@ -150,22 +151,22 @@ WAVEFORM TransferToSerialRegisterEnd
 WAVEFORM ParallelForwardSegment1
 {
   //NOTE: after integration, if done properly
-  //all charge should be under SCI_PCLK3
+  //all charge should be under SCI_PCLK2
   // the transfer to serial reg is done before this happens
- 0: SET SCI_PCLK3 to _PAR_CLOCK_LOW, SLOW;
-    SET SCI_PCLK1 to _PAR_CLOCK_HIGH, SLOW;
+ 0: SET SCI_PCLK2 to _PAR_CLOCK_LOW, SLOW;
+    SET SCI_PCLK3 to _PAR_CLOCK_HIGH, SLOW;
 }
 
 WAVEFORM ParallelForwardSegment2
 {
- 0: SET SCI_PCLK1 TO _PAR_CLOCK_LOW, SLOW;
-  SET SCI_PCLK2 TO _PAR_CLOCK_HIGH, SLOW;
+ 0: SET SCI_PCLK3 TO _PAR_CLOCK_LOW, SLOW;
+  SET SCI_PCLK1 TO _PAR_CLOCK_HIGH, SLOW;
 }
 
 WAVEFORM ParallelForwardSegment3
 {
- 0: SET SCI_PCLK2 TO _PAR_CLOCK_LOW, SLOW;
-  SET SCI_PCLK3 TO _PAR_CLOCK_HIGH, SLOW;
+ 0: SET SCI_PCLK1 TO _PAR_CLOCK_LOW, SLOW;
+  SET SCI_PCLK2 TO _PAR_CLOCK_HIGH, SLOW;
 }
 
 
@@ -356,11 +357,11 @@ WAVEFORM SerialEBackwards
 }
 
 
-WAVEFORM bounceTGTest
+WAVEFORM BounceTGTest
 {
  0: SET TG to _TG_CLOCK_HIGH,FAST;
- 30: SET TG to _TG_CLOCK_LOW, FAST;
- 60: SET NOP to HIGH;
+ .+100: SET TG to _TG_CLOCK_LOW, FAST;
+ .+500: SET NOP to HIGH;
  0: SET PIXEL TO HIGH;
   .+1: SET PIXEL TO LOW;
   SET FRAME TO LOW;
@@ -368,12 +369,57 @@ WAVEFORM bounceTGTest
 
 }
 
+WAVEFORM ClampTestInner
+{
+ 0: SET TG to _TG_CLOCK_HIGH,FAST;
+ .+100: SET TG to _TG_CLOCK_LOW, FAST;
+ .+100: SET NOP to HIGH;
+ 0: SET PIXEL TO HIGH;
+  .+1: SET PIXEL TO LOW;
+  SET FRAME TO LOW;
+  SET LINE TO LOW;
+
+}
+
+WAVEFORM ClampOn
+{
+ 0: SET AC_Clamp TO HIGH;
+
+}
+
+Waveform ClampOff
+{
+ 0: SET AC_Clamp to LOW;
+}
+
+WAVEFORM ClampTestLineStart
+{
+ 0: SET LINE TO HIGH;
+}
+
+
+WAVEFORM TGTestLineStart
+{
+ 0: SET LINE TO HIGH;
+ SET AC_Clamp TO HIGH;
+ .+100: SET AC_Clamp TO LOW;
+
+  
+}
 
 
 WAVEFORM setupTGTest
 {
  0: SET FRAME TO HIGH;
-  SET LINE TO HIGH;
+  SET RG TO INV_LOW;
+  SET SCI_SCLK1 TO _SER_CLOCK_LOW, FAST;
+  SET SCI_SCLK2 TO _SER_CLOCK_LOW, FAST;
+  SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
+
+  SET SCI_PCLK1 TO _PAR_CLOCK_LOW,FAST;
+  SET SCI_PCLK2 TO _PAR_CLOCK_LOW,FAST;
+  SET SCI_PCLK3 TO _PAR_CLOCK_LOW,FAST;
+  SET SW TO INV_LOW;
 
 }
 

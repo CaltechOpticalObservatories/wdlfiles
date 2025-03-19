@@ -7,11 +7,7 @@
 #include "voltage_timing_parameters.h"
 
 BIGBUF        = _ARCHON_FRAMEBUFS
-FRAMEMODE     = 0
   LINECOUNT     = _LINENUM
-
-  //LINECOUNT = 1
-  //PIXELCOUNT = 1000
   PIXELCOUNT    = _AMPREADCOLS
 RAWENABLE     = _RAW_ENABLE
 RAWENDLINE    = 200
@@ -37,13 +33,20 @@ SHD2          = _LAST_VIDEO_SAMPLE
   // note this should also be inverted in principle, not sure if that's actually ahppenbing TBD
   // raw channel selection 48
 
+
+  //NOTE due to a small mistake in the VIB schematic, ALL signals come out inverted. Due to a mistake in the mapping of the cameralink cable, the channels are mixed up and some are inverted. This inversion cancels out the other inversion. Hence SCI2F is NOT inverted, but SCI 2E IS
+
   
 
 #if SINGLE_DET_TEST
-TAPLINE0      ="AM45L,1,100"
-TAPLINE1      ="AM44R,-1,100"
+TAPLINE0      ="AM45L,-1,100"
+TAPLINE1      ="AM44R,1,100"
 TAPLINES=2
+FRAMEMODE=0
+
+  
 #else
+FRAMEMODE=2
 TAPLINE0      ="AM37L,1,100"
 TAPLINE1      ="AM38R,1,100"
 TAPLINE2      ="AM39L,1,100"

@@ -13,6 +13,8 @@
  * Configuration modes
  */
 
+#include "voltage_timing_parameters.h"
+
 
 
  /** --------------------------------------------------------------------------
@@ -81,12 +83,24 @@
 #define COINC_SW_DELAY 2
 
 
+
+#if NOISETEST
+
+#define _FIRST_RESET_SAMPLE      25
+#define _LAST_RESET_SAMPLE       75
+#define _FIRST_VIDEO_SAMPLE      125
+#define _LAST_VIDEO_SAMPLE       175
+
+#else
+
 //pixel timing should be set up such that pixel trigger only happens when RG comes down, so we start at 0
 #define _FIRST_RESET_SAMPLE      500
 #define _LAST_RESET_SAMPLE       600
 #define _FIRST_VIDEO_SAMPLE      800
 #define _LAST_VIDEO_SAMPLE       900
 
+
+#endif
 
 
 #define AC_CLAMP_ON_TIME 1000

@@ -24,23 +24,64 @@ param integrate_enable = 0 // to be set externally if we want an integration tim
 param integrate_ms = 0 // will be set externally to choose integration ms
 param integrate_s = 0 // will be set externally to choose integration seconds
 
-param framecount = 0 //will be set 
+param framecount = 100 //will be set 
 param abortintegrate = 0 //checked by the integration waiters and they bail out if it is set
 
 param firsttimesetup = 1
-
-#define NOISETEST 0
+  
 
 #if NOISETEST
 SEQUENCE NoiseTest {
   setupTGTest();
-  bounceTGTest(1000);
+  BounceTGTestOuter(_IMAGEROWS);
+  BounceTGTestOuter(_PARALLELOVERSCAN);
   GOTO NoiseTest();
-  
 }
+
+  
+
+SEQUENCE BounceTGTestOuter
+{
+  TGTestLineStart();
+  BounceTGTest(_AMPREADCOLS);
+  RETURN;
+}
+
 #endif
-  
-  
+
+#if CLAMPTEST
+
+#define CLAMP_TEST_ITERS  #eval  _AMPREADCOLS / 4
+
+SEQUENCE ClampTestRun {
+  //note clamp test and TG setup are the same
+  setupTGTest();
+
+  ClampTestOuter(_IMAGEROWS);
+  ClampTestOuter(_PARALLELOVERSCAN);
+  RETURN;
+}
+
+
+SEQUENCE ClampTestOuter
+{
+  ClampTestLineStart();
+  ClampTest(CLAMP_TEST_ITERS);
+  RETURN;
+
+}
+
+
+SEQUENCE ClampTest
+{
+  ClampOn();
+  ClampTestInner(2);
+  ClampOff();
+  ClampTestInner(2);
+  RETURN;
+}
+
+#endif
 
 SEQUENCE StartSeq {
   if firsttimesetup FirstTimeSetup();
@@ -115,8 +156,8 @@ SEQUENCE LineReadout
 {
   
   TransferToSerialRegisterBegin();
-  ParallelForwardSegment1();
   TransferToSerialRegisterEnd();
+  ParallelForwardSegment1();
   ReadPixels(PIXELS_PER_SEG);
   ParallelForwardSegment2();
   ReadPixels(PIXELS_PER_SEG);
@@ -186,7 +227,7 @@ SEQUENCE SerialDCMeasReadoutE
 
 SEQUENCE SerialDCLineLoopE
 {
-  //first we dump a number of lines into the serial register (to build up the charge size)
+  //first we dump a number of lines into the serial register (to build uBp the charge size)
   ForwardParallelAll(SER_TDC_LLEL_BINS);
 
   //now empty the E side of the register

@@ -14,12 +14,12 @@ SLOT 1 driverx {
   DRVX  4 [PCLK_fast,PCLK_slow,0] "PCLK_A2_2";
   DRVX  5 [PCLK_fast,PCLK_slow,0] "PCLK_B1_2";
   DRVX  6 [PCLK_fast,PCLK_slow,0] "PCLK_A1_2";
-  DRVX  7 [PCLK_fast,PCLK_slow,0] "PCLK_B1_1";
-  DRVX  8 [PCLK_fast,PCLK_slow,0] "PCLK_A2_1";
-  DRVX  9 [PCLK_fast,PCLK_slow,0] "PCLK_A2_1";
-  DRVX 10 [PCLK_fast,PCLK_slow,0] "PCLK_B2_1";
-  DRVX 11 [PCLK_fast,PCLK_slow,0] "PCLK_A3_1";
-  DRVX 12 [PCLK_fast,PCLK_slow,0] "PCLK_B3_1";
+  DRVX  7 [PCLK_fast,PCLK_slow,1] "PCLK_B1_1";
+  DRVX  8 [PCLK_fast,PCLK_slow,1] "PCLK_A2_1";
+  DRVX  9 [PCLK_fast,PCLK_slow,1] "PCLK_A2_1";
+  DRVX 10 [PCLK_fast,PCLK_slow,1] "PCLK_B2_1";
+  DRVX 11 [PCLK_fast,PCLK_slow,1] "PCLK_A3_1";
+  DRVX 12 [PCLK_fast,PCLK_slow,1] "PCLK_B3_1";
 }
 
 /* Remove comment when adding FCS 
@@ -107,8 +107,8 @@ SLOT 9 hvbias {
   HVLC 22 [0.00,0];
   HVLC 23 [0.00,0];
   HVLC 24 [0.00,0];
-  HVHC  1 [29.0,2.0,3,1] "SCI E Output Drain";
-  HVHC  2 [29.0,7.0,3,1] "SCI F Output Drain"; //NOTE THE HIGH CURRENT SETTING HERE... INVESTIGATE
+  HVHC  1 [29.0,2.0,3,1] "SCI E Output Drain"; //This one draws low current, not sure why yet
+  HVHC  2 [29.0,7.0,3,1] "SCI F Output Drain"; 
   HVHC  3 [29.0,0.0,0,0];
   HVHC  4 [29.0,0.0,0,0];
   HVHC  5 [29.0,0.0,0,0];
