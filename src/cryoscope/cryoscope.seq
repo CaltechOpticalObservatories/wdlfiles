@@ -321,7 +321,9 @@ return;
 }
 
 SEQUENCE MilliSec {
-  wDelay1ms();
+  //WARNING: WE HAVE REDEFINED 1millisecond to 100 microseconds!!
+  //  wDelay1ms();
+  wDelay100us();
   return;
 }
 

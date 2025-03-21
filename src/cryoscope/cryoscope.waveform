@@ -45,6 +45,7 @@
 #define 25us            #eval 25 us
 #define 10ms            #eval 10 ms
 #define 10us            #eval 10 us
+#define 100us           #eval 100 us
 /* Timing specific to HxRG waveform */
 #define Tpix    #eval 7 us /*2.85 us */
 #define Tpulse  #eval 0.8 us /**/
@@ -65,6 +66,11 @@ WAVEFORM wDelay10us {
 WAVEFORM wDelay1ms {
  1ms:               RETURN;
 }
+
+WAVEFORM wDelay100us {
+ 100us:             RETURN;
+}
+
 
 /*****************************************/
 /* Here are the HxRG specific  waveforms */
