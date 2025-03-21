@@ -82,9 +82,9 @@ WAVEFORM KeepThisFrame {
 
 WAVEFORM FirstTimeSetup {
  0: 
-  SET SCI_PCLK3 TO LOW, SLOW;
-  SET SCI_PCLK1 TO LOW, SLOW;
-  SET SCI_PCLK3 TO HIGH, SLOW;
+  SET SCI_PCLK3 TO LOW, FAST;
+  SET SCI_PCLK1 TO LOW, FAST;
+  SET SCI_PCLK2 TO HIGH, FAST;
   SET AC_Clamp TO LOW;
   SET SW TO 1;
   SET RG TO 1;
@@ -98,11 +98,6 @@ WAVEFORM FirstTimeSetup {
 
 
 WAVEFORM SetupIntegration {
- 0: 
-  SET SCI_PCLK1 TO LOW, SLOW;
-  SET SCI_PCLK2 TO HIGH, SLOW;
-  SET SCI_PCLK3 TO LOW, SLOW;
-  .+PAR_SLEW_TIME_TICKS:
   SET SHUTTER TO OPEN;
 }
 
@@ -146,6 +141,45 @@ WAVEFORM TransferToSerialRegisterEnd
 }
 
 
+WAVEFORM ParallelForwardNoCoincident
+{
+ 0: SET SCI_PCLK3 TO _PAR_CLOCK_HIGH, FAST;
+  SET TG TO _TG_CLOCK_HIGH, FAST;
+  SET LINE TO HIGH;
+  
+  .+200: SET SCI_PCLK2 TO _PAR_CLOCK_LOW, FAST;
+
+  .+200: SET SCI_PCLK1 TO _PAR_CLOCK_HIGH, FAST;
+  .+200:=TG_GOES_LOW SET SCI_PCLK3 TO _PAR_CLOCK_LOW, FAST;
+  SET TG TO _TG_CLOCK_LOW, FAST;
+
+  .+200: SET SCI_PCLK2 TO _PAR_CLOCK_HIGH, FAST;
+  .+200: SET SCI_PCLK1 TO _PAR_CLOCK_LOW, FAST;
+
+  
+
+  //serial receive side
+ 0: SET SCI_SCLK1 TO _SER_CLOCK_RCV, FAST;
+  SET SCI_SCLK2 TO _SER_CLOCK_RCV, FAST;
+  SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
+  SET RG to INV_HIGH;
+  
+  TG_GOES_LOW+20:=RG_GOES_LOW
+  SET SCI_SCLK1 TO _SER_CLOCK_LOW, FAST;
+  SET SCI_SCLK3 TO _SER_CLOCK_HIGH, FAST;
+  SET SCI_SCLK2 TO _SER_CLOCK_HIGH, FAST;
+  SET RG TO INV_LOW;
+  .+50:
+  SET AC_Clamp TO HIGH;
+  RG_GOES_LOW+20:
+  SET SCI_SCLK2 TO _SER_CLOCK_LOW, FAST;
+
+  .+80: SET AC_Clamp TO LOW;
+
+  
+}
+
+
 
 //waveforms for coincident (triangular) parallel clocking
 WAVEFORM ParallelForwardSegment1
@@ -181,9 +215,26 @@ WAVEFORM ReadPixels
   
        //reset pulse at the start of the pixel
     SET RG TO INV_HIGH; //NOTE reset gate is inverted
-    PIX_BEGIN+RG_settleT: SET RG to INV_LOW;
+    PIX_BEGIN+RG_settleT:=RESET_OFF SET RG to INV_LOW;
 
 
+    //charge STARTS UNDER RPhi3
+
+    //conventional serial clock
+ 0: SET SCI_SCLK1 TO _SER_CLOCK_HIGH, FAST;
+     SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
+    .+50: SET SCI_SCLK2 TO _SER_CLOCK_HIGH, FAST;
+           SET SCI_SCLK1 TO _SER_CLOCK_LOW, FAST;
+    .+50: SET SCI_SCLK3 TO _SER_CLOCK_HIGH, FAST;
+	 SET SCI_SCLK2 TO _SER_CLOCK_LOW, FAST;
+    SET SW TO INV_HIGH;
+    
+    .+400: SET SW TO INV_LOW;
+    .+400: SET NOP TO HIGH;
+
+
+
+#if 0
   //triangular serial clocks, running as they please
  0: SET SCI_SCLK2 TO _SER_CLOCK_HIGH, SLOW;
   SET SCI_SCLK1 TO _SER_CLOCK_LOW, SLOW;
@@ -199,12 +250,13 @@ WAVEFORM ReadPixels
   //at the point where charge is under SCLK2, delay by a small amount then
   //let SW RIP
 
- CHARGE_UNDER_SCK2:
+ CHARGE_UNDER_SCK2 + 100:
   SET SW TO INV_HIGH;
   CHARGE_UNDER_SCK3+SW_settleT:
   SET SW TO INV_LOW;
   //at this point the charge has plopped over the OG and is in the node.
   //should readout here
+ #endif
 }
 
 #define PCLK_NOREAD_DELAY 
@@ -261,7 +313,10 @@ WAVEFORM ParallelForwardSectionASegment3
 
 
 //definitions for serial total deferred charge measurement
-
+WAVEFORM Wait10us
+{
+ 1000: SET NOP TO HIGH;
+}
 
 //readout only clocking the E register (we have stored bright edge in the F for this one)
 WAVEFORM ReadPixelsEOnly
@@ -285,7 +340,6 @@ WAVEFORM ReadPixelsEOnly
   .+SW_settleT: SET SW TO INV_LOW;
 
 
-  CDS_RESET_BEGIN + 
 
 
   //now we're in the CDS signal period begin triangular shuffling serials again
@@ -359,9 +413,9 @@ WAVEFORM SerialEBackwards
 
 WAVEFORM BounceTGTest
 {
- 0: SET TG to _TG_CLOCK_HIGH,FAST;
- .+100: SET TG to _TG_CLOCK_LOW, FAST;
- .+500: SET NOP to HIGH;
+ 0: SET TG to _TG_CLOCK_HIGH,SLOW;
+ .+500: SET TG to _TG_CLOCK_LOW, FAST;
+ .+200: SET NOP to HIGH;
  0: SET PIXEL TO HIGH;
   .+1: SET PIXEL TO LOW;
   SET FRAME TO LOW;

@@ -103,18 +103,19 @@
 
 
 #define PCLK_slow           P_TRI_SLEW_RATE
-#define PCLK_fast           20  //nominal value for now
+#define PCLK_fast           50  //nominal value for now
 
 //NOTE: waveforms currently use serial "slow" slew rate for triangular waveform
 // serial "FAST" is for immediate changes (like e.g. resetting serial register)
-#define SCLK_fast           20
+#define SCLK_fast           100
 #define SCLK_slow           S_TRI_SLEW_RATE   //nominal value for now
 
 //transfer gate uses only one slew rate
 
-#define TG_fast              20
-#define TG_slow              10
+#define TG_fast              100
+#define TG_slow              12
 
 
-#define NOISETEST 1
-#define CLAMPTEST 0 
+#define NOISETEST 0
+#define CLAMPTEST 0
+#define RESETTEST 0

@@ -59,7 +59,7 @@ SEQUENCE ClampTestRun {
 
   ClampTestOuter(_IMAGEROWS);
   ClampTestOuter(_PARALLELOVERSCAN);
-  RETURN;
+  GOTO ClampTestRun;
 }
 
 
@@ -82,6 +82,9 @@ SEQUENCE ClampTest
 }
 
 #endif
+
+
+
 
 SEQUENCE StartSeq {
   if firsttimesetup FirstTimeSetup();
@@ -155,13 +158,16 @@ SEQUENCE abortintegration {
 SEQUENCE LineReadout
 {
   
-  TransferToSerialRegisterBegin();
-  TransferToSerialRegisterEnd();
-  ParallelForwardSegment1();
+  // TransferToSerialRegisterBegin();
+  //TransferToSerialRegisterEnd();
+  //ParallelForwardSegment1();
+  //  ParallelForwardSegment2();
+  //Wait10us();
+  //ParallelForwardSegment3();
+  ParallelForwardNoCoincident();
+  
   ReadPixels(PIXELS_PER_SEG);
-  ParallelForwardSegment2();
   ReadPixels(PIXELS_PER_SEG);
-  ParallelForwardSegment3();
   ReadPixels(PIXELS_PER_SEG);
   //if there are leftover pixels, do them here
   #if PIXELS_PER_SEG %3

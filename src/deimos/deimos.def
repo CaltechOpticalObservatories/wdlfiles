@@ -74,7 +74,7 @@
 
 
 /* TODO CLARIFY VLAYES FOR RG AND SW settling time */
-#define RG_settleT    40 // TODO: reduce when get better damping
+#define RG_settleT    20 // TODO: reduce when get better damping
 #define SW_settleT    20 // TODO: reduce when get better damping
 
 

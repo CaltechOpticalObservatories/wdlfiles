@@ -122,7 +122,7 @@ SLOT 10 lvbias {
    LVLC  4 [3.00,4] "SCI F Output Gate";
    LVLC  5 [1.00,0] "SCI Summing Well - Low";  // NB goes through a line driver 
    LVLC  6 [11.50,0] "SCI Summing Well - High";  // NB goes through a line driver 
-   LVLC  7 [1.00,0] "SCI Reset Gate - Low";  // NB goes through a line driver 
+   LVLC  7 [5.00,0] "SCI Reset Gate - Low";  // NB goes through a line driver 
    LVLC  8 [11.5,0] "SCI Reset Gate - High";  // NB goes through a line driver 
    LVLC  9 [00.0,0]; 
    LVLC 10 [3.0,0] "LastGateA FCS 1"; 
