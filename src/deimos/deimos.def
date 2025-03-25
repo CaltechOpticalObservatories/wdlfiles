@@ -53,7 +53,11 @@
 #define _SECTION_B_ROWS         2048
 
 #define _IMAGECOLS              2048
-#define _AMPCOLS                #eval _IMAGECOLS / 2
+
+//NOTE: read out all through one amp test
+#define _AMPCOLS _IMAGECOLS
+
+//#define _AMPCOLS                #eval _IMAGECOLS / 2
 #define _IMAGEROWS              #eval _SECTION_A_ROWS + _SECTION_B_ROWS
 
 
@@ -94,10 +98,10 @@
 #else
 
 //pixel timing should be set up such that pixel trigger only happens when RG comes down, so we start at 0
-#define _FIRST_RESET_SAMPLE      500
-#define _LAST_RESET_SAMPLE       600
-#define _FIRST_VIDEO_SAMPLE      800
-#define _LAST_VIDEO_SAMPLE       900
+#define _FIRST_RESET_SAMPLE      130
+#define _LAST_RESET_SAMPLE       160
+#define _FIRST_VIDEO_SAMPLE      200
+#define _LAST_VIDEO_SAMPLE       260
 
 
 #endif

@@ -80,8 +80,19 @@
 
 /**** Readout Method ****/
 /* Science Serials */
+
+//ALL read out through F section
+#define SCI_SCLK1 [SCLK_E1, SCLK_F2]
+#define SCI_SCLK2 [SCLK_E2, SCLK_F1]
+
+#if 0
+
 #define SCI_SCLK1 [SCLK_E2, SCLK_F2]
 #define SCI_SCLK2 [SCLK_E1, SCLK_F1]
+
+#endif
+
+
 #define SCI_SCLK3 SCLK_EF
 /* Reset Gate Combine */
 #define RG [RG_1, RG_2]
