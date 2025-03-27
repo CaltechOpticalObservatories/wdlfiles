@@ -84,6 +84,17 @@ SEQUENCE ClampTest
 #endif
 
 
+SEQUENCE TestBrokenReadout
+{
+  OutputTestSetup();
+  PulseTGA();
+
+  VRDModulate();
+
+  GOTO TestBrokenReadout();
+}
+
+
 
 
 SEQUENCE StartSeq {

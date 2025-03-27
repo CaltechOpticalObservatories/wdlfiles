@@ -200,6 +200,42 @@ WAVEFORM ParallelForwardSegment3
   SET SCI_PCLK2 TO _PAR_CLOCK_HIGH, SLOW;
 }
 
+WAVEFORM OutputTestSetup
+{
+ 0: SET RG TO INV_HIGH;
+  SET VRD TO 14.0;
+  SET TG TO _TG_CLOCK_LOW, FAST;
+  .+25us: SET NOP TO HIGH;
+
+}
+
+WAVEFORM PulseTGA
+{
+ 0: SET TG TO _TG_CLOCK_HIGH,FAST;
+  .+25us: SET TG TO _TG_CLOCK_LOW,FAST;
+  .+25us: SET NOP TO HIGH;
+}
+
+
+
+
+WAVEFORM VRDModulate
+{
+ 0: SET VRD TO 14.0;
+  .+10ms: SET VRD TO 14.5;
+  .+10ms: SET VRD TO 15.0;
+  .+10ms: SET VRD TO 15.5;
+  .+10ms: SET VRD TO 16.0;
+  .+10ms: SET VRD TO 16.5;
+  .+10ms: SET VRD TO 17.0;
+  .+10ms: SET VRD TO 16.5;
+  .+10ms: SET VRD TO 16.0;
+  .+10ms: SET VRD TO 15.5;
+  .+10ms: SET VRD TO 15.0;
+  .+10ms: SET VRD TO 14.5;
+ 
+}
+
 
 WAVEFORM ReadPixels
 {

@@ -78,6 +78,13 @@
 
 /****     Bias Voltage Definitions      ****/
 
+
+
+#define VRD_E   9 : 5
+#define VRD_F   9 : 6
+
+#define VRD [VRD_E, VRD_F]
+
 /**** Readout Method ****/
 /* Science Serials */
 
