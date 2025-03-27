@@ -83,7 +83,7 @@ SEQUENCE ClampTest
 
 #endif
 
-
+#if 0
 SEQUENCE TestBrokenReadout
 {
   OutputTestSetup();
@@ -93,7 +93,7 @@ SEQUENCE TestBrokenReadout
 
   GOTO TestBrokenReadout();
 }
-
+#endif
 
 
 

@@ -82,7 +82,7 @@ SLOT 4 xvbias {
 /* 4 : Reset Gate Low            */
 /* 5 : Back Substrate to -100V   */
 
-SLOT 9 hvbias {
+SLOT 9 hvxbias {
   HVLC  1 [0.00,0];             
   HVLC  2 [20.0,1] "SCI Guard Drain";
   HVLC  3 [0.00,0];
@@ -115,7 +115,7 @@ SLOT 9 hvbias {
   HVHC  6 [29.0,0.0,0,0];
 }
 
-SLOT 10 lvbias {
+SLOT 10 lvxbias {
    LVLC  1 [00.0,0]; 
    LVLC  2 [00.0,0]; 
    LVLC  3 [3.00,4] "SCI E Output Gate"; 
