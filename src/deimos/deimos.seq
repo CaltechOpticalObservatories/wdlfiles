@@ -18,16 +18,16 @@
 
 
 /** System Control Triggers **/
-param readout_enable = 1 //will be pulled externally when we want a frame
+param readout_enable = 0 //will be pulled externally when we want a frame
 param integrate_enable = 0 // to be set externally if we want an integration time
 
 param integrate_ms = 50 // will be set externally to choose integration ms
 param integrate_s = 0 // will be set externally to choose integration seconds
 
-param framecount = 1 //will be set 
+param framecount = 1000 //will be set 
 param abortintegrate = 0 //checked by the integration waiters and they bail out if it is set
 
-param firsttimesetup = 1
+param flush = 1
   
 
 #if NOISETEST
@@ -98,14 +98,24 @@ SEQUENCE TestBrokenReadout
 
 
 SEQUENCE StartSeq {
-  if firsttimesetup FirstTimeSetup();
-  firsttimesetup--;
+
+   if flush Flush(); 
   
     if integrate_enable CheckIntegrate();
     if readout_enable CheckReadout();
     framecount--;
     GOTO StartSeq();
 }
+
+SEQUENCE Flush
+{
+  FlushSetup();
+  Wait1ms(20);
+  FlushTearDown();
+  RETURN Flush;
+}
+
+
 
 SEQUENCE CheckIntegrate
 {
@@ -148,6 +158,8 @@ SEQUENCE FrameReadout
   LineReadout(_IMAGEROWS);
   //and the desired overscan
   LineReadout(_PARALLELOVERSCAN);
+
+  ReadoutEnd();
   RETURN;
 }
 

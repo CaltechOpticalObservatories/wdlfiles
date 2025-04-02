@@ -55,9 +55,9 @@
 #define _IMAGECOLS              2048
 
 //NOTE: read out all through one amp test
-#define _AMPCOLS _IMAGECOLS
+//#define _AMPCOLS _IMAGECOLS
 
-//#define _AMPCOLS                #eval _IMAGECOLS / 2
+#define _AMPCOLS                #eval _IMAGECOLS / 2
 #define _IMAGEROWS              #eval _SECTION_A_ROWS + _SECTION_B_ROWS
 
 

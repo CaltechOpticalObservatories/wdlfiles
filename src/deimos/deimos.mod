@@ -82,7 +82,7 @@ SLOT 4 xvbias {
 /* 4 : Reset Gate Low            */
 /* 5 : Back Substrate to -100V   */
 
-SLOT 9 hvxbias {
+SLOT 9 hvbias {
   HVLC  1 [0.00,0];             
   HVLC  2 [20.0,1] "SCI Guard Drain";
   HVLC  3 [0.00,0];
@@ -107,21 +107,21 @@ SLOT 9 hvxbias {
   HVLC 22 [0.00,0];
   HVLC 23 [0.00,0];
   HVLC 24 [0.00,0];
-  HVHC  1 [29.0,2.0,3,1] "SCI E Output Drain"; //This one draws low current, not sure why yet
-  HVHC  2 [29.0,7.0,3,1] "SCI F Output Drain"; 
+  HVHC  1 [29.0,10.0,3,1] "SCI E Output Drain"; 
+  HVHC  2 [29.0,10.0,3,1] "SCI F Output Drain"; 
   HVHC  3 [29.0,0.0,0,0];
   HVHC  4 [29.0,0.0,0,0];
   HVHC  5 [29.0,0.0,0,0];
   HVHC  6 [29.0,0.0,0,0];
 }
 
-SLOT 10 lvxbias {
+SLOT 10 lvbias {
    LVLC  1 [00.0,0]; 
    LVLC  2 [00.0,0]; 
    LVLC  3 [3.00,4] "SCI E Output Gate"; 
    LVLC  4 [3.00,4] "SCI F Output Gate";
-   LVLC  5 [1.00,0] "SCI Summing Well - Low";  // NB goes through a line driver 
-   LVLC  6 [11.50,0] "SCI Summing Well - High";  // NB goes through a line driver 
+   LVLC  5 [0.0,0] "SCI Summing Well - Low";  // NB goes through a line driver 
+   LVLC  6 [13.0,0] "SCI Summing Well - High";  // NB goes through a line driver 
    LVLC  7 [5.00,0] "SCI Reset Gate - Low";  // NB goes through a line driver 
    LVLC  8 [11.5,0] "SCI Reset Gate - High";  // NB goes through a line driver 
    LVLC  9 [00.0,0]; 
