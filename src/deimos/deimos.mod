@@ -118,8 +118,8 @@ SLOT 9 hvbias {
 SLOT 10 lvbias {
    LVLC  1 [00.0,0]; 
    LVLC  2 [00.0,0]; 
-   LVLC  3 [0.00,4] "SCI E Output Gate"; 
-   LVLC  4 [0.00,4] "SCI F Output Gate";
+   LVLC  3 [3.00,4] "SCI E Output Gate"; 
+   LVLC  4 [3.00,4] "SCI F Output Gate";
    LVLC  5 [_SW_LOW,0] "SCI Summing Well - Low";  // NB goes through a line driver 
    LVLC  6 [_SW_HIGH,0] "SCI Summing Well - High";  // NB goes through a line driver 
    LVLC  7 [5.00,0] "SCI Reset Gate - Low";  // NB goes through a line driver 
