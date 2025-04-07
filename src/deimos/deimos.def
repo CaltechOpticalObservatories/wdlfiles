@@ -67,7 +67,7 @@
 #define  _PARALLELOVERSCAN        20
 
 #define _AMPREADCOLS            #eval (_AMPCOLS + _SERIALPRESCAN + _SERIALOVERSCAN)
-#define _LINENUM                #eval (_IMAGEROWS + _PARALLELOVERSCAN)
+#define _LINENUM                #eval (_IMAGEROWS + _PARALLELOVERSCAN) + 1
 
 
 

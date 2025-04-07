@@ -4,15 +4,15 @@
  * evaluations relative to FSS should be implemented if variability is required
 /*/     
 
-#define _PAR_CLOCK_HIGH    10.0 /* [ 8.00, 14.0] */
-#define _PAR_CLOCK_LOW     0.0 /* [-0.50, 0.50] */
+#define _PAR_CLOCK_HIGH     6.0 /* [ 8.00, 14.0] */
+#define _PAR_CLOCK_LOW     -6.0 /* [-0.50, 0.50] */
 
-#define _TG_CLOCK_HIGH      10.0 /* [ 8.00, 14.0] */
-#define _TG_CLOCK_LOW       0.0 /* [-0.50, 0.50] */
+#define _TG_CLOCK_HIGH      6.5 /* [ 8.00, 14.0] */
+#define _TG_CLOCK_LOW       -6.0 /* [-0.50, 0.50] */
 
-#define _SER_CLOCK_HIGH    11.0 /* [ 8.00, 14.0] */
-#define _SER_CLOCK_LOW     1.0 /* [-0.50, 1.50] */
-#define _SER_CLOCK_RCV     13.0 /* Higher than serial clock high */
+#define _SER_CLOCK_HIGH    7.0 /* [ 8.00, 14.0] */
+#define _SER_CLOCK_LOW     -4.0 /* [-0.50, 1.50] */
+#define _SER_CLOCK_RCV     8.5 /* Higher than serial clock high */
 
 #define _RESET_DRAIN       17 /* [ 15.0, 20.0] */
 #define _OUTPUT_DRAIN      29 /* [ 27.0, 32.0] */
@@ -20,8 +20,8 @@
 #define _RG_LOW            5.0 /* [-0.5, 1.0] */
 #define _RG_HIGH           12.0 /* [8.0, 14.0] */
 
-#define _SW_LOW            #eval _SER_CLOCK_LOW /* [-0.5, 1.0] */
-#define _SW_HIGH           #eval _SER_CLOCK_HIGH /* [8.0, 14.0] */
+#defeval _SW_LOW            _SER_CLOCK_LOW /* [-0.5, 1.0] */
+#defeval _SW_HIGH           _SER_CLOCK_HIGH /* [8.0, 14.0] */
 
 
 /** ---------------------------------------------------------------------------
@@ -103,16 +103,22 @@
 
 
 #define PCLK_slow           P_TRI_SLEW_RATE
-#define PCLK_fast           50  //nominal value for now
+
+//e2v says need on average 1.us rise time, for "normal" clocking calculate PCLK_fast that way
+
+#define PCLK_fast           #exec printf "%2.4f" $(echo "scale=4; (_PAR_CLOCK_HIGH - _PAR_CLOCK_LOW) / 1.5" | bc)
+
+
+//e2v says need on average 90ns rise time for a serial clock
+#define SCLK_fast           #exec printf "%2.4f" $(echo "scale=4; (_SER_CLOCK_HIGH - _SER_CLOCK_LOW) / 0.09" | bc)
 
 //NOTE: waveforms currently use serial "slow" slew rate for triangular waveform
 // serial "FAST" is for immediate changes (like e.g. resetting serial register)
-#define SCLK_fast           100
 #define SCLK_slow           S_TRI_SLEW_RATE   //nominal value for now
 
 //transfer gate uses only one slew rate
 
-#define TG_fast              100
+#define TG_fast              PCLK_fast
 #define TG_slow              12
 
 

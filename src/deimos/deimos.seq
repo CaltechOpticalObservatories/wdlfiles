@@ -98,8 +98,8 @@ SEQUENCE TestBrokenReadout
 
 
 SEQUENCE StartSeq {
-
-   if flush Flush(); 
+  InitialSetup();
+    if flush Flush(); 
   
     if integrate_enable CheckIntegrate();
     if readout_enable CheckReadout();
@@ -110,8 +110,9 @@ SEQUENCE StartSeq {
 SEQUENCE Flush
 {
   FlushSetup();
-  Wait1ms(20);
+  Wait1s();
   FlushTearDown();
+  Wait1ms(10);
   RETURN Flush;
 }
 
@@ -151,7 +152,10 @@ SEQUENCE CheckReadout
 
 SEQUENCE FrameReadout
 {
+
+  //Readout begin does half a llel transfer, so wait while that settles doewn
   ReadoutBegin();
+  Wait1us(50);
   //single serial read to flush the register
   ReadPixels(_AMPREADCOLS);
   //read all image rows
@@ -179,15 +183,17 @@ SEQUENCE abortintegration {
 
 SEQUENCE LineReadout
 {
-  
   // TransferToSerialRegisterBegin();
   //TransferToSerialRegisterEnd();
   //ParallelForwardSegment1();
   //  ParallelForwardSegment2();
   //Wait10us();
   //ParallelForwardSegment3();
-  ParallelForwardNoCoincident();
+
+  RegisterFlush();
   
+  ParallelForwardNoCoincident();
+
   ReadPixels(PIXELS_PER_SEG);
   ReadPixels(PIXELS_PER_SEG);
   ReadPixels(PIXELS_PER_SEG);
@@ -196,6 +202,8 @@ SEQUENCE LineReadout
    ReadPixels(REMAINDER_PIX);
 
   #endif
+
+   Wait1us(50);
    RETURN;
 }
 

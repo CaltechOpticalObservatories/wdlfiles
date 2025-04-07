@@ -87,8 +87,8 @@ SLOT 9 hvbias {
   HVLC  2 [20.0,1] "SCI Guard Drain";
   HVLC  3 [0.00,0];
   HVLC  4 [0.00,0];
-  HVLC  5 [17.0,2] "SCI E Reset Drain";
-  HVLC  6 [17.0,2] "SCI F Reset Drain";
+  HVLC  5 [17.0,1] "SCI E Reset Drain";
+  HVLC  6 [17.0,1] "SCI F Reset Drain";
   HVLC  7 [0.00,0];
   HVLC  8 [0.00,0];
   HVLC  9 [0.00,0];
@@ -118,10 +118,10 @@ SLOT 9 hvbias {
 SLOT 10 lvbias {
    LVLC  1 [00.0,0]; 
    LVLC  2 [00.0,0]; 
-   LVLC  3 [3.00,4] "SCI E Output Gate"; 
-   LVLC  4 [3.00,4] "SCI F Output Gate";
-   LVLC  5 [0.0,0] "SCI Summing Well - Low";  // NB goes through a line driver 
-   LVLC  6 [13.0,0] "SCI Summing Well - High";  // NB goes through a line driver 
+   LVLC  3 [0.00,4] "SCI E Output Gate"; 
+   LVLC  4 [0.00,4] "SCI F Output Gate";
+   LVLC  5 [_SW_LOW,0] "SCI Summing Well - Low";  // NB goes through a line driver 
+   LVLC  6 [_SW_HIGH,0] "SCI Summing Well - High";  // NB goes through a line driver 
    LVLC  7 [5.00,0] "SCI Reset Gate - Low";  // NB goes through a line driver 
    LVLC  8 [11.5,0] "SCI Reset Gate - High";  // NB goes through a line driver 
    LVLC  9 [00.0,0]; 
