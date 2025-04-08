@@ -99,7 +99,7 @@ SEQUENCE TestBrokenReadout
 
 SEQUENCE StartSeq {
   InitialSetup();
-  //if flush Flush(); 
+  if flush Flush(); 
   
     if integrate_enable CheckIntegrate();
     if readout_enable CheckReadout();
