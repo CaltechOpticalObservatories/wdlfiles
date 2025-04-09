@@ -185,34 +185,32 @@ WAVEFORM ReadoutEnd
 }
 
 
-WAVEFORM TransferToSerialRegisterBegin
+WAVEFORM TransferToSerialRegisterCoincident
 {
   //set serials to receive charge
  0:=BEGIN SET SCI_SCLK1 TO _SER_CLOCK_RCV, FAST;
     SET SCI_SCLK2 TO _SER_CLOCK_RCV, FAST;
     SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
     SET RG TO INV_HIGH;
- .+100:=TGUP SET TG TO _TG_CLOCK_HIGH, FAST;
-    //NOTE: don't think we want to clamp with reset gate activated
-    SET RG TO INV_LOW;
-    //simultaneously, operate the AC clamp
- .+100:
-    SET AC_Clamp to HIGH;
-
-}
-
-
-WAVEFORM TransferToSerialRegisterEnd
-{
-  
- 0:SET NOP TO HIGH;
-
-  .+1000:=END_RECV SET TG TO _TG_CLOCK_LOW, FAST;
-    SET SCI_SCLK1 TO _SER_CLOCK_HIGH, FAST;
-    SET SCI_SCLK2 TO _SER_CLOCK_LOW, FAST;
+    SET TG TO _TG_CLOCK_HIGH, FAST;
     SET LINE TO HIGH;
-    END_RECV+AC_CLAMP_EXTRA_RECOVER: SET AC_Clamp TO LOW;
+    SET SW TO INV_LOW;
+    //NOTE: don't think we want to clamp with reset gate activated
+ .+1000:
+    SET RG TO INV_LOW;
+    SET TG TO _TG_CLOCK_LOW, FAST;
+    //simultaneously, operate the AC clamp
+ .+50:
+    SET AC_Clamp to HIGH;
+      SET SCI_SCLK1 TO _SER_CLOCK_HIGH, FAST;
+      SET SCI_SCLK2 TO _SER_CLOCK_LOW, FAST;
+      SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
+ .+50:
+    SET AC_Clamp to LOW;
+    
+
 }
+
 
 
 WAVEFORM ParallelForwardNoCoincident
@@ -246,12 +244,11 @@ WAVEFORM ParallelForwardNoCoincident
   
   TG_GOES_LOW+200:=RG_GOES_LOW
     SET RG TO INV_LOW;
+  .+50:   SET AC_Clamp to HIGH;
   .+300:
   SET SCI_SCLK1 TO _SER_CLOCK_HIGH, FAST;
   SET SCI_SCLK2 TO _SER_CLOCK_LOW, FAST;
   SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
-  .+50:
-  SET AC_Clamp TO HIGH;
 
   .+50: SET AC_Clamp TO LOW;
 
@@ -266,7 +263,7 @@ WAVEFORM ParallelForwardSegment1
 {
   //NOTE: after integration, if done properly
   //all charge should be under SCI_PCLK2
-  // the transfer to serial reg is done before this happens
+  // the transfer to serial reg is done after this happens
  0: SET SCI_PCLK2 to _PAR_CLOCK_LOW, SLOW;
     SET SCI_PCLK3 to _PAR_CLOCK_HIGH, SLOW;
 }
@@ -373,20 +370,23 @@ WAVEFORM ReadPixels
   
        //reset pulse at the start of the pixel
     SET RG TO INV_HIGH; //NOTE reset gate is inverted
-    .+70: 	   SET RG TO INV_LOW;
+    .+30: 	   SET RG TO INV_LOW;
     //charge STARTS UNDER RPhi2
 
     //conventional serial clock
      0: SET SCI_SCLK2 TO _SER_CLOCK_HIGH, FAST;
     SET SCI_SCLK1 TO _SER_CLOCK_LOW, FAST;
-    .+100:
+    .+30:
     SET SW TO INV_HIGH;
     SET SCI_SCLK3 TO _SER_CLOCK_HIGH, FAST;
     SET SCI_SCLK2 TO _SER_CLOCK_LOW, FAST;
-    .+100: SET SCI_SCLK1 TO _SER_CLOCK_HIGH, FAST;
+    .+150: SET SCI_SCLK1 TO _SER_CLOCK_HIGH, FAST;
 	   SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
            SET SW TO INV_LOW;
-    .+100: SET NOP TO HIGH;
+
+	   //NOTE: set this up so it's a multiple  of ADM ssample times that way they ALL
+	   //stay as groups of 8.
+    .+147: SET NOP TO HIGH;
 
 
 }

@@ -17,10 +17,22 @@ RAWSEL        = 47
 RAWSTARTLINE  = 0
 RAWSTARTPIXEL = 48
 SAMPLEMODE    = 0
-SHP1          = _FIRST_RESET_SAMPLE
-SHP2          = _LAST_RESET_SAMPLE
-SHD1          = _FIRST_VIDEO_SAMPLE
-SHD2          = _LAST_VIDEO_SAMPLE
+
+//attempt pixel timing coincident with the nearest ADM samples. That means multiples of 8
+//by eye, try 80 to start
+// then it looks like 13 ADM samples, 80 + 13 *8 = 184
+
+  //signal is 13 ADM samples, starting from time 232
+  //232 + 13 * 8 = 338
+  
+  // last sample number must fit the series 8*n-1
+  // first sample number must be in the series 8*n
+  
+  
+SHP1          = 80
+SHP2          = 183
+SHD1          = 232
+SHD2          = 327
 
   //ADM module installed in slot 7
 #define SINGLE_DET_TEST 1

@@ -28,7 +28,10 @@ param framecount = 1000 //will be set
 param abortintegrate = 0 //checked by the integration waiters and they bail out if it is set
 
 param flush = 1
-  
+
+
+  param llel_coincident = 1 //use coincident llel clocks
+  param llel_seq = 0 //use sequential llel clocks (must be not of llel_coincident)  
 
 #if NOISETEST
 SEQUENCE NoiseTest {
@@ -150,6 +153,8 @@ SEQUENCE CheckReadout
 #define REMAINDER_PIX #eval _AMPREADCOLS - (PIXELS_PER_SEG * 3)
 
 
+#define  TOTAL_ROWS #eval _IMAGEROWS + _PARALLELOVERSCAN
+
 SEQUENCE FrameReadout
 {
 
@@ -158,10 +163,12 @@ SEQUENCE FrameReadout
   Wait1us(50);
   //single serial read to flush the register
   ReadPixels(_AMPREADCOLS);
-  //read all image rows
-  LineReadout(_IMAGEROWS);
-  //and the desired overscan
-  LineReadout(_PARALLELOVERSCAN);
+
+ 
+  
+  //read all image rows and the desired overscan
+  IF llel_seq LineReadout(TOTAL_ROWS);
+  IF llel_coincident  LineReadoutCoincident(TOTAL_ROWS);
 
   ReadoutEnd();
   RETURN;
@@ -182,17 +189,11 @@ SEQUENCE abortintegration {
 
 
 SEQUENCE LineReadout
-{
-  // TransferToSerialRegisterBegin();
-  //TransferToSerialRegisterEnd();
-  //ParallelForwardSegment1();
-  //  ParallelForwardSegment2();
-  //Wait10us();
-  //ParallelForwardSegment3();
-
-  //RegisterFlush();
-  
+{ 
   ParallelForwardNoCoincident();
+
+  //wait here is for the clamp to die down. Put some of it in prescan, but not all
+  Wait1us(50);
 
   ReadPixels(PIXELS_PER_SEG);
   ReadPixels(PIXELS_PER_SEG);
@@ -203,13 +204,31 @@ SEQUENCE LineReadout
 
   #endif
 
-   Wait1us(50);
+   Wait1us(10);
    RETURN;
 }
 
+SEQUENCE LineReadoutCoincident
+{
+  //charge assumed must be under I2 at this point, set up in preamble
+  ParallelForwardSegment1();
+  TransferToSerialRegisterCoincident();
+  ReadPixels(PIXELS_PER_SEG);
+  ParallelForwardSegment2();
+  ReadPixels(PIXELS_PER_SEG);
+  ParallelForwardSegment3();
+  ReadPixels(PIXELS_PER_SEG)
+    #if REMAINDER_PIX
+    ReadPixels(REMAINDER_PIX);
+  #endif
+
+  RETURN;
+}
+
+
 SEQUENCE LineReadoutAOnly
 {
-  TransferToSerialRegisterBegin();
+  TransferToSerialRegisterCoincident();
   ReadPixels(_SERIALPRESCAN);
   ParallelForwardSectionASegment1();
   ReadPixels(PIXELS_PER_SEG);
