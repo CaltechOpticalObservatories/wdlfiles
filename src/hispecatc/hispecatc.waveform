@@ -1,0 +1,214 @@
+/* -*- C -*- */
+/** ---------------------------------------------------------------------------
+ * @file     cryoscope.waveform
+ * @brief    HxRG timing file, rules for waveform generation and scripting
+ * @author   Timothee Greffe
+ * @date     2020-12-21 Initial creation
+ * @modified 
+ *
+ * syntax (is case sensitive):
+ *
+ * WAVEFORM waveformlabel { rules }
+ *
+ * where rules (enclosed in curly braces) are as follows:
+ *
+ * [time]: [=timelabel] SET signallabel TO level;
+ *
+ * time: at least one time label is required, followed by colon
+ *       (if omitted then SET... lines are all at the same time as previous time)
+ *       arithmetic operations are allowed for time
+ *       units are allowed to follow numbers, E.G. ns, us, ms
+ *       ".+" means to add to the previous time
+ *
+ * =timelabel is an optional label for this time, which can be used elsewhere
+ *
+ * SET signallabel TO level; 
+ * is required and must end with a semi-colon
+ * signallabel and level can be defined anywhere
+ *
+ */
+
+#define clockfreq  100000000                      /* 100 MHz master clock frequency in Hz */
+#define sec        *(clockfreq)                   /* clock cycles per second   */
+#define ms         *(clockfreq/1000)              /* clock cycles per millisec */
+#define us         *(clockfreq/1000000)           /* clock cycles per microsec */
+#define clicks	   *(clockfreq/100000000)	  /* clock cycles per ticks */
+
+/* Timing defines */
+/* Generic timing parameters */
+#define TICK	        #eval  1 clicks		  /* 10 nsec */
+#define 1s              #eval 1000 ms
+#define 1ms	            #eval  1 ms
+#define 1us             #eval  1 us
+#define 2us             #eval  2 us
+#define 20us            #eval 20 us
+#define 25us            #eval 25 us
+#define 10ms            #eval 10 ms
+#define 10us            #eval 10 us
+/* Timing specific to HxRG waveform */
+#define Tpix    #eval 6 us /*2.85 us */
+#define Tpulse  #eval 0.8 us /**/
+#define T1Reset #eval 10 us /* chapter 6.2 says 10us or less is ok but it should be /2048 this value*/ 
+/* Logical state defines */
+#define High		   1
+#define Low		       0
+
+
+
+/* Various wait routines */
+WAVEFORM wDelay1us {
+1us:		   RETURN;
+}
+WAVEFORM wDelay10us {
+10us:		   RETURN;
+}
+WAVEFORM wDelay1ms {
+ 1ms:               RETURN;
+}
+
+/*****************************************/
+/* Here are the HxRG specific  waveforms */
+/*****************************************/
+WAVEFORM InitClocks {
+0:          SET FSyncB     TO High;
+            SET LSyncB     TO High;
+            SET Vclk       TO Low;
+            SET Hclk       TO Low;
+            SET ReadEN     TO Low;
+            SET ResetEN    TO Low;
+            SET MainResetB TO High;
+.+1ms:       RETURN;
+}
+
+WAVEFORM wCLKEn {
+0:         SET CLK_EN TO 3.3;
+10ms: RETURN;
+}
+
+
+WAVEFORM ResetRegistersDefault {
+0:              SET MainResetB TO Low;
+.+10ms:        SET MainResetB TO High;
+.+1ms:          RETURN;
+}
+
+WAVEFORM StartFrame {
+0:          SET FSyncB TO Low;
+.+Tpulse:   SET FSyncB TO High;
+Tpix:     RETURN;
+}
+
+WAVEFORM StartRow {
+0:          SET Vclk   TO High;
+            SET LSyncB TO Low;
+.+Tpulse:   SET Vclk   TO Low;
+            SET LSyncB TO High;
+Tpix:     RETURN;
+}
+
+WAVEFORM PulseVCLK {
+0:          SET Vclk TO High;
+.+Tpulse:   SET Vclk TO Low;
+.+10*Tpulse:   RETURN;
+}
+
+WAVEFORM wReadEN {
+0:          SET ReadEN TO High;
+.+2*Tpulse:   RETURN;    
+}
+WAVEFORM wbReadEN {
+0:          SET ReadEN TO Low;
+.+2*Tpulse:   RETURN;    
+}
+
+
+WAVEFORM ReadPixel {
+0:			SET PIXEL   TO High;
+.+TICK:		SET PIXEL   TO Low;
+			SET FRAME   TO Low;
+			SET LINE    TO Low;
+0:          SET Hclk    TO Low;
+.+Tpulse:   SET Hclk    TO High;
+Tpix:     RETURN;
+}
+
+WAVEFORM ReadPixel_Blank {
+0:          SET Hclk    TO Low;
+.+Tpulse:   SET Hclk    TO High;
+Tpix:     RETURN;
+}
+WAVEFORM wbHclk {
+0:          SET Hclk    TO Low;
+Tpulse: RETURN;
+}
+
+WAVEFORM ResetPulse {
+0:          SET ResetEN To High;
+.+T1Reset:  SET ResetEN To Low;
+.+Tpulse:   RETURN;
+}
+WAVEFORM ResetPulse_Dummy {
+0:          SET ResetEN To Low;
+.+T1Reset:  SET ResetEN To Low;
+.+Tpulse:   RETURN;
+}
+
+WAVEFORM wResetEN {
+0:          SET ResetEN To High;
+.+Tpulse: RETURN;
+}
+WAVEFORM wbResetEN {
+0:          SET ResetEN To Low;
+.+Tpulse: RETURN;
+}
+
+WAVEFORM LSyncBPulse {
+0:          SET LSyncB TO Low;
+.+Tpulse:   SET LSyncB TO High;
+.+Tpulse:   RETURN;
+}
+
+WAVEFORM wVReadEdge {
+0:          SET VreadEdge TO High;
+.+Tpulse:   RETURN;
+}
+WAVEFORM wbVReadEdge {
+0:          SET VreadEdge TO Low;
+.+Tpulse:   RETURN;
+}
+
+WAVEFORM wFSyncB {
+0:          SET FSyncB TO High;
+.+Tpulse:   RETURN;
+}
+WAVEFORM wbFSyncB {
+0:          SET FSyncB TO Low;
+.+Tpulse:   RETURN;
+}
+WAVEFORM ConfigureEnhancedMode {
+0:          SET FSyncB    TO High;
+            SET LSyncB    TO High;
+            SET VreadEdge TO Low;
+.+Tpulse:   SET VResetB   TO Low;
+.+Tpulse:   SET VResetB   TO High;
+.+Tpulse:   RETURN;
+}
+/*****************************************/
+/* Here are the control signal waveforms */
+/*****************************************/
+WAVEFORM wFrame {
+ 0:			SET FRAME TO High;
+}
+
+WAVEFORM wLine {
+ 0:			SET LINE TO High;
+}
+
+WAVEFORM wPixel {
+ 0:			SET PIXEL   TO High;
+ .+TICK:		SET PIXEL   TO Low;
+			SET FRAME   TO Low;
+			SET LINE    TO Low;
+}
+
+

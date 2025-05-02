@@ -1,0 +1,358 @@
+/* -*- C -*- */
+/** ---------------------------------------------------------------------------
+ * @file     cryoscope.seq
+ * @brief    sequence file for HxRG imager
+ * @author   Timothee Greffe
+ * @date     2021-06-21 Initial creation
+ * @modified 
+ *
+ */
+
+/** ---------------------------------------------------------------------------
+ * parameter definitions
+ * syntax: param paramname=value
+*/
+param Start=0
+param Expose=0
+param ExposeWindow=0
+param exptime=0
+param longexposure=0 /* s|ms . To have exposure time longer than ~20min */
+param Abort=0
+param mode_UTR_RR=1
+param mode_UTR_GR=0
+param mode_EnhancedRollingReset=0
+param mode_VideoRX=0
+param mode_VideoRXR=0
+param mode_PermanentReset=0
+param mode_Guiding=0
+param mode_InterleavedGuiding=0
+param exp_PulseWhileGlobReset=0
+param H2RG_rows=2048
+param H2RG_rows_skip=0
+param H2RG_columns=64
+param H2RG_win_rows=10
+param H2RG_win_columns=10
+param H2RGMainReset=0 /*We use this to reset the H2RG internal register to its default values*/
+param EnhancedRR_Delta=100
+param Hold4Programming=0
+param WindowPixelNb=100
+param prv_flag_reset=0 /* We use this to reset only the first frame of an UTR sequence*/
+param prv_ghostframe=0 /* We use this to readout a frame out of the detector without storing pixels to buffer */
+
+/** ---------------------------------------------------------------------------
+ * @fn     SetupHxRG
+ * @brief  This executes on start-up and sets levels to initialize CMOS array.
+ *
+ */
+SEQUENCE Init {
+ /* Powert UP, manages the MainResetB sequence and leave the detector in defautl operation mode. */
+ InitClocks();
+ wCLKEn();
+ResetRegistersDefault();
+if Start GOTO WaitForExpose();
+GOTO Init();
+}
+SEQUENCE ResetRegHxRG {
+ResetRegistersDefault();
+H2RGMainReset--;
+return;
+}
+
+/** ---------------------------------------------------------------------------
+ * @fn	    WaitForExposure
+ * @brief   Here we wait until the host asks for an image
+ */
+
+SEQUENCE WaitForExpose {
+if Expose        SelectMode();
+if H2RGMainReset ResetRegHxRG();
+prv_ghostframe++;
+if mode_VideoRXR VideoRXR_GrabFrame();
+if mode_VideoRX VideoRX_GrabFrame();
+prv_ghostframe--;
+wResetEN();
+  GOTO WaitForExpose();
+}
+
+SEQUENCE SelectMode {
+if mode_UTR_RR     UTR_RR_Sequence();
+if mode_UTR_GR     UTR_GR_Sequence();
+if mode_VideoRX    VideoRX_Sequence();
+if mode_VideoRXR   VideoRXR_Sequence();
+if mode_PermanentReset  PGR_Sequence();
+if mode_EnhancedRollingReset EnhancedRR_Sequence();
+if exp_PulseWhileGlobReset Persistence_PulseGlobalReset();
+if mode_Guiding Guiding_Sequence();
+GOTO WaitForExpose();
+}
+
+/******** Up The Ramp ROLLING RESET *********/
+SEQUENCE UTR_RR_Sequence {
+prv_flag_reset++;
+UTR_RR_GrabFrame(Expose);
+GOTO WaitForExpose();
+}
+
+SEQUENCE UTR_RR_GrabFrame {
+Expose--;Expose--;
+if !prv_flag_reset ExposureTimer(); /* Do not expose before the first frame*/
+wFrame();
+StartFrame();
+RR_SkipRow(H2RG_rows_skip);
+RR_ReadRow(H2RG_rows);
+PulseVCLK();
+prv_flag_reset--;
+return;
+}
+
+SEQUENCE RR_ReadRow {
+wLine();
+StartRow();
+wReadEN();
+if prv_flag_reset ResetPulse();
+if !prv_flag_reset ResetPulse_Dummy();
+ReadPixel_Blank(2); /*Needs two extra pixels because of the internl delay.*/
+ReadPixel(H2RG_columns);
+wbHclk();
+wbReadEN();
+return;
+}
+
+SEQUENCE RR_SkipRow {
+StartRow();
+if prv_flag_reset ResetPulse(); /* In RR, we pulse rows we don;t read to avoid build up that could overflow */
+return;
+}
+
+/******** Up The Ramp Global RESET *********/
+SEQUENCE UTR_GR_Sequence {
+prv_flag_reset++;
+UTR_GR_GrabFrame(Expose);
+GOTO WaitForExpose();
+}
+
+/******** Permanent RESET *********/
+SEQUENCE PGR_Sequence {
+wResetEN();
+UTR_GR_GrabFrame(Expose);
+wbResetEN();
+GOTO WaitForExpose();
+}
+
+
+SEQUENCE UTR_GR_GrabFrame {
+Expose--;
+wFrame();
+StartFrame();
+PulseVCLK();         /* Not documented but have to add 1 pulse to start from 1 and not 0 apparently*/
+GR_ReadRow(2048);
+PulseVCLK();
+prv_flag_reset--;
+return;
+}
+
+SEQUENCE GR_ReadRow {
+wLine();
+StartRow();
+wReadEN();
+ReadPixel_Blank(2); /*Needs two extra pixels because of the internl delay.*/
+ReadPixel(64);
+wbHclk(); /*Lower HCLK to start the next row in good condition*/
+wbReadEN();
+return;
+}
+
+/**** VIDEO RX -- Read then Reeset per row ***/
+
+SEQUENCE VideoRX_Sequence {
+if Expose VideoRX_GrabFrame();
+if Abort  AbortSeq();
+if !Expose GOTO WaitForExpose();
+GOTO VideoRX_Sequence();
+}
+
+SEQUENCE VideoRX_GrabFrame {
+if !prv_ghostframe wFrame(); /* We save the pixels only not during idling */
+StartFrame();
+RR_SkipRow(H2RG_rows_skip);
+RX_ReadRow(H2RG_rows);
+PulseVCLK();
+ExposureTimer();
+if !prv_ghostframe DecrExposeCpt();
+return;
+}
+
+SEQUENCE RX_ReadRow {
+wLine();
+StartRow();
+wReadEN();
+ReadPixel_Blank(2); /*Needs two extra pixels because of the internl delay.*/
+ReadPixel(H2RG_columns);
+ResetPulse(); /* Reset Pulse after reading out the row */
+wbHclk();
+wbReadEN();
+return;
+}
+
+
+/**** VIDEO RXR -- Read, Reset then Read again per row ***/
+
+SEQUENCE VideoRXR_Sequence {
+if Expose VideoRXR_GrabFrame();
+if Abort GOTO AbortSeq();
+if !Expose GOTO WaitForExpose();
+GOTO VideoRXR_Sequence();
+}
+
+SEQUENCE VideoRXR_GrabFrame {
+if !prv_ghostframe wFrame();
+StartFrame();
+RR_SkipRow(H2RG_rows_skip);
+RXR_ReadRow(H2RG_rows);
+PulseVCLK();
+ExposureTimer();
+if !prv_ghostframe DecrExposeCpt();
+return;
+}
+
+SEQUENCE RXR_ReadRow {
+wLine();
+StartRow();
+wReadEN();
+ReadPixel_Blank(2); /*Needs two extra pixels because of the internl delay.*/
+ReadPixel(H2RG_columns);
+ResetPulse(); /* Reset Pulse after reading out the row */
+LSyncBPulse();
+ReadPixel_Blank(2);
+ReadPixel(H2RG_columns);
+wbHclk();
+wbReadEN();
+return;
+}
+
+
+/******** Persistence experiment -- Light Pulse while Global Reset ***********/
+SEQUENCE Persistence_PulseGlobalReset{
+wResetEN();
+UTR_GR_GrabFrame(10); /* Grab 10 frames while global reset */
+wbResetEN();
+UTR_GR_GrabFrame(100); /* Grabe 100 regular frames */
+return;
+}
+
+
+/******** HDCHD High Duty Cycle High Dynamic Rolling RESET *********/
+/* Must configure the HxRG Internal Register to Enhanced mode*/
+SEQUENCE EnhancedRR_Sequence {
+ConfigureEnhancedMode();
+EnhancedRR_GrabFrame(Expose);
+GOTO WaitForExpose();
+}
+
+SEQUENCE EnhancedRR_GrabFrame {
+Expose--;
+wFrame();
+/*somehow, lower FSYNCB for Delta rows and then rise it for 2048-Delta rows*/
+wbFSyncB();
+HDCRR_ReadRow(EnhancedRR_Delta);
+wFSyncB();
+HDCRR_ReadRow(1948);
+return;
+}
+
+SEQUENCE HDCRR_ReadRow {
+wLine();
+PulseVCLK();            /* Clock FSYNCB into the serial register */
+wbVReadEdge();          /* Lower VReadEdge to read from rising edge on the vertical register */
+LSyncBPulse();          /*reset pixel counter (still in normal mode)*/
+wReadEN();
+ResetPulse();
+    ReadPixel_Blank(1); /*Needs two extra pixels because of the internl delay.*/
+    ReadPixel(64);
+
+wVReadEdge();           /* Higher VReadEdge to read from falling edge on the vertical register */
+LSyncBPulse();          /*reset pixel counter*/
+    ReadPixel_Blank(1); /*Needs two extra pixels because of the internl delay.*/
+    ReadPixel(64);
+wbReadEN();
+return;
+}
+
+
+/******** Guiding Only Mode *********/
+
+SEQUENCE Guiding_Sequence {
+if Expose GrabWindow();
+if Abort  AbortSeq();
+GOTO Guiding_Sequence();
+}
+
+SEQUENCE GrabWindow {
+Expose--;
+wFrame();
+StartFrame();
+WinRX_ReadRow(H2RG_win_rows);
+PulseVCLK();
+ExposureTimer();
+return;
+}
+
+SEQUENCE WinRX_ReadRow {
+wLine();
+StartRow();
+wReadEN();
+ReadPixel_Blank(2); /*Needs two extra pixels because of the internl delay.*/
+ReadPixel(H2RG_win_columns);
+ResetPulse(); /* Reset Pulse after reading out the row */
+wbHclk();
+wbReadEN();
+return;
+}
+
+/** ---------------------------------------------------
+ * MISC
+ */
+
+SEQUENCE ExposureTimer {
+if longexposure    Sec(exptime);  /*If longexposure, counts in s*/
+if !longexposure   HectoMicroSec(exptime); /*If shortexposure, counts in 100us*/
+if Abort GOTO AbortSeq();
+return;
+}
+
+SEQUENCE MilliSec {
+  wDelay1ms();
+  return;
+}
+
+SEQUENCE HectoMicroSec {
+wDelay1us(100);
+return;
+}
+
+SEQUENCE Sec {
+  wDelay1ms(1000);	
+if Abort GOTO AbortSeq();
+  return;
+}
+
+SEQUENCE AbortSeq{
+DecrExposeCpt(1000);
+InitResetCpt(100);
+mode_VideoRX--;
+mode_VideoRXR--;
+mode_Guiding--;
+Abort--;
+GOTO WaitForExpose();
+}
+
+SEQUENCE DecrExposeCpt {
+Expose--;
+return;
+} 
+
+SEQUENCE InitResetCpt {
+prv_flag_reset--;
+return;
+}
+
