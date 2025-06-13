@@ -22,36 +22,34 @@ SLOT 1 driverx {
   DRVX 12 [PCLK_fast,PCLK_slow,1] "PCLK_B3_1";
 }
 
-/* Remove comment when adding FCS 
 SLOT 2 driverx {
-  DRVX  1 [1,1,0];
-  DRVX  2 [1,1,0];
-  DRVX  3 [1,1,0];
-  DRVX  4 [1,1,0];
-  DRVX  5 [1,1,0];
-  DRVX  6 [1,1,0];
-  DRVX  7 [1,1,0];
-  DRVX  8 [1,1,0];
-  DRVX  9 [1,1,0];
-  DRVX 10 [1,1,0];
-  DRVX 11 [1,1,0];
-  DRVX 12 [1,1,0];
+  DRVX  1 [1,1,1] "SCI_RGBACKUP2";
+  DRVX  2 [1,1,1] "SCI_SWBACKUP1";
+  DRVX  3 [1,1,1] "FCS2_S2L";
+  DRVX  4 [1,1,1] "FCS1_S2L";
+  DRVX  5 [1,1,1] "FCS2_S3L";
+  DRVX  6 [1,1,1] "FCS_S1";
+  DRVX  7 [1,1,1] "SCI_SWBACKUP2";
+  DRVX  8 [1,1,1] "FCS_RG";
+  DRVX  9 [1,1,1] "FCS_SW";
+  DRVX 10 [1,1,1] "FCS1_S3L";
+  DRVX 11 [1,1,0] "Spare1";
+  DRVX 12 [1,1,0] "Spare2";
 }
-**********************************/
 
 SLOT 3 driverx {
-  DRVX  1 [TG_fast,TG_slow,1] "Transfer Gate";
+  DRVX  1 [TG_fast,TG_slow,1] "TGA1";
   DRVX  2 [SCLK_fast,SCLK_slow,1] "Serial EF";
   DRVX  3 [SCLK_fast,SCLK_slow,1] "Serial E2";
   DRVX  4 [SCLK_fast,SCLK_slow,1] "Serial E1";
   DRVX  5 [SCLK_fast,SCLK_slow,1] "Serial F2";
   DRVX  6 [SCLK_fast,SCLK_slow,1] "Serial F1";
-  DRVX  7 [1,1,0];
-  DRVX  8 [1,1,0];
-  DRVX  9 [1,1,0];
-  DRVX 10 [1,1,0];
-  DRVX 11 [1,1,0];
-  DRVX 12 [1,1,0];
+  DRVX  7 [1,1,1] "FCS_P3U";
+  DRVX  8 [1,1,1] "FCS_P3L";
+  DRVX  9 [1,1,1] "FCS_P2";
+  DRVX 10 [1,1,1] "FCS_P1";
+  DRVX 11 [TG_fast,TG_slow,1] "TGA2";
+  DRVX 12 [1,1,1] "SCI_RGBACKUP1";
 }
 
 SLOT 4 xvbias {
@@ -90,11 +88,11 @@ SLOT 9 hvbias {
   HVLC  5 [17.0,2] "SCI E Reset Drain";
   HVLC  6 [17.0,2] "SCI F Reset Drain";
   HVLC  7 [0.00,0];
-  HVLC  8 [0.00,0];
-  HVLC  9 [0.00,0];
-  HVLC 10 [0.00,0];
-  HVLC 11 [0.00,0];
-  HVLC 12 [0.00,0];
+  HVLC  8 [14.00,0] "FCS1 Reset Drain A";
+  HVLC  9 [14.00,0] "FCS1 Reset Drain B";
+  HVLC 10 [14.00,0] "FCS2 Reset Drain A";
+  HVLC 11 [14.00,0] "FCS2 Reset Drain B";
+  HVLC 12 [13.00,1] "FCS Overflow Drain"; //TODO: what voltage?
   HVLC 13 [0.00,0];
   HVLC 14 [0.00,0];
   HVLC 15 [0.00,0];
@@ -103,20 +101,20 @@ SLOT 9 hvbias {
   HVLC 18 [0.00,0];
   HVLC 19 [0.00,0];
   HVLC 20 [0.00,0];
-  HVLC 21 [0.00,0];
-  HVLC 22 [0.00,0];
-  HVLC 23 [0.00,0];
-  HVLC 24 [0.00,0];
-  HVHC  1 [29.0,2.0,3,1] "SCI E Output Drain"; //This one draws low current, not sure why yet
+  HVLC 21 [17.00,2] "SCI2 E Reset Drain";
+  HVLC 22 [17.00,2] "SCI2 F Reset Drain";
+  HVLC 23 [29.00,1] "SCI2 E Output Drain" ; //TODO: needs re-assignment!
+  HVLC 24 [29.00,1] "SCI2 F Output Drain"; //TODO: needs re-assignment!
+  HVHC  1 [29.0,2.0,3,1] "SCI E Output Drain";
   HVHC  2 [29.0,7.0,3,1] "SCI F Output Drain"; 
-  HVHC  3 [29.0,0.0,0,0];
-  HVHC  4 [29.0,0.0,0,0];
-  HVHC  5 [29.0,0.0,0,0];
-  HVHC  6 [29.0,0.0,0,0];
+  HVHC  3 [24.3,2.0,0,1] "FCS1 Output Drain A";
+  HVHC  4 [24.3,2.0,0,1] "FCS1 Output Drain B";
+  HVHC  5 [24.3,2.0,0,1] "FCS2 Output Drain A";
+  HVHC  6 [24.3,2.0,0,1] "FCS2 Output Drain B";
 }
 
 SLOT 10 lvbias {
-   LVLC  1 [00.0,0]; 
+   LVLC  1 [3.3,5] "LVDS Receiver Output Enable"; 
    LVLC  2 [00.0,0]; 
    LVLC  3 [3.00,4] "SCI E Output Gate"; 
    LVLC  4 [3.00,4] "SCI F Output Gate";
@@ -125,16 +123,16 @@ SLOT 10 lvbias {
    LVLC  7 [5.00,0] "SCI Reset Gate - Low";  // NB goes through a line driver 
    LVLC  8 [11.5,0] "SCI Reset Gate - High";  // NB goes through a line driver 
    LVLC  9 [00.0,0]; 
-   LVLC 10 [3.0,0] "LastGateA FCS 1"; 
-   LVLC 11 [3.0,0] "LastGateB FCS 1"; 
-   LVLC 12 [3.0,0] "LastGateA FCS 2"; 
-   LVLC 13 [3.0,0] "LastGateB FCS 2";
+   LVLC 10 [-4.0,0] "LastGateA FCS 1"; 
+   LVLC 11 [-4.0,0] "LastGateB FCS 1"; 
+   LVLC 12 [-4.0,0] "LastGateA FCS 2"; 
+   LVLC 13 [-4.0,0] "LastGateB FCS 2";
    LVLC 14 [00.0,0]; 
-   LVLC 15 [1.0,0] "FCS Summing Well - Low"; 
-   LVLC 16 [11.5,0] "FCS Summing Well - High"; 
+   LVLC 15 [-6.0,0] "FCS Summing Well - Low"; 
+   LVLC 16 [5.0,0] "FCS Summing Well - High"; 
    LVLC 17 [00.0,0];
-   LVLC 18 [1.0,0] "FCS reset gate - Low";
-   LVLC 19 [11.5,0] "FCS reset gate - High";
+   LVLC 18 [0.0,0] "FCS reset gate - Low";
+   LVLC 19 [12.0,0] "FCS reset gate - High";
    LVLC 20 [00.0,0]; 
    LVLC 21 [00.0,0]; 
    LVLC 22 [00.0,0] "Video offset FCS"; 
