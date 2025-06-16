@@ -115,10 +115,20 @@
 
 /****     Bias Voltage Definitions      ****/
 
+
+
+#define VRD_E   9 : 5
+#define VRD_F   9 : 6
+
+#define VRD [VRD_E, VRD_F]
+
 /**** Readout Method ****/
 /* Science Serials */
+
+
 #define SCI_SCLK1 [SCLK_E2, SCLK_F2]
 #define SCI_SCLK2 [SCLK_E1, SCLK_F1]
+
 #define SCI_SCLK3 SCLK_EF
 /* Reset Gate Combine */
 #define RG [RG_SCI1, RG_SCI2, RG_SCI3, RG_SCI4]
@@ -127,9 +137,14 @@
 #define SW [SW_SCI1, SW_SCI2, SW_SCI3, SW_SCI4]
 
 /* Science Parallels */
-#define SCI_PCLK1 [PCLK_A1_1, PCLK_A1_2, PCLK_B1_1, PCLK_B1_2]
-#define SCI_PCLK2 [PCLK_A2_1, PCLK_A2_2, PCLK_B2_1, PCLK_B2_2]
-#define SCI_PCLK3 [PCLK_A3_1, PCLK_A3_2, PCLK_B3_1, PCLK_B3_2]
+ #define SCI_PCLK1 [PCLK_A1_1, PCLK_A1_2, PCLK_B1_1, PCLK_B1_2] 
+ #define SCI_PCLK2 [PCLK_A2_1, PCLK_A2_2, PCLK_B2_1, PCLK_B2_2] 
+ #define SCI_PCLK3 [PCLK_A3_1, PCLK_A3_2, PCLK_B3_1, PCLK_B3_2] 
+// #define SCI_PCLK1 [PCLK_A1_1, PCLK_A1_2] 
+// #define SCI_PCLK2 [PCLK_A2_1, PCLK_A2_2] 
+// #define SCI_PCLK3 [PCLK_A3_1, PCLK_A3_2] 
+
+
 
 
 /* Science parallels section A */

@@ -46,19 +46,19 @@
 # set to path to gpp
 GPP       = /usr/bin/gpp
 # set to path to wdl code
-WDLPATH   = $(HOME)/wdl/wdl
+WDLPATH   = $(HOME)/Software/wdl/wdl
 # output for *.acf file
 ACFPATH   = $(HOME)/wdlfiles/src/deimos/
 
-PLOT      = False # True   # show waveform plots by default, True | False
+PLOT      = # --plots   # show waveform plots by default, True | False
 GFLAGS    = +c "/*" "*/" +c "//" "\n" +c "\\\n" "" -x
-SEQPARSER = $(WDLPATH)/seqParserDriver.py
-INCPARSER = $(WDLPATH)/incParserDriver.py
-WDLPARSER = $(WDLPATH)/wdlParserDriver.py
-MODPARSER = $(WDLPATH)/modParserDriver.py
-WAVGEN    = $(WDLPATH)/wavgenDriver.py
-MODEGEN   = $(WDLPATH)/modegenDriver.py
-I2A       = $(WDLPATH)/ini2acf.pl
+SEQPARSER = wdl --debug seq 
+INCPARSER = wdl --debug inc 
+WDLPARSER = wdl --debug wdl
+MODPARSER = wdl --debug mod
+WAVGEN    = wdl --debug wavgen
+MODEGEN   = wdl --debug modegen
+I2A       = ${WDLPATH}/ini2acf.pl
 INCL      = -I$(CURDIR)
 
 # Global variable to store the filename
@@ -96,18 +96,18 @@ generate_wdl:
 	@test -f $(FILE_NAME).conf || { echo "$(FILE_NAME).conf does not exist"; exit 1; }
 	$(call debug_message, "Found configuration file: $(FILE_NAME).conf")
 
-	@echo "Making $(F_TMP).wdl from $(FILE_NAME).conf ..."
-	@cat $(FILE_NAME).conf | $(SEQPARSER) - | $(GPP) $(GFLAGS) $(INCL) | $(WDLPARSER) - > $(F_TMP).wdl
+	echo "Making $(F_TMP).wdl from $(FILE_NAME).conf ..."
+	cat $(FILE_NAME).conf | $(SEQPARSER) - | $(GPP) $(GFLAGS) $(INCL) | $(WDLPARSER) - > $(F_TMP).wdl
 	$(call debug_message, "Created WDL file: $(F_TMP).wdl")
 
-	@echo "Making $(F_TMP).script and $(F_TMP).states from $(F_TMP).wdl ..."
-	@test -f $(MODFILE) || { echo "$(MODFILE) does not exist"; exit 1; }
+	echo "Making $(F_TMP).script and $(F_TMP).states from $(F_TMP).wdl ..."
+	test -f $(MODFILE) || { echo "$(MODFILE) does not exist"; exit 1; }
 	$(call debug_message, "Found MODULE_FILE: $(MODFILE)")
 
-	@cat $(MODFILE) | $(GPP) $(GFLAGS) $(INCL) | $(MODPARSER) -
+	cat $(MODFILE) | $(GPP) $(GFLAGS) $(INCL) | $(MODPARSER) -
 	$(call debug_message, "Processed MODULE_FILE: $(MODFILE)")
 
-	@$(WAVGEN) $(F_TMP) $(PLOT) || { echo "Waveform generation failed"; exit 1; }
+	$(WAVGEN) $(F_TMP) $(PLOT) || { echo "Waveform generation failed"; exit 1; }
 	$(call debug_message, "Finished waveform generation for $(F_TMP) with plot: $(PLOT)")
 
 # Rule for generating script states

@@ -44,12 +44,12 @@ SLOT 3 driverx {
   DRVX  4 [SCLK_fast,SCLK_slow,1] "Serial E1";
   DRVX  5 [SCLK_fast,SCLK_slow,1] "Serial F2";
   DRVX  6 [SCLK_fast,SCLK_slow,1] "Serial F1";
-  DRVX  7 [1,1,1] "FCS_P3U";
-  DRVX  8 [1,1,1] "FCS_P3L";
-  DRVX  9 [1,1,1] "FCS_P2";
-  DRVX 10 [1,1,1] "FCS_P1";
-  DRVX 11 [TG_fast,TG_slow,1] "TGA2";
-  DRVX 12 [1,1,1] "SCI_RGBACKUP1";
+  DRVX  7 [1,1,0];
+  DRVX  8 [1,1,0];
+  DRVX  9 [1,1,0];
+  DRVX 10 [1,1,0];
+  DRVX 11 [1,1,0];
+  DRVX 12 [1,1,0];
 }
 
 SLOT 4 xvbias {

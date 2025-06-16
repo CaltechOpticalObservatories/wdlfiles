@@ -53,6 +53,10 @@
 #define _SECTION_B_ROWS         2048
 
 #define _IMAGECOLS              2048
+
+//NOTE: read out all through one amp test
+//#define _AMPCOLS _IMAGECOLS
+
 #define _AMPCOLS                #eval _IMAGECOLS / 2
 #define _IMAGEROWS              #eval _SECTION_A_ROWS + _SECTION_B_ROWS
 
@@ -63,7 +67,7 @@
 #define  _PARALLELOVERSCAN        20
 
 #define _AMPREADCOLS            #eval (_AMPCOLS + _SERIALPRESCAN + _SERIALOVERSCAN)
-#define _LINENUM                #eval (_IMAGEROWS + _PARALLELOVERSCAN)
+#define _LINENUM                #eval (_IMAGEROWS + _PARALLELOVERSCAN) + 1
 
 
 
@@ -84,23 +88,9 @@
 
 
 
-#if NOISETEST
-
-#define _FIRST_RESET_SAMPLE      25
-#define _LAST_RESET_SAMPLE       75
-#define _FIRST_VIDEO_SAMPLE      125
-#define _LAST_VIDEO_SAMPLE       175
-
-#else
-
-//pixel timing should be set up such that pixel trigger only happens when RG comes down, so we start at 0
-#define _FIRST_RESET_SAMPLE      500
-#define _LAST_RESET_SAMPLE       600
-#define _FIRST_VIDEO_SAMPLE      800
-#define _LAST_VIDEO_SAMPLE       900
+//attempt pixel timing coincident with the nearest ADM samples
 
 
-#endif
 
 
 #define AC_CLAMP_ON_TIME 1000
