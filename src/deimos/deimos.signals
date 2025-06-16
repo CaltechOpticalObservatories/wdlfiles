@@ -71,6 +71,7 @@
 #define FCS_P3L     3 : 8 // new VIB assignment
 #define FCS_P2      3 : 9 // new VIB assignment
 #define FCS_P1      3 : 10 // new VIB assignment
+
 #define TGA2        3 : 11 // new VIB assignment
 #define SCI_RGBACKUP1 3 : 12 //new VIB assignment
 
@@ -90,24 +91,26 @@
 #define Spare2        2 : 12 //new VIB assignment
     
 
-#define TGA [TGA1 TGA2] //new VIB assignment
+#define TG [TGA1,  TGA2] //new VIB assignment
 
 
 /****  LVDS Driver Signal definitions   ****/
 
-#define RG_1     12 : 7
-#define RG_2     12 : 8
 #define AC_Clamp 12 : 12
-#define SW_1     12 : 15
 /* NOP Definition - NEEDS TO BE UNUSED */
 #define NOP      12 : 2  //new VIB redefine
 #define PD_OE_IN 12 : 1 //new VIB assignment
+
 #define RG_SCI3  12 : 5 //new VIB assignment
+
 #define RG_SCI4  12 : 6 //new VIB assignment
+
 #define RG_SCI1  12 : 7 //new VIB assignment
+
 #define RG_SCI2  12 : 8 //new VIB assignment
 
 #define SW_SCI2  12 : 16 //new VIB redefine
+
 #define SW_SCI1  12 : 15 //new VIB redefine
 #define SW_SCI3  12 : 14 //new VIB assignment
 #define SW_SCI4  12 : 13 //new VIB assignment
@@ -131,7 +134,7 @@
 
 #define SCI_SCLK3 SCLK_EF
 /* Reset Gate Combine */
-#define RG [RG_SCI1, RG_SCI2, RG_SCI3, RG_SCI4]
+#define RG [ RG_SCI1, RG_SCI2, RG_SCI3, RG_SCI4]
 
 /* Summing Well Combine */
 #define SW [SW_SCI1, SW_SCI2, SW_SCI3, SW_SCI4]
