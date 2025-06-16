@@ -53,14 +53,14 @@ SLOT 3 driverx {
 }
 
 SLOT 4 xvbias {
-  PBIAS 1 [0,0];
-  PBIAS 2 [0,0];
-  PBIAS 3 [0,0];
-  PBIAS 4 [0,0];  
-  NBIAS 1 [0, -0] "SCI Backside";
-  NBIAS 2 [0,-0];
-  NBIAS 3 [0,-0];
-  NBIAS 4 [0,-0];
+  PBIAS 1 0 [0,0];
+  PBIAS 2 0 [0,0];
+  PBIAS 3 0 [0,0];
+  PBIAS 4 0 [0,0];  
+  NBIAS 1 1 [0, -0] "SCI Backside";
+  NBIAS 2 0 [0,-0];
+  NBIAS 3 0 [0,-0];
+  NBIAS 4 0 [0,-0];
 }
 
 /* SLOT 7 ADM */ 
