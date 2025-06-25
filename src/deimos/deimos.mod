@@ -130,12 +130,12 @@ SLOT 10 lvbias {
    LVLC 11 [-4.0,0] "LastGateB FCS 1"; 
    LVLC 12 [-4.0,0] "LastGateA FCS 2"; 
    LVLC 13 [-4.0,0] "LastGateB FCS 2";
-   LVLC 14 [00.0,0]; 
-   LVLC 15 [-6.0,0] "FCS Summing Well - Low"; 
-   LVLC 16 [5.0,0] "FCS Summing Well - High"; 
+   LVLC 14 [3.3,0] "SCI E Output Gate 2" ; 
+   LVLC 15 [3.3,0] "SCI F Output Gate 2"; 
+   LVLC 16 [0.0,0] ; 
    LVLC 17 [00.0,0];
-   LVLC 18 [0.0,0] "FCS reset gate - Low";
-   LVLC 19 [12.0,0] "FCS reset gate - High";
+   LVLC 18 [0.0,0] ;
+   LVLC 19 [0.0,0] ;
    LVLC 20 [00.0,0]; 
    LVLC 21 [00.0,0]; 
    LVLC 22 [00.0,0] "Video offset FCS"; 
