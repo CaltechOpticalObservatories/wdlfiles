@@ -91,6 +91,9 @@
 #define Spare2        2 : 12 //new VIB assignment
     
 
+#define RG_CLOCKS [3 : 12, SCI_RGBACKUP2]
+#define SW_CLOCKS [SCI_SWBACKUP1, 2 : 7]
+
 #define TG [TGA1,  TGA2] //new VIB assignment
 
 
@@ -134,10 +137,11 @@
 
 #define SCI_SCLK3 SCLK_EF
 /* Reset Gate Combine */
-#define RG [ RG_SCI1, RG_SCI2, RG_SCI3, RG_SCI4]
+#define RG [RG_SCI1, RG_SCI2, RG_SCI3, RG_SCI4]
 
 /* Summing Well Combine */
-#define SW [SW_SCI1, SW_SCI2, SW_SCI3, SW_SCI4]
+/*define SW [SW_SCI1, SW_SCI2, SW_SCI3, SW_SCI4] */
+#define SW [SW_SCI1, SW_SCI2]
 
 /* Science Parallels */
  #define SCI_PCLK1 [PCLK_A1_1, PCLK_A1_2, PCLK_B1_1, PCLK_B1_2] 
