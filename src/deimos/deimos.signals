@@ -105,15 +105,11 @@
 #define PD_OE_IN 12 : 1 //new VIB assignment
 
 #define RG_SCI3  12 : 5 //new VIB assignment
-
 #define RG_SCI4  12 : 6 //new VIB assignment
-
 #define RG_SCI1  12 : 7 //new VIB assignment
-
 #define RG_SCI2  12 : 8 //new VIB assignment
 
 #define SW_SCI2  12 : 16 //new VIB redefine
-
 #define SW_SCI1  12 : 15 //new VIB redefine
 #define SW_SCI3  12 : 14 //new VIB assignment
 #define SW_SCI4  12 : 13 //new VIB assignment
@@ -141,7 +137,7 @@
 
 /* Summing Well Combine */
 /*define SW [SW_SCI1, SW_SCI2, SW_SCI3, SW_SCI4] */
-#define SW [SW_SCI1, SW_SCI2]
+#define SW [SW_SCI1, SW_SCI2, SW_SCI3, SW_SCI4]
 
 /* Science Parallels */
  #define SCI_PCLK1 [PCLK_A1_1, PCLK_A1_2, PCLK_B1_1, PCLK_B1_2] 
