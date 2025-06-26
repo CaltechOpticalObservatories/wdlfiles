@@ -111,7 +111,9 @@
 
 #define SW_SCI2  12 : 16 //new VIB redefine
 #define SW_SCI1  12 : 15 //new VIB redefine
+
 #define SW_SCI3  12 : 14 //new VIB assignment
+
 #define SW_SCI4  12 : 13 //new VIB assignment
 
 
@@ -133,11 +135,11 @@
 
 #define SCI_SCLK3 SCLK_EF
 /* Reset Gate Combine */
-#define RG [RG_SCI1, RG_SCI2, RG_SCI3, RG_SCI4]
+#define RG [ RG_SCI3 , RG_SCI4 , RG_SCI1 , RG_SCI2]
 
 /* Summing Well Combine */
 /*define SW [SW_SCI1, SW_SCI2, SW_SCI3, SW_SCI4] */
-#define SW [SW_SCI1, SW_SCI2, SW_SCI3, SW_SCI4]
+#define SW [SW_SCI2 , SW_SCI3 , SW_SCI4, SW_SCI1]
 
 /* Science Parallels */
  #define SCI_PCLK1 [PCLK_A1_1, PCLK_A1_2, PCLK_B1_1, PCLK_B1_2] 
