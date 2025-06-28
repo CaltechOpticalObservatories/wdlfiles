@@ -8,12 +8,12 @@ deimos_TMP
 
 
 SLOT 1 driverx {
-  DRVX  1 [PCLK_fast,PCLK_slow,0] "PCLK_B3_2";
-  DRVX  2 [PCLK_fast,PCLK_slow,0] "PCLK_A3_2";
-  DRVX  3 [PCLK_fast,PCLK_slow,0] "PCLK_B2_2";
-  DRVX  4 [PCLK_fast,PCLK_slow,0] "PCLK_A2_2";
-  DRVX  5 [PCLK_fast,PCLK_slow,0] "PCLK_B1_2";
-  DRVX  6 [PCLK_fast,PCLK_slow,0] "PCLK_A1_2";
+  DRVX  1 [PCLK_fast,PCLK_slow,1] "PCLK_B3_2";
+  DRVX  2 [PCLK_fast,PCLK_slow,1] "PCLK_A3_2";
+  DRVX  3 [PCLK_fast,PCLK_slow,1] "PCLK_B2_2";
+  DRVX  4 [PCLK_fast,PCLK_slow,1] "PCLK_A2_2";
+  DRVX  5 [PCLK_fast,PCLK_slow,1] "PCLK_B1_2";
+  DRVX  6 [PCLK_fast,PCLK_slow,1] "PCLK_A1_2";
   DRVX  7 [PCLK_fast,PCLK_slow,1] "PCLK_B1_1";
   DRVX  8 [PCLK_fast,PCLK_slow,1] "PCLK_A2_1";
   DRVX  9 [PCLK_fast,PCLK_slow,1] "PCLK_A2_1";
@@ -48,7 +48,7 @@ SLOT 3 driverx {
   DRVX  8 [1,1,0];
   DRVX  9 [1,1,0];
   DRVX 10 [1,1,0];
-  DRVX 11 [1,1,0];
+  DRVX 11 [TG_fast,TG_slow,1] "TGA2;
   DRVX 12 [1,1,0];
 }
 
