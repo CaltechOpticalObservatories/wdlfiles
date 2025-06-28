@@ -48,7 +48,7 @@ SLOT 3 driverx {
   DRVX  8 [1,1,0];
   DRVX  9 [1,1,0];
   DRVX 10 [1,1,0];
-  DRVX 11 [TG_fast,TG_slow,1] "TGA2;
+  DRVX 11 [TG_fast,TG_slow,1] "TGA2";
   DRVX 12 [1,1,0];
 }
 
