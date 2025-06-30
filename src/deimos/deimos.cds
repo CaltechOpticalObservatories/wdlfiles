@@ -35,7 +35,7 @@ SHD1          = 232
 SHD2          = 327
 
   //ADM module installed in slot 7
-#define SINGLE_DET_TEST 1
+#define SINGLE_DET_TEST 0
 
   // NOTE tghere is a re-mapping due to the cameralink cable,
   // that is not accounted for by the current DEIMOS VIB.
@@ -79,7 +79,6 @@ TAPLINES=16
 
 #endif
 
-  
 TRIGOUTFORCE=0
 TRIGOUTINVERT=0
 TRIGOUTLEVEL=0
