@@ -18,10 +18,10 @@ param ExposeWindow=0
 param exptime=0
 param longexposure=0 /* s|ms . To have exposure time longer than ~20min */
 param Abort=0
-param mode_UTR_RR=1
+param mode_UTR_RR=0
 param mode_UTR_GR=0
 param mode_EnhancedRollingReset=0
-param mode_VideoRX=0
+param mode_VideoRX=1
 param mode_VideoRXR=0
 param mode_PermanentReset=0
 param mode_Guiding=0
@@ -178,7 +178,7 @@ RR_SkipRow(H2RG_rows_skip);
 RX_ReadRow(H2RG_rows);
 PulseVCLK();
 ExposureTimer();
-if !prv_ghostframe DecrExposeCpt();
+/* if !prv_ghostframe DecrExposeCpt();*/
 return;
 }
 

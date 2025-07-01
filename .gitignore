@@ -3,3 +3,5 @@ src/*/*.acf
 
 # Python virtual env
 *venv
+
+.idea
