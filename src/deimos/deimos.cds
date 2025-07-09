@@ -13,7 +13,8 @@ RAWENABLE     = _RAW_ENABLE
 RAWENDLINE    = 800
 RAWSAMPLES    = 5000
   //RAWSEL        = _RAW_SELECT
-RAWSEL        = 47
+  //NOTE RAWSEL of 11 should be E channel of slot 2
+RAWSEL        = 11
 RAWSTARTLINE  = 0
 RAWSTARTPIXEL = 48
 SAMPLEMODE    = 0

@@ -30,6 +30,9 @@ param abortintegrate = 0 //checked by the integration waiters and they bail out 
 param flush = 1
 
 
+param rg_mod_test_mode = 0
+  
+
   param llel_coincident = 1 //use coincident llel clocks
   param llel_seq = 0 //use sequential llel clocks (must be not of llel_coincident)  
 
@@ -86,17 +89,7 @@ SEQUENCE ClampTest
 
 #endif
 
-#if 0
-SEQUENCE TestBrokenReadout
-{
-  OutputTestSetup();
-  PulseTGA();
 
-  VRDModulate();
-
-  GOTO TestBrokenReadout();
-}
-#endif
 
 
 
@@ -106,9 +99,23 @@ SEQUENCE StartSeq {
   
     if integrate_enable CheckIntegrate();
     if readout_enable CheckReadout();
+    if rg_mod_test_mode TestBrokenReadout();
     framecount--;
     GOTO StartSeq();
 }
+
+
+SEQUENCE TestBrokenReadout
+{
+  OutputTestSetup();
+  PulseTGA();
+
+  VRDModulate();
+
+  GOTO TestBrokenReadout();
+}
+
+
 
 SEQUENCE Flush
 {

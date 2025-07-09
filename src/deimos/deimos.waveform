@@ -321,8 +321,6 @@ WAVEFORM PulseTGA
 
 
 
-#if 0
-
 WAVEFORM VRDModulate
 {
  0: SET VRD_F TO 14.0;
@@ -371,7 +369,6 @@ WAVEFORM VRDModulate
   .+1us:  SET VRD_F TO 14.5;
   
 }
-#endif
 
 WAVEFORM ReadPixels
 {
@@ -559,7 +556,7 @@ WAVEFORM SerialEBackwards
 
 WAVEFORM BounceTGTest
 {
- 0: SET TG to _TG_CLOCK_HIGH,SLOW;
+ 0: SET TG to _TG_CLOCK_HIGH,FAST;
  .+500: SET TG to _TG_CLOCK_LOW, FAST;
  .+200: SET NOP to HIGH;
  0: SET PIXEL TO HIGH;
