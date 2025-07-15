@@ -105,7 +105,7 @@ SLOT 9 hvbias {
   HVLC 22 [17.00,2] "SCI2 F Reset Drain";
   HVLC 23 [29.00,1] "SCI2 E Output Drain" ; //TODO: needs re-assignment!
   HVLC 24 [29.00,1] "SCI2 F Output Drain"; //TODO: needs re-assignment!
-  HVHC  1 [29.0,2.0,3,1] "SCI E Output Drain";
+  HVHC  1 [29.0,7.0,3,1] "SCI E Output Drain";
   HVHC  2 [29.0,7.0,3,1] "SCI F Output Drain"; 
   HVHC  3 [24.3,2.0,0,1] "FCS1 Output Drain A";
   HVHC  4 [24.3,2.0,0,1] "FCS1 Output Drain B";
