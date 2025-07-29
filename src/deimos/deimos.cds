@@ -17,7 +17,7 @@ RAWSAMPLES    = 5000
 RAWSEL        = 11
 RAWSTARTLINE  = 0
 RAWSTARTPIXEL = 48
-SAMPLEMODE    = 0
+SAMPLEMODE    = 1
 
 //attempt pixel timing coincident with the nearest ADM samples. That means multiples of 8
 //by eye, try 80 to start
@@ -36,7 +36,7 @@ SHD1          = 232
 SHD2          = 327
 
   //ADM module installed in slot 7
-#define SINGLE_DET_TEST 0
+#define SINGLE_DET_TEST 1
 
   // NOTE tghere is a re-mapping due to the cameralink cable,
   // that is not accounted for by the current DEIMOS VIB.
@@ -52,30 +52,31 @@ SHD2          = 327
   
 
 #if SINGLE_DET_TEST
-TAPLINE0      ="AM45L,-1,100"
-TAPLINE1      ="AM44R,1,100"
+  //detector currently installed in slot 2
+TAPLINE0      ="AM39L,-1,100"
+TAPLINE1      ="AM40R,-1,100"
 TAPLINES=2
 FRAMEMODE=0
 
   
 #else
 FRAMEMODE=2
-TAPLINE0      ="AM37L,1,100"
-TAPLINE1      ="AM38R,1,100"
-TAPLINE2      ="AM39L,1,100"
-TAPLINE3      ="AM40R,1,100"
-TAPLINE4      ="AM41L,1,100"
-TAPLINE5      ="AM42R,1,100"
-TAPLINE6      ="AM43L,1,100"
-TAPLINE7      ="AM44R,1,100"
-TAPLINE8      ="AM45L,1,100"
-TAPLINE9      ="AM46R,1,100"
-TAPLINE10     ="AM47L,1,100"
-TAPLINE11     ="AM48R,1,100"
-TAPLINE12     ="AM49L,1,100"
-TAPLINE13     ="AM50R,1,100"
-TAPLINE14     ="AM51L,1,100"
-TAPLINE15     ="AM52R,1,100"
+TAPLINE0      ="AM37L,-1,100"
+TAPLINE1      ="AM38R,-1,100"
+TAPLINE2      ="AM39L,-1,100"
+TAPLINE3      ="AM40R,-1,100"
+TAPLINE4      ="AM41L,-1,100"
+TAPLINE5      ="AM42R,-1,100"
+TAPLINE6      ="AM43L,-1,100"
+TAPLINE7      ="AM44R,-1,100"
+TAPLINE8      ="AM45L,-1,100"
+TAPLINE9      ="AM46R,-1,100"
+TAPLINE10     ="AM47L,-1,100"
+TAPLINE11     ="AM48R,-1,100"
+TAPLINE12     ="AM49L,-1,100"
+TAPLINE13     ="AM50R,-1,100"
+TAPLINE14     ="AM51L,-1,100"
+TAPLINE15     ="AM52R,-1,100"
 TAPLINES=16
 
 #endif
