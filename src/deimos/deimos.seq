@@ -28,14 +28,20 @@ param framecount = 1000 //will be set
 param abortintegrate = 0 //checked by the integration waiters and they bail out if it is set
 
 param flush = 1
-
+param illum = 0
+param integrate_illum_ms = 0
+param integrate_illum_s = 0
 
 param rg_mod_test_mode = 0
+
+param tdi_wait_us = 0
   
 
   param llel_coincident = 1 //use coincident llel clocks
   param llel_seq = 0 //use sequential llel clocks (must be not of llel_coincident)  
 
+
+  
 #if NOISETEST
 SEQUENCE NoiseTest {
   setupTGTest();
@@ -136,10 +142,16 @@ SEQUENCE CheckIntegrate
   
 SEQUENCE Integrate
 {
-  SetupIntegration();
+
+  if illum OpenShutter();
+  if illum Wait1ms(integrate_illum_ms);
+  if illum Wait1s(integrate_illum_s);
+  if illum CloseShutter();  
   Wait1ms(integrate_ms);
   Wait1s(integrate_s);
-  TearDownIntegration();
+
+
+  
   RETURN;
 }
 
@@ -171,8 +183,6 @@ SEQUENCE FrameReadout
   //single serial read to flush the register
   ReadPixels(_AMPREADCOLS);
 
- 
-  
   //read all image rows and the desired overscan
   IF llel_seq LineReadout(TOTAL_ROWS);
   IF llel_coincident  LineReadoutCoincident(TOTAL_ROWS);
@@ -190,10 +200,9 @@ SEQUENCE Wait1s {
   RETURN;}
 
 SEQUENCE abortintegration {
-  TearDownIntegration();
+  CloseShutter();
   GOTO StartSeq();
 }
-
 
 SEQUENCE LineReadout
 { 
@@ -201,6 +210,8 @@ SEQUENCE LineReadout
 
   //wait here is for the clamp to die down. Put some of it in prescan, but not all
   Wait1us(50);
+
+  if tdi_wait_us Wait1us(tdi_wait_us);
 
   ReadPixels(PIXELS_PER_SEG);
   ReadPixels(PIXELS_PER_SEG);
@@ -217,7 +228,8 @@ SEQUENCE LineReadout
 
 SEQUENCE LineReadoutCoincident
 {
-  //charge assumed must be under I2 at this point, set up in preamble
+  if tdi_wait_us Wait1us(tdi_wait_us);
+   //charge assumed must be under I2 at this point, set up in preamble 
   ParallelForwardSegment1();
   TransferToSerialRegisterCoincident();
   ReadPixels(PIXELS_PER_SEG);
