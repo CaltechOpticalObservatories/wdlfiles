@@ -35,8 +35,8 @@
 #define HIGH  1
 #define LOW   0
 
-#define INV_HIGH 0 //Some signals are inverted. Use this sigil to indicate that
-#define INV_LOW 1
+#define INV_HIGH 1 //Some signals are inverted. Use this sigil to indicate that
+#define INV_LOW 0
 
 
 
@@ -106,8 +106,8 @@ WAVEFORM RegisterFlush {
 
 WAVEFORM InitialSetup
 {0  : 
-  SET RG TO 0;
-  SET SW TO 0;
+  SET RG TO INV_HIGH;
+  SET SW TO INV_HIGH;
   SET RG_CLOCKS TO _RG_LOW;
   SET SW_CLOCKS TO _SW_LOW;
 
@@ -140,8 +140,8 @@ WAVEFORM FlushSetup {
   
   SET TG TO _TG_CLOCK_HIGH, FAST;
   //SET AC_Clamp TO LOW;
-   SET SW TO 0;
-  SET RG TO 0;
+   SET SW TO INV_HIGH;
+  SET RG TO INV_HIGH;
    SET SCI_SCLK1 TO _SER_CLOCK_FLUSH, FAST;
   SET SCI_SCLK2 TO _SER_CLOCK_FLUSH, FAST;
   SET SCI_SCLK3 TO _SER_CLOCK_FLUSH, FAST;
@@ -160,9 +160,9 @@ WAVEFORM FlushTearDown {
   SET SCI_SCLK2 TO _SER_CLOCK_RCV, FAST;
   SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
   
-  SET SW TO 1;
+  SET SW TO INV_LOW;
   SET SW_CLOCKS to _SW_LOW;
-  SET RG TO 1;
+  SET RG TO INV_LOW;
   SET RG_CLOCKS TO _RG_LOW;
 
 }
@@ -378,7 +378,6 @@ WAVEFORM ReadPixels
   .+1: SET PIXEL TO LOW;
        SET LINE TO LOW;
        SET FRAME TO LOW;
-  
        //reset pulse at the start of the pixel
     SET RG TO INV_HIGH; //NOTE reset gate is inverted
     .+30: 	   SET RG TO INV_LOW;
@@ -401,6 +400,35 @@ WAVEFORM ReadPixels
 
 
 }
+
+WAVEFORM ReadPixelsSlow
+{
+ 0 := PIX_BEGIN
+    SET PIXEL TO HIGH;
+  .+1: SET PIXEL TO LOW;
+  SET LINE TO LOW;
+  SET FRAME TO LOW;
+
+  SET RG TO INV_HIGH;
+  .+30: SET RG TO INV_LOW;
+
+ 0: SET SCI_SCLK2 TO _SER_CLOCK_HIGH, FAST;
+  .+15: SET SCI_SCLK1 TO _SER_CLOCK_LOW, FAST;
+ 30:
+  SET SW TO INV_HIGH;
+  .+5 : 
+  SET SCI_SCLK3 TO _SER_CLOCK_HIGH, FAST;
+  .+10: SET SCI_SCLK2 TO _SER_CLOCK_LOW, FAST;
+
+ 180: SET SCI_SCLK1 TO _SER_CLOCK_HIGH, FAST;
+  .+15: SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
+  .+15: SET SW TO INV_LOW;
+
+  180+147: SET NOP TO HIGH;
+
+
+}
+
 
 #define PCLK_NOREAD_DELAY 
 

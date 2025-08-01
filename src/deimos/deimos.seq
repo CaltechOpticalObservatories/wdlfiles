@@ -29,6 +29,7 @@ param abortintegrate = 0 //checked by the integration waiters and they bail out 
 
 param flush = 1
 
+  
 
 param rg_mod_test_mode = 0
   
@@ -36,6 +37,9 @@ param rg_mod_test_mode = 0
   param llel_coincident = 1 //use coincident llel clocks
   param llel_seq = 0 //use sequential llel clocks (must be not of llel_coincident)  
 
+
+  param slow_pix = 0 // use "slow pixel", mainly useful for debugging serial clock feedthroughs
+  
 #if NOISETEST
 SEQUENCE NoiseTest {
   setupTGTest();
@@ -112,7 +116,7 @@ SEQUENCE TestBrokenReadout
 
   VRDModulate();
 
-  GOTO TestBrokenReadout();
+  RETURN;
 }
 
 
@@ -120,7 +124,7 @@ SEQUENCE TestBrokenReadout
 SEQUENCE Flush
 {
   FlushSetup();
-  Wait1s();
+  Wait1ms(10);
   FlushTearDown();
   Wait1ms(10);
   RETURN Flush;
@@ -172,10 +176,10 @@ SEQUENCE FrameReadout
   ReadPixels(_AMPREADCOLS);
 
  
-  
   //read all image rows and the desired overscan
   IF llel_seq LineReadout(TOTAL_ROWS);
   IF llel_coincident  LineReadoutCoincident(TOTAL_ROWS);
+  IF slow_pix LineReadoutSlowPix(TOTAL_ROWS);
 
   ReadoutEnd();
   RETURN;
@@ -195,26 +199,26 @@ SEQUENCE abortintegration {
 }
 
 
+SEQUENCE LineReadoutSlowPix
+{
+  ParallelForwardNoCoincident();
+  Wait1us(50);
+  ReadPixelsSlow(_AMPREADCOLS);
+  Wait1us(10);
+  RETURN;
+}
+
 SEQUENCE LineReadout
 { 
   ParallelForwardNoCoincident();
 
   //wait here is for the clamp to die down. Put some of it in prescan, but not all
-  Wait1us(50);
-
-  ReadPixels(PIXELS_PER_SEG);
-  ReadPixels(PIXELS_PER_SEG);
-  ReadPixels(PIXELS_PER_SEG);
+  Wait1us(5);
+  ReadPixels(_AMPREADCOLS);
   //if there are leftover pixels, do them here
-  #if REMAINDER_PIX
-   ReadPixels(REMAINDER_PIX);
-
-  #endif
-
-   Wait1us(10);
+   Wait1us(5);
    RETURN;
 }
-
 SEQUENCE LineReadoutCoincident
 {
   //charge assumed must be under I2 at this point, set up in preamble
