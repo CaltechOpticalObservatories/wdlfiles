@@ -40,7 +40,19 @@ param tdi_wait_us = 0
   param llel_coincident = 1 //use coincident llel clocks
   param llel_seq = 0 //use sequential llel clocks (must be not of llel_coincident)  
 
+  //NOTE we will only do llel binning for llel_seq
+  //because it's very tricky to get timing right
+  // for coincident parallels. For most of the
+  //purposes you'd do this it will work fine anyway
+param llel_bin = 1
 
+
+  //NOTE: linbin=1 increments the amount of
+  //llel bins by 1 each line. This is to obtain
+  // the Kaye/Greffe/Smith "linearity by incremental //binning" curve, or "linbin" curve
+param linbin = 0
+  
+  
   //NOTE put these here _JUST_ so you can read them out. In order to change them need to recompile WDL (silly I know)
 
   //const phigh = _PAR_CLOCK_HIGH
@@ -110,7 +122,7 @@ SEQUENCE ClampTest
 SEQUENCE StartSeq {
   InitialSetup();
   if flush Flush(); 
-  
+    
     if integrate_enable CheckIntegrate();
     if readout_enable CheckReadout();
     if rg_mod_test_mode TestBrokenReadout();
@@ -151,15 +163,18 @@ SEQUENCE CheckIntegrate
 SEQUENCE Integrate
 {
 
+  //NOTE: open shutter if either TDI wait or
+  //illumination requested...
   if illum OpenShutter();
+  if tdi_wait_us OpenShutter();
   if illum Wait1ms(integrate_illum_ms);
   if illum Wait1s(integrate_illum_s);
+  //but only close it if illumination (if
+  // doing TDI we need to close it later on)
   if illum CloseShutter();  
   Wait1ms(integrate_ms);
   Wait1s(integrate_s);
 
-
-  
   RETURN;
 }
 
@@ -167,10 +182,11 @@ SEQUENCE CheckReadout
 {
   if framecount KeepThisFrame();
   FrameReadout();
+
+  //TDI curve stops after readout, turn off the illumination now
+  if tdi_wait_us CloseShutter();
   RETURN;
 }
-
-
 
 
 //segment calculations
@@ -214,8 +230,12 @@ SEQUENCE abortintegration {
 
 SEQUENCE LineReadout
 { 
-  ParallelForwardNoCoincident();
+  ParallelForwardNoCoincident(llel_bin);
 
+  //if we're doing a "linbin", increment llel_bin
+  //by one for each line
+  if linbin llel_bin++
+  
   //wait here is for the clamp to die down. Put some of it in prescan, but not all
   Wait1us(50);
 
