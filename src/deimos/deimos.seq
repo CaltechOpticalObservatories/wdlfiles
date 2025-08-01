@@ -46,6 +46,9 @@ param tdi_wait_us = 0
   //purposes you'd do this it will work fine anyway
 param llel_bin = 1
 
+  param slow_pix = 0 // use "slow pixel", mainly useful for debugging serial clock feedthroughs
+  
+
 
   //NOTE: linbin=1 increments the amount of
   //llel bins by 1 each line. This is to obtain
@@ -123,7 +126,7 @@ SEQUENCE ClampTest
 SEQUENCE StartSeq {
   InitialSetup();
   if flush Flush(); 
-    
+  
     if integrate_enable CheckIntegrate();
     if readout_enable CheckReadout();
     if rg_mod_test_mode TestBrokenReadout();
@@ -139,7 +142,7 @@ SEQUENCE TestBrokenReadout
 
   VRDModulate();
 
-  GOTO TestBrokenReadout();
+  RETURN;
 }
 
 
@@ -147,7 +150,7 @@ SEQUENCE TestBrokenReadout
 SEQUENCE Flush
 {
   FlushSetup();
-  Wait1s();
+  Wait1ms(10);
   FlushTearDown();
   Wait1ms(10);
   RETURN Flush;
@@ -190,6 +193,8 @@ SEQUENCE CheckReadout
 }
 
 
+
+
 //segment calculations
 //this does floor arithmetic, so might end up with wrong number
 //if number cols changes
@@ -208,9 +213,12 @@ SEQUENCE FrameReadout
   //single serial read to flush the register
   ReadPixels(_AMPREADCOLS);
 
+ 
+  
   //read all image rows and the desired overscan
   IF llel_seq LineReadout(TOTAL_ROWS);
   IF llel_coincident  LineReadoutCoincident(TOTAL_ROWS);
+  IF slow_pix LineReadoutSlowPix(TOTAL_ROWS);
 
   ReadoutEnd();
   RETURN;
@@ -229,6 +237,14 @@ SEQUENCE abortintegration {
   GOTO StartSeq();
 }
 
+SEQUENCE LineReadoutSlowPix
+{
+  ParallelForwardNoCoincident();
+  Wait1us(50);
+  ReadPixelsSlow(_AMPREADCOLS);
+  Wait1us(10);
+  RETURN;
+}
 
 SEQUENCE linbinincr {
   llel_bin++;
@@ -246,12 +262,8 @@ SEQUENCE LineReadout
   
   //wait here is for the clamp to die down. Put some of it in prescan, but not all
   Wait1us(50);
-
+  ReadPixels(_AMPREADCOLS);
   if tdi_wait_us Wait1us(tdi_wait_us);
-
-  ReadPixels(PIXELS_PER_SEG);
-  ReadPixels(PIXELS_PER_SEG);
-  ReadPixels(PIXELS_PER_SEG);
   //if there are leftover pixels, do them here
   #if REMAINDER_PIX
    ReadPixels(REMAINDER_PIX);
