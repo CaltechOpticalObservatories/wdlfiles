@@ -55,6 +55,7 @@ param linbin = 0
   
   //NOTE put these here _JUST_ so you can read them out. In order to change them need to recompile WDL (silly I know)
 
+  
   //const phigh = _PAR_CLOCK_HIGH
   //const plow = _PAR_CLOCK_LOW
   //const tghigh = _TG_CLOCK_HIGH
@@ -228,13 +229,20 @@ SEQUENCE abortintegration {
   GOTO StartSeq();
 }
 
+
+SEQUENCE linbinincr {
+  llel_bin++;
+  RETURN;
+}
+
+
 SEQUENCE LineReadout
 { 
   ParallelForwardNoCoincident(llel_bin);
 
   //if we're doing a "linbin", increment llel_bin
   //by one for each line
-  if linbin llel_bin++
+  if linbin linbinincr();
   
   //wait here is for the clamp to die down. Put some of it in prescan, but not all
   Wait1us(50);
