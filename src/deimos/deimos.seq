@@ -41,6 +41,14 @@ param tdi_wait_us = 0
   param llel_seq = 0 //use sequential llel clocks (must be not of llel_coincident)  
 
 
+  //NOTE put these here _JUST_ so you can read them out. In order to change them need to recompile WDL (silly I know)
+
+  //const phigh = _PAR_CLOCK_HIGH
+  //const plow = _PAR_CLOCK_LOW
+  //const tghigh = _TG_CLOCK_HIGH
+  //const tglow = _TG_CLOCK_LOW
+  // const serhigh = _SER_CLOCK_HIGH
+  //const serlow = _SER_CLOCK_LOW
   
 #if NOISETEST
 SEQUENCE NoiseTest {
