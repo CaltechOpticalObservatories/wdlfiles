@@ -18,53 +18,43 @@
 
 
 /** System Control Triggers **/
-param readout_enable = 1 //will be pulled externally when we want a frame
-param integrate_enable = 1 // to be set externally if we want an integration time
+param readout_enable = 1 // do readouts (almost always 1)
+param integrate_enable = 1 // do integrations (almost always 1)
 
-param integrate_ms = 0 // will be set externally to choose integration ms
-param integrate_s = 0 // will be set externally to choose integration seconds
+param integrate_ms = 0 // amount of time to integrate in the dark (ms component)
+param integrate_s = 0 // amount of time to integrate in the dark (s component)
 
-param framecount = 1 //will be set 
-param abortintegrate = 0 //checked by the integration waiters and they bail out if it is set
+param framecount = 1 // how many frames to read (set to 1 to trigger a readout on next sequence
+param abortintegrate = 0 // set to 1 to bail out if in the middle of an integration
 
-param flush = 1
-param illum = 0
-param integrate_illum_ms = 50
-param integrate_illum_s = 0
+param flush = 0 // run the flush sequence between every frame
+  param illum = 0 //should the light be turned on for integrations
+  param integrate_illum_ms = 50 //amount of time to integrate with light on (ms component)
+  param integrate_illum_s = 0 //amount of time to integrate with light on (s component)
+  param rg_mod_test_mode = 0 //go into special output V_RD modulation mode - EXPERTS ONLY
+  param tdi_wait_us = 0 // add a TDI wait period to each llel readout in llel_seq mode (for "quickPTC")
 
-param rg_mod_test_mode = 0
 
-param tdi_wait_us = 0
-  
-
+  //=====READOUT MODES -- all are MUTUALLY EXCLUSIVE ----
 param llel_coincident = 0 //use coincident llel clocks
-param llel_seq = 1 //use sequential llel clocks (must be not of llel_coincident)  
+param llel_seq = 1 //use sequential (normal) llel clocks
+param slow_pix = 0 // use "slow pixel" serials
+param linbin = 0 //Kaye/Smith/Greffe "linearity via binning" sequence
+param dch_llel = 0 // total deferred charge measurement (llel CTI)
+param dch_ser = 0 // total deferred charge measurement (serial CTI)
 
-  //NOTE we will only do llel binning for llel_seq
-  //because it's very tricky to get timing right
-  // for coincident parallels. For most of the
-  //purposes you'd do this it will work fine anyway
+
+//----- END OF READOUT MODES --- 
 param llel_bin = 1
 
-  param slow_pix = 0 // use "slow pixel", mainly useful for debugging serial clock feedthroughs
   
+  
+  //calculations for linbin...
+//number of linbin valuable measurements you'll get
+#define LINBIN_MEAS #exec echo " (sqrt(1 + 8 * _IMAGEROWS) -1)/2 " | bc
+  //number of non measured linbin rows to read out to maintain total same image size
+#define LINBIN_NOBIN_ROWS #eval _IMAGEROWS - LINBIN_MEAS
 
-
-  //NOTE: linbin=1 increments the amount of
-  //llel bins by 1 each line. This is to obtain
-  // the Kaye/Greffe/Smith "linearity by incremental //binning" curve, or "linbin" curve
-param linbin = 0
-  
-  
-  //NOTE put these here _JUST_ so you can read them out. In order to change them need to recompile WDL (silly I know)
-
-  
-  //const phigh = _PAR_CLOCK_HIGH
-  //const plow = _PAR_CLOCK_LOW
-  //const tghigh = _TG_CLOCK_HIGH
-  //const tglow = _TG_CLOCK_LOW
-  // const serhigh = _SER_CLOCK_HIGH
-  //const serlow = _SER_CLOCK_LOW
   
 #if NOISETEST
 SEQUENCE NoiseTest {
@@ -216,10 +206,13 @@ SEQUENCE FrameReadout
  
   
   //read all image rows and the desired overscan
+  //note these parameters are ALL mutually exclusive
   IF llel_seq LineReadout(TOTAL_ROWS);
   IF llel_coincident  LineReadoutCoincident(TOTAL_ROWS);
   IF slow_pix LineReadoutSlowPix(TOTAL_ROWS);
-
+  IF linbin LineReadout(LINBIN_MEAS);
+  IF linbin LineReadoutFast(LINBIN_NOBIN_ROWS);
+  
   ReadoutEnd();
   RETURN;
 }
@@ -257,6 +250,16 @@ SEQUENCE linbinincr {
   RETURN;
 }
 
+
+SEQUENCE LineReadoutFast
+{
+  ParallelForwardNoCoincident();
+  ReadPixels(_AMPREADCOLS);
+  #if REMAINDER_PIX
+  ReadPixels(REMAINDER_PIX);
+  #endif
+  RETURN;
+}
 
 SEQUENCE LineReadout
 {
