@@ -18,13 +18,10 @@
 
 
 /** System Control Triggers **/
-param readout_enable = 1 // do readouts (almost always 1)
-param integrate_enable = 1 // do integrations (almost always 1)
-
 param integrate_ms = 0 // amount of time to integrate in the dark (ms component)
 param integrate_s = 0 // amount of time to integrate in the dark (s component)
 
-param framecount = 1 // how many frames to read (set to 1 to trigger a readout on next sequence
+param framecount = 0 // how many frames to read (set to 1 to trigger a readout on next sequence
 param abortintegrate = 0 // set to 1 to bail out if in the middle of an integration
 
 param flush = 0 // run the flush sequence between every frame
@@ -35,6 +32,8 @@ param flush = 0 // run the flush sequence between every frame
   param tdi_wait_us = 0 // add a TDI wait period to each llel readout in llel_seq mode (for "quickPTC")
 
 
+param line_clamp_delay_us = 10
+  
   //=====READOUT MODES -- all are MUTUALLY EXCLUSIVE ----
 param llel_coincident = 0 //use coincident llel clocks
 param llel_seq = 1 //use sequential (normal) llel clocks
@@ -47,14 +46,27 @@ param dch_ser = 0 // total deferred charge measurement (serial CTI)
 //----- END OF READOUT MODES --- 
 param llel_bin = 1
 
-  
+  //TODO: wide gate integration mode  
   
   //calculations for linbin...
 //number of linbin valuable measurements you'll get
 #define LINBIN_MEAS #exec echo " (sqrt(1 + 8 * _IMAGEROWS) -1)/2 " | bc
   //number of non measured linbin rows to read out to maintain total same image size
-#define LINBIN_NOBIN_ROWS #eval _IMAGEROWS - LINBIN_MEAS
+#define LINBIN_NOBIN_ROWS #eval TOTAL_ROWS - LINBIN_MEAS
 
+
+//segment calculations
+//this does floor arithmetic, so might end up with wrong number
+//if number cols changes
+#define PIXELS_PER_SEG #eval _AMPREADCOLS  / 3
+#define REMAINDER_PIX #eval _AMPREADCOLS - (PIXELS_PER_SEG * 3)
+
+
+#define  TOTAL_ROWS #eval _IMAGEROWS + _PARALLELOVERSCAN
+
+
+
+  
   
 #if NOISETEST
 SEQUENCE NoiseTest {
@@ -111,17 +123,14 @@ SEQUENCE ClampTest
 
 
 
-
-
 SEQUENCE StartSeq {
   InitialSetup();
-  if flush Flush(); 
-  
-    if integrate_enable CheckIntegrate();
-    if readout_enable CheckReadout();
-    if rg_mod_test_mode TestBrokenReadout();
-    framecount--;
-    GOTO StartSeq();
+  if flush Flush();   
+  if framecount Integrate();
+  if framecount ReadoutKeep();
+  if !framecount LineReadoutFast(TOTAL_ROWS);
+  if rg_mod_test_mode TestBrokenReadout();
+   GOTO StartSeq();
 }
 
 
@@ -148,11 +157,6 @@ SEQUENCE Flush
 
 
 
-SEQUENCE CheckIntegrate
-{
-  if framecount Integrate();
-  RETURN;
-}
   
 SEQUENCE Integrate
 {
@@ -160,9 +164,8 @@ SEQUENCE Integrate
   //NOTE: open shutter if either TDI wait or
   //illumination requested...
   if illum OpenShutter();
-  if tdi_wait_us OpenShutter();
-  if illum Wait1ms(integrate_illum_ms);
-  if illum Wait1s(integrate_illum_s);
+  Wait1ms(integrate_illum_ms);
+  Wait1s(integrate_illum_s);
   //but only close it if illumination (if
   // doing TDI we need to close it later on)
   if illum CloseShutter();  
@@ -172,27 +175,15 @@ SEQUENCE Integrate
   RETURN;
 }
 
-SEQUENCE CheckReadout
+SEQUENCE ReadoutKeep
 {
-  if framecount KeepThisFrame();
+  KeepThisFrame();
   FrameReadout();
-
-  //TDI curve stops after readout, turn off the illumination now
-  if tdi_wait_us CloseShutter();
+  framecount--;
   RETURN;
 }
 
 
-
-
-//segment calculations
-//this does floor arithmetic, so might end up with wrong number
-//if number cols changes
-#define PIXELS_PER_SEG #eval _AMPREADCOLS  / 3
-#define REMAINDER_PIX #eval _AMPREADCOLS - (PIXELS_PER_SEG * 3)
-
-
-#define  TOTAL_ROWS #eval _IMAGEROWS + _PARALLELOVERSCAN
 
 SEQUENCE FrameReadout
 {
@@ -202,7 +193,7 @@ SEQUENCE FrameReadout
   Wait1us(50);
   //single serial read to flush the register
   ReadPixels(_AMPREADCOLS);
-
+  if tdi_wait_us OpenShutter();
  
   
   //read all image rows and the desired overscan
@@ -212,7 +203,8 @@ SEQUENCE FrameReadout
   IF slow_pix LineReadoutSlowPix(TOTAL_ROWS);
   IF linbin LineReadout(LINBIN_MEAS);
   IF linbin LineReadoutFast(LINBIN_NOBIN_ROWS);
-  
+
+  if tdi_wait_us CloseShutter();
   ReadoutEnd();
   RETURN;
 }
@@ -239,11 +231,11 @@ SEQUENCE LineReadoutSlowPix
   RETURN;
 }
 
-SEQUENCE linbinincrcheck
-{
+SEQUENCE linbinincrcheck {
   if framecount linbinincr();
   RETURN;
 }
+
 
 SEQUENCE linbinincr {
   llel_bin++;
@@ -263,14 +255,13 @@ SEQUENCE LineReadoutFast
 
 SEQUENCE LineReadout
 {
-  if framecount ParallelForwardNoCoincident(llel_bin);
-  if !framecount ParallelForwardNoCoincident();
+  ParallelForwardNoCoincident(llel_bin);
   //if we're doing a "linbin", increment llel_bin
   //by one for each line
-  if linbin linbinincrcheck();
+  if linbin linbinincr();
   
   //wait here is for the clamp to die down. Put some of it in prescan, but not all
-  Wait1us(50);
+  Wait1us(line_clamp_delay_us);
   ReadPixels(_AMPREADCOLS);
   if tdi_wait_us Wait1us(tdi_wait_us);
   //if there are leftover pixels, do them here
@@ -278,8 +269,6 @@ SEQUENCE LineReadout
    ReadPixels(REMAINDER_PIX);
 
   #endif
-
-   Wait1us(10);
    RETURN;
 }
 
