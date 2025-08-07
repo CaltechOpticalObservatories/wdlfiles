@@ -286,8 +286,10 @@ SEQUENCE LineReadoutTDCser
   ReadPixels(SER_TDC_REMAINDER);
 
   //need to dump out the rest of the pixels on the opposite side amplifier
-  if !dsch_ser_direction ReadPixelsFOnly(SER_COLS_LEFTOVER);
-  if dsch_ser_direction ReadPixelsEOnly(SER_COLS_LEFTOVER);
+  if !dsch_ser_direction DumpPixelsFOnly(SER_COLS_LEFTOVER);
+  if dsch_ser_direction DumpPixelsEOnly(SER_COLS_LEFTOVER);
+
+  
   
   //ser_bin has been incremented a bunch, need to decrement it back to 1
   serbindecr(ser_bin); //now it's 0
