@@ -232,7 +232,7 @@ SEQUENCE FrameReadoutTDCllel_Innerloop
 
   //clock Section B forward a number of times,
   //this will effectively "bin" into section A
-  ForwardParallelSectionB(llel_bin);
+  ForwardParallelSectionBNoCoincident(llel_bin);
 
   //increment linbin by the predefined amount
   linbinincr(LLEL_TDC_BININCR);
