@@ -272,13 +272,18 @@ SEQUENCE FrameReadoutTDCser
 SEQUENCE LineReadoutTDCser
 {
   //load a line
-  ParallelForwardNoCoincident();
+  ParallelForwardNoCoincident(llel_bin);
   //need to readout prescan anyway, nothing doing there
   if !dsch_ser_direction ReadPixelsEOnly(_SERIALPRESCAN);
   if dsch_ser_direction ReadPixelsFOnly(_SERIALPRESCAN);
   
   TDCser_Innerloop(SER_TDC_LOOPS);
   ReadPixels(SER_TDC_REMAINDER);
+
+  //ser_bin has been incremented a bunch, need to decrement it back to 1
+  serbindecr(ser_bin); //now it's 0
+  serbinincr(); //now it's 1
+  
   RETURN;
 }
 
@@ -302,6 +307,11 @@ SEQUENCE serbinincr
   RETURN;
 }
 
+SEQUENCE serbindecr
+{
+  ser_bin--;
+  RETURN;
+}
 
 SEQUENCE FrameReadout
 {
@@ -434,65 +444,3 @@ SEQUENCE LineReadoutAOnlyCoincident
       RETURN ;
 }
 
-SEQUENCE ParallelDCMeasReadout
-{
-  ReadoutBegin();
-  //single line read to flush the register
-  ReadPixels(_AMPREADCOLS);
-    
-  //dump the 'A' image section
-  LineReadoutAOnly(_SECTION_A_ROWS);
-  ParallelDCLineLoop(LLEL_TDC_LOOPS);
-  RETURN;
-
-}
-
-SEQUENCE ParallelDCLineLoop
-{
-  //now we have a bunch of charge in B section, A section is empty
-  //go forward on B clocks only, this gets a bright line into section A
-  //multiple forwards of section B bins charge into section A
-  ForwardParallelSectionB(LLEL_TDC_BINS);
-
-  //then forward for the number of line spacings
-  LineReadoutAOnly(LLEL_TDC_LINE_SPACING);
-  RETURN;
-}
-
-  
-SEQUENCE SerialDCMeasReadoutE
-{
-  ReadoutBegin();
-  //single line read to flush the register
-  ReadPixels(_AMPREADCOLS);
-
-  //run the serial DC line loop
-  
-  RETURN;
-}
-
-SEQUENCE SerialDCLineLoopE
-{
-  //first we dump a number of lines into the serial register (to build uBp the charge size)
-  ForwardParallelAll(SER_TDC_LLEL_BINS);
-
-  //now empty the E side of the register
-  ReadPixelsEOnly(_AMPCOLS);
-
-  //read out pixels from E only - the number read out is the spacing
-  ReadPixelsEOnly(SER_TDC_ROW_SPACING);
-  
-
-  RETURN;
-  
-}
-
-SEQUENCE SerialDCRowLoopE
-{
-  //back clock F the defined number of times this should get a bright line into E
-  SerialFBackwards(SER_TDC_SER_BINS);
-  //read out the pixels from E register only - NO NEED TO 
-  ReadPixelsEOnly(SER_TDC_ROW_SPACING);
-
-  RETURN;
-}
