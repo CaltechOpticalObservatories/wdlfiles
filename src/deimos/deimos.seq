@@ -278,6 +278,9 @@ SEQUENCE LineReadoutTDCser
   //need to readout prescan anyway, nothing doing there
   if !dsch_ser_direction ReadPixelsEOnly(_SERIALPRESCAN);
   if dsch_ser_direction ReadPixelsFOnly(_SERIALPRESCAN);
+
+  if !dsch_ser_direction DumpPixelsEOnly(_AMPCOLS);
+  if dsch_ser_direction DumpPixelsFOnly(_AMPCOLS)
   
   TDCser_Innerloop(SER_TDC_LOOPS);
   ReadPixels(SER_TDC_REMAINDER);
