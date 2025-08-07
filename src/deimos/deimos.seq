@@ -45,6 +45,15 @@ param dch_ser = 0 // total deferred charge measurement (serial CTI)
 
 //----- END OF READOUT MODES --- 
 param llel_bin = 1
+param ser_bin = 1
+
+
+  //serial CTI measurement configuration modes
+  //direction 0 means read out towards E, dump
+  //backwards from F. direction 1 means read
+  //out towards F, dump backwards from E
+  param dsch_ser_direction = 0
+
 
   //TODO: wide gate integration mode  
   
@@ -54,6 +63,8 @@ param llel_bin = 1
   //number of non measured linbin rows to read out to maintain total same image size
 #define LINBIN_NOBIN_ROWS #eval TOTAL_ROWS - LINBIN_MEAS
 
+
+  
 
 //segment calculations
 //this does floor arithmetic, so might end up with wrong number
@@ -68,13 +79,17 @@ param llel_bin = 1
 
   //number of lines in the TDC segment (including
   //one bright line and the rest dark)
-#define LLEL_TDC_LINES 20
+#define LLEL_TDC_LINES 60
 #define LLEL_TDC_BININCR 1 
 
 #define LLEL_TDC_LOOPS #eval TOTAL_ROWS / LLEL_TDC_LINES
   #define LLEL_TDC_REMAINDER #eval TOTAL_ROWS % LLEL_TDC_LINES
 
-  
+#define SER_TDC_LINES 21
+#define SER_TDC_BININCR 1
+#define SER_TDC_LOOPS #eval (_AMPCOLS + _SERIALOVERSCAN) / SER_TDC_LINES
+#define SER_TDC_REMAINDER #eval _AMPREADCOLS % SER_TDC_LINES
+
 #if NOISETEST
 SEQUENCE NoiseTest {
   setupTGTest();
@@ -242,16 +257,43 @@ SEQUENCE FrameReadoutTDCllel_Innerloop
 
 SEQUENCE FrameReadoutTDCser
 {
-  //just increment the number of lines transferred
-  //into the serial register on each line.
-  //WAIT, isn't this just a linbin??
-  //yes, unless you also do the fancy serial side
-  //clocking
-
-
+  ReadoutBegin();
+  Wait1us(50);
+  ReadPixels(_AMPREADCOLS);
+  
+  //each inner loop returns one row, so
+  //just match total rows for other readout
+  //sequences
+  FrameReadoutTDCser_Innerloop(TOTAL_ROWS);
   RETURN;
 }
 
+SEQUENCE FrameReadoutTDCser_Innerloop
+{
+  //load a line
+  ParallelForwardNoCoincident();
+  
+  //need to readout prescan anyway, nothing doing there
+  if !dsch_ser_direction ReadPixelsEOnly(_SERIALPRESCAN);
+  if dsch_ser_direction ReadPixelsFOnly(_SERIALPRESCAN);
+
+  //now readout a number of pixels
+  if !dsch_ser_direction ReadPixelsEOnly(SER_TDC_LINES);
+  if dsch_ser_direction ReadPixelsFOnly(SER_TDC_LINES);
+
+  //clock the other output backwards into the opposite register half
+  if !dsch_ser_direction SerialFBackwards(ser_bin);
+  if dsch_ser_direction  SerialEBackwards(ser_bin);
+
+  serbinincr(SER_TDC_BININCR);
+  RETURN;
+}
+
+SEQUENCE serbinincr
+{
+  ser_bin++;
+  RETURN;
+}
 
 
 SEQUENCE FrameReadout
