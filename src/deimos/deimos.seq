@@ -211,6 +211,7 @@ SEQUENCE ReadoutKeep
   if slow_pix FrameReadout();
   if linbin FrameReadout();
   if dch_llel FrameReadoutTDCllel();
+  if dch_ser FrameReadoutTDCser();
   
   framecount--;
   RETURN;
