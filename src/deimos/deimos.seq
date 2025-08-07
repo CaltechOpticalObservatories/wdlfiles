@@ -85,10 +85,10 @@ param ser_bin = 1
 #define LLEL_TDC_LOOPS #eval TOTAL_ROWS / LLEL_TDC_LINES
   #define LLEL_TDC_REMAINDER #eval TOTAL_ROWS % LLEL_TDC_LINES
 
-#define SER_TDC_LINES 21
+#define SER_TDC_COLS 21
 #define SER_TDC_BININCR 1
-#define SER_TDC_LOOPS #eval (_AMPCOLS + _SERIALOVERSCAN) / SER_TDC_LINES
-#define SER_TDC_REMAINDER #eval _AMPREADCOLS % SER_TDC_LINES
+#define SER_TDC_LOOPS #eval (_AMPCOLS + _SERIALOVERSCAN) / SER_TDC_COLS
+#define SER_TDC_REMAINDER #eval _AMPREADCOLS % SER_TDC_COLS
 
 #if NOISETEST
 SEQUENCE NoiseTest {
@@ -265,22 +265,28 @@ SEQUENCE FrameReadoutTDCser
   //each inner loop returns one row, so
   //just match total rows for other readout
   //sequences
-  FrameReadoutTDCser_Innerloop(TOTAL_ROWS);
+  LineReadoutTDCser(TOTAL_ROWS);
   RETURN;
 }
 
-SEQUENCE FrameReadoutTDCser_Innerloop
+SEQUENCE LineReadoutTDCser
 {
   //load a line
   ParallelForwardNoCoincident();
-  
   //need to readout prescan anyway, nothing doing there
   if !dsch_ser_direction ReadPixelsEOnly(_SERIALPRESCAN);
   if dsch_ser_direction ReadPixelsFOnly(_SERIALPRESCAN);
+  
+  TDCser_Innerloop(SER_TDC_LOOPS);
+  ReadPixels(SER_TDC_REMAINDER);
+  RETURN;
+}
 
+SEQUENCE TDCser_Innerloop
+{
   //now readout a number of pixels
-  if !dsch_ser_direction ReadPixelsEOnly(SER_TDC_LINES);
-  if dsch_ser_direction ReadPixelsFOnly(SER_TDC_LINES);
+  if !dsch_ser_direction ReadPixelsEOnly(SER_TDC_COLS);
+  if dsch_ser_direction ReadPixelsFOnly(SER_TDC_COLS);
 
   //clock the other output backwards into the opposite register half
   if !dsch_ser_direction SerialFBackwards(ser_bin);
@@ -376,10 +382,6 @@ SEQUENCE LineReadout
   ReadPixels(_AMPREADCOLS);
   if tdi_wait_us Wait1us(tdi_wait_us);
   //if there are leftover pixels, do them here
-  #if REMAINDER_PIX
-   ReadPixels(REMAINDER_PIX);
-
-  #endif
    RETURN;
 }
 
