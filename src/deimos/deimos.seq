@@ -280,10 +280,12 @@ SEQUENCE LineReadoutTDCser
   if dsch_ser_direction ReadPixelsFOnly(_SERIALPRESCAN);
 
   if !dsch_ser_direction DumpPixelsEOnly(_AMPCOLS);
-  if dsch_ser_direction DumpPixelsFOnly(_AMPCOLS)
+  if dsch_ser_direction DumpPixelsFOnly(_AMPCOLS);
   
   TDCser_Innerloop(SER_TDC_LOOPS);
-  ReadPixels(SER_TDC_REMAINDER);
+  if !dsch_ser_direction ReadPixelsEOnly(SER_TDC_REMAINDER);
+  if dsch_ser_direction ReadPixelsEOnly(SER_TDC_REMAINDER);
+
 
   //need to dump out the rest of the pixels on the opposite side amplifier
   if !dsch_ser_direction DumpPixelsFOnly(SER_COLS_LEFTOVER);
