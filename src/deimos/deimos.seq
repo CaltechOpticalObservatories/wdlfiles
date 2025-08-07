@@ -64,9 +64,16 @@ param llel_bin = 1
 
 #define  TOTAL_ROWS #eval _IMAGEROWS + _PARALLELOVERSCAN
 
+  //calculations for total deferred charge measurements
 
+  //number of lines in the TDC segment (including
+  //one bright line and the rest dark)
+#define LLEL_TDC_LINES 20
+#define LLEL_TDC_BININCR 1 
 
-  
+#define LLEL_TDC_LOOPS #eval TOTAL_ROWS / LLEL_TDC_LINES
+  #define LLEL_TDC_REMAINDER #eval TOTAL_ROWS % LLEL_TDC_LINES
+
   
 #if NOISETEST
 SEQUENCE NoiseTest {
@@ -128,10 +135,12 @@ SEQUENCE StartSeq {
   if flush Flush();   
   if framecount Integrate();
   if framecount ReadoutKeep();
+  
   if !framecount LineReadoutFast(TOTAL_ROWS);
   if rg_mod_test_mode TestBrokenReadout();
    GOTO StartSeq();
 }
+
 
 
 SEQUENCE TestBrokenReadout
@@ -178,8 +187,68 @@ SEQUENCE Integrate
 SEQUENCE ReadoutKeep
 {
   KeepThisFrame();
-  FrameReadout();
+
+  //select the readout type
+
+  //"normal" image readout modes
+  if llel_coincident FrameReadout();
+  if llel_seq FrameReadout();
+  if slow_pix FrameReadout();
+  if linbin FrameReadout();
+  if dch_llel FrameReadoutTDCllel();
+  
   framecount--;
+  RETURN;
+}
+
+
+SEQUENCE FrameReadoutTDCllel
+{
+  ReadoutBegin();
+  Wait1us(50);
+  ReadPixels(_AMPREADCOLS);
+
+  //each inner loop call reads out LLEL_TDC_LINES
+  //lines. The total number of times we need to
+  //run the inner loop is therefore
+  // floor(TOTAL_ROWS / LLEL_TDC_LINES)
+  FrameReadoutTDCllel_Innerloop(LLEL_TDC_LOOPS);
+  
+  //and readout an extra TOTAL_ROWS % LLEL_TDC_LINES
+  //to get the same total number of lines in the
+  //resulting buffer
+  LineReadout(LLEL_TDC_REMAINDER);
+ 
+  RETURN;
+}
+
+SEQUENCE FrameReadoutTDCllel_Innerloop
+{
+  //the first bunch of times this happens,
+  //all lines will be bright (from section A)
+  //but as we exhaust section A, we will end up
+  //with dark lines from section B coming through
+  LineReadoutAOnly(LLEL_TDC_LINES);
+
+  //clock Section B forward a number of times,
+  //this will effectively "bin" into section A
+  ForwardParallelSectionB(llel_bin);
+
+  //increment linbin by the predefined amount
+  linbinincr(LLEL_TDC_BININCR);
+
+  RETURN;
+}
+
+SEQUENCE FrameReadoutTDCser
+{
+  //just increment the number of lines transferred
+  //into the serial register on each line.
+  //WAIT, isn't this just a linbin??
+  //yes, unless you also do the fancy serial side
+  //clocking
+
+
   RETURN;
 }
 
@@ -194,8 +263,7 @@ SEQUENCE FrameReadout
   //single serial read to flush the register
   ReadPixels(_AMPREADCOLS);
   if tdi_wait_us OpenShutter();
- 
-  
+
   //read all image rows and the desired overscan
   //note these parameters are ALL mutually exclusive
   IF llel_seq LineReadout(TOTAL_ROWS);
@@ -292,6 +360,19 @@ SEQUENCE LineReadoutCoincident
 
 
 SEQUENCE LineReadoutAOnly
+{
+  ForwardParallelSectionANoCoincident();
+
+  Wait1us(line_clamp_delay_us);
+  ReadPixels(_AMPREADCOLS);
+
+  #if REMAINDER_PIX
+  ReadPixels(REMAINDER_PIX);
+
+  RETURN;
+}
+
+SEQUENCE LineReadoutAOnlyCoincident
 {
   TransferToSerialRegisterCoincident();
   ReadPixels(_SERIALPRESCAN);
