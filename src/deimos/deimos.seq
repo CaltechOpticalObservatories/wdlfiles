@@ -21,7 +21,7 @@
 param integrate_ms = 0 // amount of time to integrate in the dark (ms component)
 param integrate_s = 0 // amount of time to integrate in the dark (s component)
 
-param framecount = 0 // how many frames to read (set to 1 to trigger a readout on next sequence
+param framecount = 1 // how many frames to read (set to 1 to trigger a readout on next sequence
 param abortintegrate = 0 // set to 1 to bail out if in the middle of an integration
 
 param flush = 0 // run the flush sequence between every frame
@@ -88,9 +88,10 @@ param ser_bin = 1
 #define SER_TDC_COLS 21
 #define SER_TDC_BININCR 1
 #define SER_TDC_LOOPS #eval (_AMPCOLS + _SERIALOVERSCAN) / SER_TDC_COLS
-#define SER_TDC_REMAINDER #eval _AMPREADCOLS % SER_TDC_COLS
+#define SER_TDC_REMAINDER #eval (_AMPCOLS + _SERIALOVERSCAN) % SER_TDC_COLS
 
-#define SER_COLS_LEFTOVER #eval (_AMPCOLS - SER_TDC_LOOPS)
+#define SER_COLS_LEFTOVER #eval (_AMPCOLS +_SERIALOVERSCAN  - SER_TDC_LOOPS)
+#define SER_TDC_DUMPCOLS #eval (_SERIALPRESCAN + _AMPCOLS)
   
 #if NOISETEST
 SEQUENCE NoiseTest {
@@ -181,8 +182,21 @@ SEQUENCE Flush
   RETURN Flush;
 }
 
+SEQUENCE EvacuateE
+{
+  EvacuateEStart();
+  Wait1ms();
+  EvacuateEFinish();
+  RETURN;
+}
 
-
+SEQUENCE EvacuateF
+{
+  EvacuateFStart();
+  Wait1ms();
+  EvacuateFFinish();
+  RETURN;
+}
   
 SEQUENCE Integrate
 {
@@ -236,7 +250,8 @@ SEQUENCE FrameReadoutTDCllel
   //to get the same total number of lines in the
   //resulting buffer
   LineReadout(LLEL_TDC_REMAINDER);
- 
+
+  ReadoutEnd();
   RETURN;
 }
 
@@ -268,6 +283,8 @@ SEQUENCE FrameReadoutTDCser
   //just match total rows for other readout
   //sequences
   LineReadoutTDCser(TOTAL_ROWS);
+
+  ReadoutEnd();
   RETURN;
 }
 
@@ -275,22 +292,28 @@ SEQUENCE LineReadoutTDCser
 {
   //load a line
   ParallelForwardNoCoincident(llel_bin);
-  //need to readout prescan anyway, nothing doing there
-  if !dsch_ser_direction ReadPixelsEOnly(_SERIALPRESCAN);
-  if dsch_ser_direction ReadPixelsFOnly(_SERIALPRESCAN);
 
-  if !dsch_ser_direction DumpPixelsEOnly(_AMPCOLS);
-  if dsch_ser_direction DumpPixelsFOnly(_AMPCOLS);
-  
+  Wait1us(line_clamp_delay_us);
+
+  //do the TDC measurement
   TDCser_Innerloop(SER_TDC_LOOPS);
-  if !dsch_ser_direction ReadPixelsEOnly(SER_TDC_REMAINDER);
-  if dsch_ser_direction ReadPixelsEOnly(SER_TDC_REMAINDER);
+
+  //dump our half of the register in front of TDC lines
+  if !dsch_ser_direction DumpPixelsEOnly(SER_TDC_REMAINDER);
+  if dsch_ser_direction DumpPixelsFOnly(SER_TDC_REMAINDER);
+
+  //read a whole row
+  if !dsch_ser_direction ReadPixelsEOnly(_AMPREADCOLS);
+  if dsch_ser_direction ReadPixelsFOnly(_AMPREADCOLS);
+
+  
 
 
-  //need to dump out the rest of the pixels on the opposite side amplifier
-  if !dsch_ser_direction DumpPixelsFOnly(SER_COLS_LEFTOVER);
-  if dsch_ser_direction DumpPixelsEOnly(SER_COLS_LEFTOVER);
-
+  //now evacuate the other side of the register
+  //evacuate our entire half of the register
+  if !dsch_ser_direction EvacuateF();
+  if dsch_ser_direction EvacuateE();
+  
   
   
   //ser_bin has been incremented a bunch, need to decrement it back to 1
@@ -300,11 +323,12 @@ SEQUENCE LineReadoutTDCser
   RETURN;
 }
 
+ 
 SEQUENCE TDCser_Innerloop
-{
+ {
   //now readout a number of pixels
-  if !dsch_ser_direction ReadPixelsEOnly(SER_TDC_COLS);
-  if dsch_ser_direction ReadPixelsFOnly(SER_TDC_COLS);
+  if !dsch_ser_direction DumpPixelsEOnly(SER_TDC_COLS);
+  if dsch_ser_direction DumpPixelsFOnly(SER_TDC_COLS);
 
   //clock the other output backwards into the opposite register half
   if !dsch_ser_direction SerialFBackwards(ser_bin);
@@ -312,7 +336,7 @@ SEQUENCE TDCser_Innerloop
 
   serbinincr(SER_TDC_BININCR);
   RETURN;
-}
+} 
 
 SEQUENCE serbinincr
 {
