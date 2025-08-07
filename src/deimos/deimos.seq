@@ -90,6 +90,8 @@ param ser_bin = 1
 #define SER_TDC_LOOPS #eval (_AMPCOLS + _SERIALOVERSCAN) / SER_TDC_COLS
 #define SER_TDC_REMAINDER #eval _AMPREADCOLS % SER_TDC_COLS
 
+#define SER_COLS_LEFTOVER #eval (_AMPCOLS - SER_TDC_LOOPS)
+  
 #if NOISETEST
 SEQUENCE NoiseTest {
   setupTGTest();
@@ -280,6 +282,10 @@ SEQUENCE LineReadoutTDCser
   TDCser_Innerloop(SER_TDC_LOOPS);
   ReadPixels(SER_TDC_REMAINDER);
 
+  //need to dump out the rest of the pixels on the opposite side amplifier
+  if !dsch_ser_direction DumpPixelsFOnly(SER_COLS_LEFTOVER);
+  if dsch_ser_direction DumpPixelsEOnly(SER_COLS_LEFTOVER);
+  
   //ser_bin has been incremented a bunch, need to decrement it back to 1
   serbindecr(ser_bin); //now it's 0
   serbinincr(); //now it's 1
@@ -380,6 +386,7 @@ SEQUENCE LineReadoutFast
   RETURN;
 }
 
+
 SEQUENCE LineReadout
 {
   ParallelForwardNoCoincident(llel_bin);
@@ -420,9 +427,6 @@ SEQUENCE LineReadoutAOnly
 
   Wait1us(line_clamp_delay_us);
   ReadPixels(_AMPREADCOLS);
-
-  #if REMAINDER_PIX
-  ReadPixels(REMAINDER_PIX);
 
   RETURN;
 }
