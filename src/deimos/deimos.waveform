@@ -377,7 +377,7 @@ WAVEFORM ReadPixels
        SET FRAME TO LOW;
        //reset pulse at the start of the pixel
     SET RG TO INV_HIGH; //NOTE reset gate is inverted
-    .+30: 	   SET RG TO INV_LOW;
+    .+40: 	   SET RG TO INV_LOW;
     //charge STARTS UNDER RPhi2
 
     //conventional serial clock
@@ -389,11 +389,11 @@ WAVEFORM ReadPixels
     SET SCI_SCLK2 TO _SER_CLOCK_LOW, FAST;
     .+150: SET SCI_SCLK1 TO _SER_CLOCK_HIGH, FAST;
 	   SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
-           SET SW TO INV_LOW;
+    .+30:   SET SW TO INV_LOW;
 
 	   //NOTE: set this up so it's a multiple  of ADM ssample times that way they ALL
 	   //stay as groups of 8.
-    .+147: SET NOP TO HIGH;
+    .+117: SET NOP TO HIGH;
 
 
 }
@@ -566,7 +566,7 @@ WAVEFORM ReadPixelsEOnly
        SET FRAME TO LOW;
        //reset pulse at the start of the pixel
     SET RG TO INV_HIGH; //NOTE reset gate is inverted
-    .+30: 	   SET RG TO INV_LOW;
+    .+40: 	   SET RG TO INV_LOW;
     //charge STARTS UNDER RPhi2
 
     //conventional serial clock
@@ -578,11 +578,11 @@ WAVEFORM ReadPixelsEOnly
     SET SCI_SCLK2_EONLY TO _SER_CLOCK_LOW, FAST;
     .+150: SET SCI_SCLK1_EONLY TO _SER_CLOCK_HIGH, FAST;
 	   SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
-           SET SW TO INV_LOW;
+    .+30:  SET SW TO INV_LOW;
 
 	   //NOTE: set this up so it's a multiple  of ADM ssample times that way they ALL
 	   //stay as groups of 8.
-    .+147: SET NOP TO HIGH;  
+    .+117: SET NOP TO HIGH;  
 }
 
 WAVEFORM ReadPixelsFOnly
@@ -595,7 +595,7 @@ WAVEFORM ReadPixelsFOnly
        SET FRAME TO LOW;
        //reset pulse at the start of the pixel
     SET RG TO INV_HIGH; //NOTE reset gate is inverted
-    .+30: 	   SET RG TO INV_LOW;
+    .+40: 	   SET RG TO INV_LOW;
     //charge STARTS UNDER RPhi2
 
     //conventional serial clock
@@ -607,11 +607,11 @@ WAVEFORM ReadPixelsFOnly
     SET SCI_SCLK2_FONLY TO _SER_CLOCK_LOW, FAST;
     .+150: SET SCI_SCLK1_FONLY TO _SER_CLOCK_HIGH, FAST;
 	   SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
-           SET SW TO INV_LOW;
+    .+30:  SET SW TO INV_LOW;
 
 	   //NOTE: set this up so it's a multiple  of ADM ssample times that way they ALL
 	   //stay as groups of 8.
-    .+147: SET NOP TO HIGH;  
+    .+117: SET NOP TO HIGH;  
 }
 
 
