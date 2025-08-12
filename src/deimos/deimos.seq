@@ -21,7 +21,7 @@
 param integrate_ms = 0 // amount of time to integrate in the dark (ms component)
 param integrate_s = 0 // amount of time to integrate in the dark (s component)
 
-param framecount = 1 // how many frames to read (set to 1 to trigger a readout on next sequence
+param framecount = 0 // how many frames to read (set to 1 to trigger a readout on next sequence
 param abortintegrate = 0 // set to 1 to bail out if in the middle of an integration
 
 param flush = 0 // run the flush sequence between every frame
@@ -218,7 +218,12 @@ SEQUENCE Integrate
 SEQUENCE ReadoutKeep
 {
   KeepThisFrame();
+  //read one "dummy" line to get the frame
+  //into the buffers (i.e. visible)
+  ReadoutBegin();
+  ReadPixels(_AMPREADCOLS);
 
+  
   //select the readout type
 
   //"normal" image readout modes
@@ -252,6 +257,11 @@ SEQUENCE FrameReadoutTDCllel
   LineReadout(LLEL_TDC_REMAINDER);
 
   ReadoutEnd();
+
+  //reset linbin
+  linbindecr(llel_bin);
+  linbinincr();
+  
   RETURN;
 }
 
@@ -314,8 +324,6 @@ SEQUENCE LineReadoutTDCser
   if !dsch_ser_direction EvacuateF();
   if dsch_ser_direction EvacuateE();
   
-  
-  
   //ser_bin has been incremented a bunch, need to decrement it back to 1
   serbindecr(ser_bin); //now it's 0
   serbinincr(); //now it's 1
@@ -354,10 +362,9 @@ SEQUENCE FrameReadout
 {
 
   //Readout begin does half a llel transfer, so wait while that settles doewn
-  ReadoutBegin();
   Wait1us(50);
   //single serial read to flush the register
-  ReadPixels(_AMPREADCOLS);
+  DumpPixels(_AMPREADCOLS);
   if tdi_wait_us OpenShutter();
 
   //read all image rows and the desired overscan
@@ -370,6 +377,12 @@ SEQUENCE FrameReadout
 
   if tdi_wait_us CloseShutter();
   ReadoutEnd();
+
+  //reset llel_bin value
+  if linbin linbindecr(llel_bin);
+  if linbin linbinincr();
+  
+  
   RETURN;
 }
 
@@ -406,14 +419,22 @@ SEQUENCE linbinincr {
   RETURN;
 }
 
+SEQUENCE linbindecr {
+  llel_bin--;
+  RETURN;
+}
+
 
 SEQUENCE LineReadoutFast
 {
   ParallelForwardNoCoincident();
   ReadPixels(_AMPREADCOLS);
-  #if REMAINDER_PIX
-  ReadPixels(REMAINDER_PIX);
-  #endif
+  RETURN;
+}
+
+SEQUENCE LineDump
+{
+  DumpPixels(_AMPREADCOLS);
   RETURN;
 }
 

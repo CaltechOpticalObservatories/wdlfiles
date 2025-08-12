@@ -614,6 +614,34 @@ WAVEFORM ReadPixelsFOnly
     .+117: SET NOP TO HIGH;  
 }
 
+WAVEFORM DumpPixels
+{
+  //NB using slow slew rate for triangular serial clockingdef
+ 0:=PIX_BEGIN
+       //reset pulse at the start of the pixel
+    SET RG TO INV_HIGH; //NOTE reset gate is inverted
+    .+31: 	   SET RG TO INV_LOW;
+    //charge STARTS UNDER RPhi2
+
+    //conventional serial clock
+     0: SET SCI_SCLK2 TO _SER_CLOCK_HIGH, FAST;
+    SET SCI_SCLK1 TO _SER_CLOCK_LOW, FAST;
+    .+30:
+    SET SW TO INV_HIGH;
+    SET SCI_SCLK3 TO _SER_CLOCK_HIGH, FAST;
+    SET SCI_SCLK2 TO _SER_CLOCK_LOW, FAST;
+    .+150: SET SCI_SCLK1 TO _SER_CLOCK_HIGH, FAST;
+	   SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
+           SET SW TO INV_LOW;
+
+	   //NOTE: set this up so it's a multiple  of ADM ssample times that way they ALL
+	   //stay as groups of 8.
+    .+147: SET NOP TO HIGH;  
+}
+
+
+
+
 
 //readout only clocking the E register (we have stored bright edge in the F for this one)
 WAVEFORM DumpPixelsEOnly
