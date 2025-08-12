@@ -151,14 +151,19 @@ SEQUENCE ClampTest
 SEQUENCE StartSeq {
   InitialSetup();
   if flush Flush();   
-  if framecount Integrate();
-  if framecount ReadoutKeep();
-  
+  if framecount IntegrateAndReadout();
   if !framecount LineReadoutFast(TOTAL_ROWS);
   if rg_mod_test_mode TestBrokenReadout();
    GOTO StartSeq();
 }
 
+
+SEQUENCE IntegrateAndReadout
+{
+  Integrate();
+  ReadoutKeep();
+  RETURN;
+}
 
 
 SEQUENCE TestBrokenReadout
@@ -200,7 +205,12 @@ SEQUENCE EvacuateF
   
 SEQUENCE Integrate
 {
-
+  KeepThisFrame();
+  //NOTE: do ONE line of readout now,
+  //to get the buffer locked
+  //so we can see it's moving from outside
+  ReadPixels(_AMPREADCOLS);
+  
   //NOTE: open shutter if either TDI wait or
   //illumination requested...
   if illum OpenShutter();
@@ -217,13 +227,10 @@ SEQUENCE Integrate
 
 SEQUENCE ReadoutKeep
 {
-  KeepThisFrame();
   //read one "dummy" line to get the frame
   //into the buffers (i.e. visible)
   ReadoutBegin();
-  ReadPixels(_AMPREADCOLS);
 
-  
   //select the readout type
 
   //"normal" image readout modes
@@ -241,9 +248,9 @@ SEQUENCE ReadoutKeep
 
 SEQUENCE FrameReadoutTDCllel
 {
-  ReadoutBegin();
+
   Wait1us(50);
-  ReadPixels(_AMPREADCOLS);
+  DumpPixels(_AMPREADCOLS);
 
   //each inner loop call reads out LLEL_TDC_LINES
   //lines. The total number of times we need to
@@ -285,7 +292,6 @@ SEQUENCE FrameReadoutTDCllel_Innerloop
 
 SEQUENCE FrameReadoutTDCser
 {
-  ReadoutBegin();
   Wait1us(50);
   ReadPixels(_AMPREADCOLS);
   

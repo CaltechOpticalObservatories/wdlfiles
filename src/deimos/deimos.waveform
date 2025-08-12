@@ -69,6 +69,7 @@ WAVEFORM Wait1ms {
 
 WAVEFORM KeepThisFrame {
  0: SET FRAME TO HIGH;
+ 1: SET LINE TO HIGH;
 }
 
 
