@@ -384,17 +384,17 @@ WAVEFORM ReadPixels
     //conventional serial clock
      0: SET SCI_SCLK2 TO _SER_CLOCK_HIGH, FAST;
     SET SCI_SCLK1 TO _SER_CLOCK_LOW, FAST;
-    .+30:
+    .+60: //was +30
     SET SW TO INV_HIGH;
     SET SCI_SCLK3 TO _SER_CLOCK_HIGH, FAST;
     SET SCI_SCLK2 TO _SER_CLOCK_LOW, FAST;
-    .+150: SET SCI_SCLK1 TO _SER_CLOCK_HIGH, FAST;
+    .+130: SET SCI_SCLK1 TO _SER_CLOCK_HIGH, FAST; //was +150
 	   SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
     .+30:   SET SW TO INV_LOW;
 
 	   //NOTE: set this up so it's a multiple  of ADM ssample times that way they ALL
 	   //stay as groups of 8.
-    .+117: SET NOP TO HIGH;
+	   .+107: SET NOP TO HIGH; // was +107
 
 
 }
@@ -573,17 +573,17 @@ WAVEFORM ReadPixelsEOnly
     //conventional serial clock
      0: SET SCI_SCLK2_EONLY TO _SER_CLOCK_HIGH, FAST;
     SET SCI_SCLK1_EONLY TO _SER_CLOCK_LOW, FAST;
-    .+30:
+    .+60:
     SET SW TO INV_HIGH;
     SET SCI_SCLK3 TO _SER_CLOCK_HIGH, FAST;
     SET SCI_SCLK2_EONLY TO _SER_CLOCK_LOW, FAST;
-    .+150: SET SCI_SCLK1_EONLY TO _SER_CLOCK_HIGH, FAST;
+    .+130: SET SCI_SCLK1_EONLY TO _SER_CLOCK_HIGH, FAST;
 	   SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
     .+30:  SET SW TO INV_LOW;
 
 	   //NOTE: set this up so it's a multiple  of ADM ssample times that way they ALL
 	   //stay as groups of 8.
-    .+117: SET NOP TO HIGH;  
+    .+107: SET NOP TO HIGH;  
 }
 
 WAVEFORM ReadPixelsFOnly
@@ -602,17 +602,17 @@ WAVEFORM ReadPixelsFOnly
     //conventional serial clock
      0: SET SCI_SCLK2_FONLY TO _SER_CLOCK_HIGH, FAST;
     SET SCI_SCLK1_FONLY TO _SER_CLOCK_LOW, FAST;
-    .+30:
+    .+60:
     SET SW TO INV_HIGH;
     SET SCI_SCLK3 TO _SER_CLOCK_HIGH, FAST;
     SET SCI_SCLK2_FONLY TO _SER_CLOCK_LOW, FAST;
-    .+150: SET SCI_SCLK1_FONLY TO _SER_CLOCK_HIGH, FAST;
+    .+130: SET SCI_SCLK1_FONLY TO _SER_CLOCK_HIGH, FAST;
 	   SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
     .+30:  SET SW TO INV_LOW;
 
 	   //NOTE: set this up so it's a multiple  of ADM ssample times that way they ALL
 	   //stay as groups of 8.
-    .+117: SET NOP TO HIGH;  
+    .+107: SET NOP TO HIGH;  
 }
 
 WAVEFORM DumpPixels
