@@ -621,7 +621,7 @@ WAVEFORM DumpPixels
  0:=PIX_BEGIN
        //reset pulse at the start of the pixel
     SET RG TO INV_HIGH; //NOTE reset gate is inverted
-    .+31: 	   SET RG TO INV_LOW;
+  //    .+31: 	   SET RG TO INV_LOW;
     //charge STARTS UNDER RPhi2
 
     //conventional serial clock
@@ -637,7 +637,9 @@ WAVEFORM DumpPixels
 
 	   //NOTE: set this up so it's a multiple  of ADM ssample times that way they ALL
 	   //stay as groups of 8.
-    .+147: SET NOP TO HIGH;  
+	   .+116: SET RG TO INV_LOW;   //subtract 31 to leave
+	   //tota, time equal after 31 RG dleay
+	   .+31: SET NOP TO HIGH;
 }
 
 
@@ -651,7 +653,6 @@ WAVEFORM DumpPixelsEOnly
  0:=PIX_BEGIN
        //reset pulse at the start of the pixel
     SET RG TO INV_HIGH; //NOTE reset gate is inverted
-    .+31: 	   SET RG TO INV_LOW;
     //charge STARTS UNDER RPhi2
 
     //conventional serial clock
@@ -667,7 +668,8 @@ WAVEFORM DumpPixelsEOnly
 
 	   //NOTE: set this up so it's a multiple  of ADM ssample times that way they ALL
 	   //stay as groups of 8.
-    .+147: SET NOP TO HIGH;  
+    .+116: SET RG TO INV_LOW;
+	   .+31: SET NOP TO HIGH;
 }
 
 
@@ -677,7 +679,6 @@ WAVEFORM DumpPixelsFOnly
  0:=PIX_BEGIN
        //reset pulse at the start of the pixel
     SET RG TO INV_HIGH; //NOTE reset gate is inverted
-    .+31: 	   SET RG TO INV_LOW;
     //charge STARTS UNDER RPhi2
 
     //conventional serial clock
@@ -693,7 +694,8 @@ WAVEFORM DumpPixelsFOnly
 
 	   //NOTE: set this up so it's a multiple  of ADM ssample times that way they ALL
 	   //stay as groups of 8.
-    .+147: SET NOP TO HIGH;  
+    .+116: SET RG TO INV_LOW;
+	   .+31: SET NOP TO HIGH;
 }
 
 
