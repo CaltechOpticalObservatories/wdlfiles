@@ -322,9 +322,6 @@ SEQUENCE LineReadoutTDCser
   if !dsch_ser_direction ReadPixelsEOnly(_AMPREADCOLS);
   if dsch_ser_direction ReadPixelsFOnly(_AMPREADCOLS);
 
-  
-
-
   //now evacuate the other side of the register
   //evacuate our entire half of the register
   if !dsch_ser_direction EvacuateF();

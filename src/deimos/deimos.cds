@@ -30,9 +30,9 @@ SAMPLEMODE    = 1
   // first sample number must be in the series 8*n
   
   
-SHP1          = 80
-SHP2          = 183
-SHD1          = 232
+SHP1          = 136
+SHP2          = 175
+SHD1          = 272
 SHD2          = 327
 
   //ADM module installed in slot 7

@@ -4,15 +4,15 @@
  * evaluations relative to FSS should be implemented if variability is required
 /*/     
 
-#define _PAR_CLOCK_HIGH     8.0 /* [ 8.00, 14.0] */
+#define _PAR_CLOCK_HIGH     10.0 /* [ 8.00, 14.0] */
 #define _PAR_CLOCK_LOW     0.0 /* [-0.50, 0.50] */
 
-#define _TG_CLOCK_HIGH      9.0 /* [ 8.00, 14.0] */
+#define _TG_CLOCK_HIGH      10.5 /* [ 8.00, 14.0] */
 #define _TG_CLOCK_LOW       0.0 /* [-0.50, 0.50] */
 
-#define _SER_CLOCK_HIGH    9.0 /* [ 8.00, 14.0] */
+#define _SER_CLOCK_HIGH    12.0 /* [ 8.00, 14.0] */
 #define _SER_CLOCK_LOW     1.0 /* [-0.50, 1.50] */
-#define _SER_CLOCK_RCV     10.0 /* Higher than serial clock high */
+#define _SER_CLOCK_RCV     12.5 /* Higher than serial clock high */
 
 #define _RESET_DRAIN       17 /* [ 15.0, 20.0] */
 #define _OUTPUT_DRAIN      29 /* [ 27.0, 32.0] */
