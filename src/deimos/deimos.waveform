@@ -643,6 +643,13 @@ WAVEFORM DumpPixels
 }
 
 
+WAVEFORM trigpix
+{
+ 0: SET PIXEL TO HIGH;
+  .+1: SET PIXEL TO LOW;
+  SET LINE TO LOW;
+  SET FRAME TO LOW;
+}
 
 
 

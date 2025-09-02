@@ -54,6 +54,11 @@ param ser_bin = 1
   //out towards F, dump backwards from E
   param dsch_ser_direction = 0
 
+  //serial CTI should we dump the bright columns?
+  param dsch_ser_dump_bcs = 0
+
+  
+  
 
   //TODO: wide gate integration mode  
   
@@ -86,12 +91,14 @@ param ser_bin = 1
   #define LLEL_TDC_REMAINDER #eval TOTAL_ROWS % LLEL_TDC_LINES
 
 #define SER_TDC_COLS 21
+#define SER_TDC_COLSm1 #eval SER_TDC_COLS -1
+
 #define SER_TDC_BININCR 1
 #define SER_TDC_LOOPS #eval (_AMPCOLS + _SERIALOVERSCAN) / SER_TDC_COLS
 #define SER_TDC_REMAINDER #eval (_AMPCOLS + _SERIALOVERSCAN) % SER_TDC_COLS
 
-#define SER_COLS_LEFTOVER #eval (_AMPCOLS +_SERIALOVERSCAN  - SER_TDC_LOOPS)
-#define SER_TDC_DUMPCOLS #eval (_SERIALPRESCAN + _AMPCOLS)
+
+  
   
 #if NOISETEST
 SEQUENCE NoiseTest {
@@ -318,18 +325,80 @@ SEQUENCE LineReadoutTDCser
   if !dsch_ser_direction DumpPixelsEOnly(SER_TDC_REMAINDER);
   if dsch_ser_direction DumpPixelsFOnly(SER_TDC_REMAINDER);
 
-  //read a whole row
-  if !dsch_ser_direction ReadPixelsEOnly(_AMPREADCOLS);
-  if dsch_ser_direction ReadPixelsFOnly(_AMPREADCOLS);
+  if !dsch_ser_dump_bcs TDCser_ReadoutLoop();
+  if dsch_ser_dump_bcs TDCser_ReadoutLoopDumpBright();
+  //ser_bin has been incremented a bunch, need to decrement it back to 1
 
   //now evacuate the other side of the register
   //evacuate our entire half of the register
   if !dsch_ser_direction EvacuateF();
   if dsch_ser_direction EvacuateE();
+
   
-  //ser_bin has been incremented a bunch, need to decrement it back to 1
   serbindecr(ser_bin); //now it's 0
   serbinincr(); //now it's 1
+  
+  RETURN;
+}
+
+SEQUENCE TDCser_ReadoutLoopDumpBright
+{
+  //need to know how many to read ahead of the first
+  //reading out the prescan puts the first bright line
+  //at the output
+  if !dsch_ser_direction ReadPixelsEOnly(_SERIALPRESCAN);
+  if dsch_ser_direction ReadPixelsFOnly(_SERIALPRESCAN);
+
+  //run the inner loop the same number of times as you
+  //did to generate the lines
+  TDCser_ReadoutLoopDumpBright_Inner(SER_TDC_LOOPS);
+
+  if !dsch_ser_direction ReadPixelsEOnly(SER_TDC_REMAINDER);
+  if dsch_ser_direction ReadPixelsFOnly(SER_TDC_REMAINDER);
+
+  RETURN;
+}
+
+SEQUENCE TDCser_ReadoutLoop
+{
+
+  //read a whole row
+  if !dsch_ser_direction ReadPixelsEOnly(_AMPREADCOLS);
+  if dsch_ser_direction ReadPixelsFOnly(_AMPREADCOLS);
+
+  
+  RETURN;
+}
+
+
+
+SEQUENCE TDCser_ReadoutLoopDumpBright_Inner
+{
+  //at the point of this sequence being called,
+  //bright line is next to be read out. So, instead,
+  //we'll dump it
+
+  //manually tag a pixel, it should end up just being reset
+
+  trigpix();
+  if !dsch_ser_direction DumpPixelsEOnly();
+  if dsch_ser_direction DumpPixelsFOnly();
+
+  //now we need to do a real readout on SER_TDC_COLS-1
+  if !dsch_ser_direction ReadPixelsEOnly(SER_TDC_COLSm1);
+  if dsch_ser_direction ReadPixelsFOnly(SER_TDC_COLSm1);
+
+  RETURN;
+}
+
+
+SEQUENCE TDCser_ReadoutLoop
+{
+
+  //read a whole row
+  if !dsch_ser_direction ReadPixelsEOnly(_AMPREADCOLS);
+  if dsch_ser_direction ReadPixelsFOnly(_AMPREADCOLS);
+
   
   RETURN;
 }
@@ -502,4 +571,5 @@ SEQUENCE LineReadoutAOnlyCoincident
   #endif
       RETURN ;
 }
+
 
