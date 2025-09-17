@@ -10,9 +10,9 @@
 #define _TG_CLOCK_HIGH      10.5 /* [ 8.00, 14.0] */
 #define _TG_CLOCK_LOW       0.0 /* [-0.50, 0.50] */
 
-#define _SER_CLOCK_HIGH    12.0 /* [ 8.00, 14.0] */
+#define _SER_CLOCK_HIGH    11.0 /* [ 8.00, 14.0] */
 #define _SER_CLOCK_LOW     1.0 /* [-0.50, 1.50] */
-#define _SER_CLOCK_RCV     12.5 /* Higher than serial clock high */
+#define _SER_CLOCK_RCV     11.5 /* Higher than serial clock high */
 
 #define _RESET_DRAIN       17 /* [ 15.0, 20.0] */
 #define _OUTPUT_DRAIN      29 /* [ 27.0, 32.0] */
@@ -110,7 +110,7 @@
 
 
 //e2v says need on average 90ns rise time for a serial clock
-#define SCLK_fast           #exec printf "%2.4f" $(echo "scale=4; (_SER_CLOCK_HIGH - _SER_CLOCK_LOW) / 0.09" | bc)
+#define SCLK_fast           #exec printf "%2.4f" $(echo "scale=4; (_SER_CLOCK_HIGH - _SER_CLOCK_LOW) / 0.4" | bc)
 
 //NOTE: waveforms currently use serial "slow" slew rate for triangular waveform
 // serial "FAST" is for immediate changes (like e.g. resetting serial register)

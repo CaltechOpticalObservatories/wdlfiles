@@ -16,7 +16,10 @@ RAWSAMPLES    = 5000
   //NOTE RAWSEL of 11 should be E channel of slot 2
 RAWSEL        = 11
 RAWSTARTLINE  = 0
-RAWSTARTPIXEL = 48
+  //to view the last prescan and start of the line
+  //RAWSTARTPIXEL = 48
+  //to view the end of the line
+  RAWSTARTPIXEL = 1071
 SAMPLEMODE    = 1
 
 //attempt pixel timing coincident with the nearest ADM samples. That means multiples of 8
@@ -30,10 +33,10 @@ SAMPLEMODE    = 1
   // first sample number must be in the series 8*n
   
   
-SHP1          = 136
-SHP2          = 175
-SHD1          = 272
-SHD2          = 327
+SHP1          = 200
+SHP2          = 343
+SHD1          = 432
+SHD2          = 527
 
   //ADM module installed in slot 7
 #define SINGLE_DET_TEST 1

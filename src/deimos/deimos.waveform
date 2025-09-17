@@ -258,8 +258,8 @@ WAVEFORM ParallelForwardNoCoincident
     SET RG_CLOCKS TO _RG_LOW;
   .+50:   SET AC_Clamp to HIGH;
   .+300:
-  SET SCI_SCLK1 TO _SER_CLOCK_HIGH, FAST;
-  SET SCI_SCLK2 TO _SER_CLOCK_LOW, FAST;
+  SET SCI_SCLK1 TO _SER_CLOCK_LOW, FAST;
+  SET SCI_SCLK2 TO _SER_CLOCK_HIGH, FAST;
   SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
 
   .+50: SET AC_Clamp TO LOW;
@@ -378,25 +378,23 @@ WAVEFORM ReadPixels
        SET FRAME TO LOW;
        //reset pulse at the start of the pixel
     SET RG TO INV_HIGH; //NOTE reset gate is inverted
-    .+40: 	   SET RG TO INV_LOW;
-    //charge STARTS UNDER RPhi2
+    .+60: 	   SET RG TO INV_LOW;
+    //charge STARTS UNDER SCI_SCLK2 NOW
 
     //conventional serial clock
+    //this is redundant on the first pixel
      0: SET SCI_SCLK2 TO _SER_CLOCK_HIGH, FAST;
-    .+13: SET SCI_SCLK1 TO _SER_CLOCK_LOW, FAST;
-    .+47: 
+     SET SCI_SCLK1 TO _SER_CLOCK_LOW, FAST;
+    .+40: 
     SET SW TO INV_HIGH;
     SET SCI_SCLK3 TO _SER_CLOCK_HIGH, FAST;
-    .+13: SET SCI_SCLK2 TO _SER_CLOCK_LOW, FAST;
-    .+117: SET SCI_SCLK1 TO _SER_CLOCK_HIGH, FAST; //was +150
-    .+13:    SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
-    .+17:   SET SW TO INV_LOW;
+    SET SCI_SCLK2 TO _SER_CLOCK_LOW, FAST;
+    .+300: SET SW TO INV_LOW;
+    
+    .+200: SET SCI_SCLK1 TO _SER_CLOCK_HIGH, FAST; //was +150
+    SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
 
-	   //NOTE: set this up so it's a multiple  of ADM ssample times that way they ALL
-	   //stay as groups of 8.
-	   .+107: SET NOP TO HIGH; // was +107
-
-
+    .+60: SET NOP TO HIGH;
 }
 
 
@@ -410,7 +408,7 @@ WAVEFORM ReadPixelsSlow
   SET FRAME TO LOW;
 
   SET RG TO INV_HIGH;
-  .+30: SET RG TO INV_LOW;
+  .+60: SET RG TO INV_LOW;
 
  0: SET SCI_SCLK2 TO _SER_CLOCK_HIGH, FAST;
   .+15: SET SCI_SCLK1 TO _SER_CLOCK_LOW, FAST;
@@ -567,23 +565,23 @@ WAVEFORM ReadPixelsEOnly
        SET FRAME TO LOW;
        //reset pulse at the start of the pixel
     SET RG TO INV_HIGH; //NOTE reset gate is inverted
-    .+40: 	   SET RG TO INV_LOW;
+    .+60: 	   SET RG TO INV_LOW;
     //charge STARTS UNDER RPhi2
 
     //conventional serial clock
      0: SET SCI_SCLK2_EONLY TO _SER_CLOCK_HIGH, FAST;
     SET SCI_SCLK1_EONLY TO _SER_CLOCK_LOW, FAST;
-    .+60:
+    .+40:
     SET SW TO INV_HIGH;
     SET SCI_SCLK3 TO _SER_CLOCK_HIGH, FAST;
     SET SCI_SCLK2_EONLY TO _SER_CLOCK_LOW, FAST;
-    .+130: SET SCI_SCLK1_EONLY TO _SER_CLOCK_HIGH, FAST;
-	   SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
-    .+30:  SET SW TO INV_LOW;
+    .+300:  SET SW TO INV_LOW;
 
 	   //NOTE: set this up so it's a multiple  of ADM ssample times that way they ALL
 	   //stay as groups of 8.
-    .+107: SET NOP TO HIGH;  
+    .+200: SET SCI_SCLK1_EONLY TO _SER_CLOCK_HIGH, FAST;
+    SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
+    .+60: SET NOP TO HIGH;
 }
 
 WAVEFORM ReadPixelsFOnly
@@ -596,23 +594,23 @@ WAVEFORM ReadPixelsFOnly
        SET FRAME TO LOW;
        //reset pulse at the start of the pixel
     SET RG TO INV_HIGH; //NOTE reset gate is inverted
-    .+40: 	   SET RG TO INV_LOW;
+    .+60: 	   SET RG TO INV_LOW;
     //charge STARTS UNDER RPhi2
 
     //conventional serial clock
      0: SET SCI_SCLK2_FONLY TO _SER_CLOCK_HIGH, FAST;
     SET SCI_SCLK1_FONLY TO _SER_CLOCK_LOW, FAST;
-    .+60:
+    .+40:
     SET SW TO INV_HIGH;
     SET SCI_SCLK3 TO _SER_CLOCK_HIGH, FAST;
     SET SCI_SCLK2_FONLY TO _SER_CLOCK_LOW, FAST;
-    .+130: SET SCI_SCLK1_FONLY TO _SER_CLOCK_HIGH, FAST;
-	   SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
-    .+30:  SET SW TO INV_LOW;
+    .+300:  SET SW TO INV_LOW;
 
 	   //NOTE: set this up so it's a multiple  of ADM ssample times that way they ALL
 	   //stay as groups of 8.
-    .+107: SET NOP TO HIGH;  
+    .+130: SET SCI_SCLK1_FONLY TO _SER_CLOCK_HIGH, FAST;
+    SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
+    .+80: SET NOP TO HIGH;
 }
 
 WAVEFORM DumpPixels
