@@ -300,7 +300,7 @@ SEQUENCE FrameReadoutTDCllel_Innerloop
 SEQUENCE FrameReadoutTDCser
 {
   Wait1us(50);
-  ReadPixels(_AMPREADCOLS);
+  DumpPixels(_AMPREADCOLS);
   
   //each inner loop returns one row, so
   //just match total rows for other readout
@@ -388,18 +388,6 @@ SEQUENCE TDCser_ReadoutLoopDumpBright_Inner
   if !dsch_ser_direction ReadPixelsEOnly(SER_TDC_COLSm1);
   if dsch_ser_direction ReadPixelsFOnly(SER_TDC_COLSm1);
 
-  RETURN;
-}
-
-
-SEQUENCE TDCser_ReadoutLoop
-{
-
-  //read a whole row
-  if !dsch_ser_direction ReadPixelsEOnly(_AMPREADCOLS);
-  if dsch_ser_direction ReadPixelsFOnly(_AMPREADCOLS);
-
-  
   RETURN;
 }
 
