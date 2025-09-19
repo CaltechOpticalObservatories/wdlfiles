@@ -116,10 +116,10 @@ SLOT 9 hvbias {
 SLOT 10 lvbias {
    LVLC  1 [3.3,6] "LVDS Receiver Output Enable"; 
    LVLC  2 [00.0,0]; 
-   LVLC  3 [2.95,4] "SCI E Output Gate"; 
-   LVLC  4 [2.95,4] "SCI F Output Gate";
-   LVLC  5 [1.00,5] "SCI Summing Well - Low";  // NB goes through a line driver 
-   LVLC  6 [11.0,5] "SCI Summing Well - High";  // NB goes through a line driver 
+   LVLC  3 [4.0,4] "SCI E Output Gate"; 
+   LVLC  4 [4.0,4] "SCI F Output Gate";
+   LVLC  5 [1.5,5] "SCI Summing Well - Low";  // NB goes through a line driver 
+   LVLC  6 [11.5,5] "SCI Summing Well - High";  // NB goes through a line driver 
 
      LVLC  7 [11.50,5] "SCI Reset Gate - HIGH";  // NB at the moment RG low and high are swapped in the cable by accident!
 //   LVLC  7 [5.50,5] "SCI Reset Gate - Low";  // NB goes through a line driver 
