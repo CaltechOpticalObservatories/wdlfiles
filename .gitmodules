@@ -1,4 +1,0 @@
-[submodule "wdl"]
-	path = wdl
-	url = git@github.com:CaltechOpticalObservatories/wdl.git
-	branch = main
