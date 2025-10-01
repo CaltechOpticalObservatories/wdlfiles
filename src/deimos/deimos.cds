@@ -14,7 +14,7 @@ RAWENDLINE    = 800
 RAWSAMPLES    = 20000
   //RAWSEL        = _RAW_SELECT
   //NOTE RAWSEL of 11 should be E channel of slot 2
-RAWSEL        = 11
+RAWSEL        = 11plt.c
 RAWSTARTLINE  = 0
   //to view the last prescan and start of the line
   //RAWSTARTPIXEL = 48
@@ -34,8 +34,8 @@ SAMPLEMODE    = 1
   
   
 SHP1          = 120
-SHP2          = 320
-SHD1          = 400
+SHP2          = 303
+SHD1          = 448
 SHD2          = 575
 
   //ADM module installed in slot 7

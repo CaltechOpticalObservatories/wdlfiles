@@ -52,6 +52,15 @@ WAVEFORM SerialRecieving {
 /*         ARCHON Timing Control         */
 /*****************************************/
 
+
+  const test_const1 = 12.0
+
+WAVEFORM test_run_const
+{
+ 0: SET SCI_PCLK1 TO test_const1,FAST;
+}
+
+
 WAVEFORM Wait1us {
  0: 	SET NOP TO HIGH;
  .+1us:	RETURN;
@@ -121,7 +130,7 @@ WAVEFORM InitialSetup
   SET AC_Clamp to LOW;
 
   SET SCI_PCLK3 TO _PAR_CLOCK_LOW, FAST;
-  SET SCI_PCLK2 TO _PAR_CLOCK_HIGH, FAST;
+  SET SCI_PCLK2 TO llel_high_level, FAST;
   SET SCI_PCLK1 TO _PAR_CLOCK_HIGH, FAST;
 
   .+10000:
@@ -370,6 +379,8 @@ WAVEFORM VRDModulate
   
 }
 
+
+
 WAVEFORM ReadPixels
 {
   //NB using slow slew rate for triangular serial clockingdef
@@ -387,7 +398,7 @@ WAVEFORM ReadPixels
     //this is redundant on the first pixel
      0: SET SCI_SCLK2 TO _SER_CLOCK_HIGH, FAST;
      SET SCI_SCLK1 TO _SER_CLOCK_LOW, FAST;
-    .+40: 
+    .+60: 
     SET SW TO INV_HIGH;
     SET SCI_SCLK3 TO _SER_CLOCK_HIGH, FAST;
     SET SCI_SCLK2 TO _SER_CLOCK_LOW, FAST;
@@ -575,7 +586,7 @@ WAVEFORM ReadPixelsEOnly
     //conventional serial clock
      0: SET SCI_SCLK2_EONLY TO _SER_CLOCK_HIGH, FAST;
     SET SCI_SCLK1_EONLY TO _SER_CLOCK_LOW, FAST;
-    .+40:
+    .+60:
     SET SW TO INV_HIGH;
     SET SCI_SCLK3 TO _SER_CLOCK_HIGH, FAST;
     SET SCI_SCLK2_EONLY TO _SER_CLOCK_LOW, FAST;
@@ -604,7 +615,7 @@ WAVEFORM ReadPixelsFOnly
     //conventional serial clock
      0: SET SCI_SCLK2_FONLY TO _SER_CLOCK_HIGH, FAST;
     SET SCI_SCLK1_FONLY TO _SER_CLOCK_LOW, FAST;
-    .+40:
+    .+60:
     SET SW TO INV_HIGH;
     SET SCI_SCLK3 TO _SER_CLOCK_HIGH, FAST;
     SET SCI_SCLK2_FONLY TO _SER_CLOCK_LOW, FAST;

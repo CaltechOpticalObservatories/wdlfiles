@@ -16,6 +16,12 @@
 */
 
 
+/** testing constant values **/
+
+
+
+  
+  
 
 /** System Control Triggers **/
 param integrate_ms = 0 // amount of time to integrate in the dark (ms component)
@@ -57,6 +63,10 @@ param ser_bin = 1
   //serial CTI should we dump the bright columns?
   param dsch_ser_dump_bcs = 0
 
+
+ const llel_high_level = _PAR_CLOCK_HIGH
+ const llel_low_level = _PAR_CLOCK_LOW
+const llel_tri_slew = P_TRI_SLEW_RATE
   
   
 

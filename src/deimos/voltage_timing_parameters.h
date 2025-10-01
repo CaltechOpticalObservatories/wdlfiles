@@ -110,7 +110,7 @@
 
 
 //e2v says need on average 90ns rise time for a serial clock
-#define SCLK_fast           #exec printf "%2.4f" $(echo "scale=4; (_SER_CLOCK_HIGH - _SER_CLOCK_LOW) / 0.4" | bc)
+#define SCLK_fast           #exec printf "%2.4f" $(echo "scale=4; (_SER_CLOCK_HIGH - _SER_CLOCK_LOW) / 0.2" | bc)
 
 //NOTE: waveforms currently use serial "slow" slew rate for triangular waveform
 // serial "FAST" is for immediate changes (like e.g. resetting serial register)
