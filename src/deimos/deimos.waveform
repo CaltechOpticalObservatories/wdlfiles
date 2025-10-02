@@ -624,6 +624,7 @@ WAVEFORM ReadPixelsFOnly
 
 WAVEFORM PrepSerBin
 {
+
  0: SET RG TO INV_HIGH;
   .+40: SET SW TO INV_HIGH;
   .+20: SET RG TO INV_LOW;

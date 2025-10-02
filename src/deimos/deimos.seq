@@ -66,9 +66,9 @@ param enable_ser_bin = 0
   param dsch_ser_dump_bcs = 0
 
 
- const llel_high_level = _PAR_CLOCK_HIGH
- const llel_low_level = _PAR_CLOCK_LOW
-const llel_tri_slew = P_TRI_SLEW_RATE
+  // const llel_high_level = _PAR_CLOCK_HIGH
+  //const llel_low_level = _PAR_CLOCK_LOW
+  //const llel_tri_slew = P_TRI_SLEW_RATE
   
   
 
@@ -521,7 +521,9 @@ SEQUENCE LineReadout
   //wait here is for the clamp to die down. Put some of it in prescan, but not all
   Wait1us(line_clamp_delay_us);
 
-  if enable_ser_bin SerBinReadPixels(_AMPREADCOLS);
+  if enable_ser_bin ReadPixels(_SERIALPRESCAN);
+  if enable_ser_bin SerBinReadPixels(_AMPCOLS);
+  if enable_ser_bin ReadPixels(_SERIALOVERSCAN);
   if !enable_ser_bin ReadPixels(_AMPREADCOLS);
   if tdi_wait_us Wait1us(tdi_wait_us);
   //if there are leftover pixels, do them here
@@ -539,6 +541,8 @@ SEQUENCE SerBinReadPixels
   ReadPixels();
   //reset serial bin variable to original value
   serbinincr();
+
+  RETURN;
 
 }
 
