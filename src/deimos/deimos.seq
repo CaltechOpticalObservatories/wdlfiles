@@ -52,6 +52,8 @@ param dch_ser = 0 // total deferred charge measurement (serial CTI)
 //----- END OF READOUT MODES --- 
 param llel_bin = 1
 param ser_bin = 1
+param enable_ser_bin = 0
+
 
 
   //serial CTI measurement configuration modes
@@ -518,11 +520,29 @@ SEQUENCE LineReadout
   
   //wait here is for the clamp to die down. Put some of it in prescan, but not all
   Wait1us(line_clamp_delay_us);
-  ReadPixels(_AMPREADCOLS);
+
+  if enable_ser_bin SerBinReadPixels(_AMPREADCOLS);
+  if !enable_ser_bin ReadPixels(_AMPREADCOLS);
   if tdi_wait_us Wait1us(tdi_wait_us);
   //if there are leftover pixels, do them here
    RETURN;
 }
+
+SEQUENCE SerBinReadPixels
+{
+  PrepSerBin();
+  //decrement ser_bin by one that's how much extra forward serials we need
+  serbindecr();
+  //extra serial forwards
+  SerialBinForwards(ser_bin);
+  //do a normal pixel read
+  ReadPixels();
+  //reset serial bin variable to original value
+  serbinincr();
+
+}
+
+
 
 SEQUENCE LineReadoutCoincident
 {

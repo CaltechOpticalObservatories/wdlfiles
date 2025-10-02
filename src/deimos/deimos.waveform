@@ -53,13 +53,6 @@ WAVEFORM SerialRecieving {
 /*****************************************/
 
 
-  const test_const1 = 12.0
-
-WAVEFORM test_run_const
-{
- 0: SET SCI_PCLK1 TO test_const1,FAST;
-}
-
 
 WAVEFORM Wait1us {
  0: 	SET NOP TO HIGH;
@@ -130,7 +123,7 @@ WAVEFORM InitialSetup
   SET AC_Clamp to LOW;
 
   SET SCI_PCLK3 TO _PAR_CLOCK_LOW, FAST;
-  SET SCI_PCLK2 TO llel_high_level, FAST;
+  SET SCI_PCLK2 TO _PAR_CLOCK_HIGH, FAST;
   SET SCI_PCLK1 TO _PAR_CLOCK_HIGH, FAST;
 
   .+10000:
@@ -627,6 +620,38 @@ WAVEFORM ReadPixelsFOnly
     SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
     .+80: SET NOP TO HIGH;
 }
+
+
+WAVEFORM PrepSerBin
+{
+ 0: SET RG TO INV_HIGH;
+  .+40: SET SW TO INV_HIGH;
+  .+20: SET RG TO INV_LOW;
+
+}
+
+WAVEFORM SerialBinForwards
+{
+
+ 0: SET SCI_SCLK2 TO _SER_CLOCK_HIGH, FAST;
+  SET SCI_SCLK1 TO _SER_CLOCK_LOW, FAST;
+  .+40:
+  SET SCI_SCLK3 TO _SER_CLOCK_HIGH, FAST;
+  SET SCI_SCLK2 TO _SER_CLOCK_LOW, FAST;
+
+  .+40:
+  SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
+  SET SCI_SCLK1 TO _SER_CLOCK_HIGH, FAST;
+
+  .+40:
+  SET SCI_SCLK1 TO _SER_CLOCK_LOW, FAST;
+  SET SCI_SCLK2 TO _SER_CLOCK_HIGH, FAST;
+
+  .+40:
+  SET NOP TO HIGH;
+
+}
+
 
 WAVEFORM DumpPixels
 {
