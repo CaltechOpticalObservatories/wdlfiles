@@ -24,6 +24,9 @@
   
 
 /** System Control Triggers **/
+
+param engmode = 0 //run in the engineering mode
+
 param integrate_ms = 0 // amount of time to integrate in the dark (ms component)
 param integrate_s = 0 // amount of time to integrate in the dark (s component)
 
@@ -166,14 +169,35 @@ SEQUENCE ClampTest
 #endif
 
 
+SEQUENCE StartSeqSummitMode {
+  if engmode StartSeqEngMode();
+  
+  
+  GOTO StartSeqSummitMode();
 
-SEQUENCE StartSeq {
+}
+
+SEQUENCE SummitModeSciFCSFlush {
+
+
+}
+
+SEQUENCE SummitModeFCSFlush {
+
+}
+
+SEQUENCE SummitModeSciReadout {
+
+}
+
+
+SEQUENCE StartSeqEngMode {
   InitialSetup();
   if flush Flush();   
   if framecount IntegrateAndReadout();
   if !framecount LineReadoutFast(TOTAL_ROWS);
   if rg_mod_test_mode TestBrokenReadout();
-   GOTO StartSeq();
+   GOTO StartSeqEngMode();
 }
 
 

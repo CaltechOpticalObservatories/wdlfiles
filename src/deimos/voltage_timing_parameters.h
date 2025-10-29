@@ -125,3 +125,22 @@
 #define NOISETEST 0
 #define CLAMPTEST 0
 #define RESETTEST 0
+
+
+//FCS related voltage definitions
+
+#define _PAR_CLOCK_HIGH_FCS 2
+#define _PAR_CLOCK_LOW_FCS -7
+#define _MPP_CLOCK_HIGH_FCS 5
+#define _MPP_CLOCK_LOW_FCS -8
+#define _SER_CLOCK_HIGH_FCS 5
+#define _SER_CLOCK_LOW_FCS -7
+#define _RG_LOW_FCS 0
+#define _RG_HIGH_FCS 12
+#define _SW_LOW_FCS -6
+#define _SW_HIGH_FCS 5
+
+#define _RESET_DRAIN_FCS 14.0
+#define _OUTPUT_DRAIN_FCS 24.3
+#define _LASTGATE_FCS -4.0
+#define _DUMP_DRAIN_FCS 14.0
