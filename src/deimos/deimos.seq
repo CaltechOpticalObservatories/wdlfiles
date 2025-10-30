@@ -26,6 +26,7 @@
 /** System Control Triggers **/
 
 param engmode = 0 //run in the engineering mode
+param engmode_fcs = 0 //run in the FCS engineering mode
 
 param integrate_ms = 0 // amount of time to integrate in the dark (ms component)
 param integrate_s = 0 // amount of time to integrate in the dark (s component)
@@ -171,7 +172,7 @@ SEQUENCE ClampTest
 
 SEQUENCE StartSeqSummitMode {
   if engmode StartSeqEngMode();
-  
+  if engmode_fcs StartSeqEngModeFCS();
   
   GOTO StartSeqSummitMode();
 
@@ -188,6 +189,13 @@ SEQUENCE SummitModeFCSFlush {
 
 SEQUENCE SummitModeSciReadout {
 
+}
+
+
+SEQUENCE StartSeqEngModeFCS {
+  
+
+  GOTO StartSeqEngModeFCS();
 }
 
 

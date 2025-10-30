@@ -131,7 +131,29 @@ WAVEFORM InitialSetup
   
 }
 
+WAVEFORM InitialSetupFCS
+{
+0  : 
+  SET RG TO INV_HIGH;
+  SET SW TO INV_HIGH;
+  SET RG_CLOCKS TO _RG_LOW;
+  SET SW_CLOCKS TO _SW_LOW;
 
+  //disable the pin drivers
+  SET PD_OE_IN TO 1;
+
+  SET AC_Clamp to HIGH;
+
+  .+1000:
+  SET AC_Clamp to LOW;
+
+  SET FCS_P3 TO _MPP_CLOCK_LOW_FCS, FAST;
+  SET FCS_P2 TO _PAR_CLOCK_HIGH_FCS, FAST;
+  SET FCS_P1 TO _PAR_CLOCK_HIGH_FCS, FAST;
+  
+  .+10000:
+  SET NOP TO HIGH;
+}
 
 
 
@@ -948,6 +970,12 @@ WAVEFORM FCSSplitReadout
   .+FCS_SER_STEP: SET FCS_S1 TO _SER_CLOCK_HIGH_FCS, FAST;
   .+FCS_SER_STEP: SET FCS_S3 TO _SER_CLOCK_LOW_FCS, FAST;
   SET FCS_SW TO INV_LOW;
+
+}
+
+WAVEFORM FCSParallelForwards
+{
+ 0: 
 
 }
 
