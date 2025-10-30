@@ -167,3 +167,7 @@
 #define SCI_SCLK2_EONLY SCLK_E1
 #define SCI_SCLK2_FONLY SCLK_F1
 
+//FCS readout
+#define FCS_P3 [FCS_P3U, FCS_P3L]
+#define FCS_S2 [FCS1_S2L, FCS2_S2L]
+#define FCS_S3 [FCS1_S3L, FCS2_S3L]

@@ -45,10 +45,10 @@ SLOT 3 driverx {
   DRVX  4 [SCLK_fast,SCLK_slow,1] "Serial E1";
   DRVX  5 [SCLK_fast,SCLK_slow,1] "Serial F2";
   DRVX  6 [SCLK_fast,SCLK_slow,1] "Serial F1";
-  DRVX  7 [1,1,0];
-  DRVX  8 [1,1,0];
-  DRVX  9 [1,1,0];
-  DRVX 10 [1,1,0];
+  DRVX  7 [1,1,0] "FCS PPhase3U";
+  DRVX  8 [1,1,0] "FCS PPhase3L";
+  DRVX  9 [1,1,0] "FCS PPhase2";
+  DRVX 10 [1,1,0] "FCS PPhase1";
   DRVX 11 [TG_fast,TG_slow,1] "TGA2";
   DRVX 12 [1,1,0];
 }

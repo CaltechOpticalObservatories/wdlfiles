@@ -104,17 +104,25 @@
 
 #define PCLK_slow           P_TRI_SLEW_RATE
 
+#define PCLK_slow_FCS       PCLK_SLOW
+
+
 //e2v says need on average 1.us rise time, for "normal" clocking calculate PCLK_fast that way
 
 #define PCLK_fast           #exec printf "%2.4f" $(echo "scale=4; (_PAR_CLOCK_HIGH - _PAR_CLOCK_LOW) / 1.5" | bc)
 
 
+#define PCLK_fast_FCS  PCLK_fast
+
 //e2v says need on average 90ns rise time for a serial clock
 #define SCLK_fast           #exec printf "%2.4f" $(echo "scale=4; (_SER_CLOCK_HIGH - _SER_CLOCK_LOW) / 0.2" | bc)
+
+#define SCLK_fast_FCS SCLK_fast
 
 //NOTE: waveforms currently use serial "slow" slew rate for triangular waveform
 // serial "FAST" is for immediate changes (like e.g. resetting serial register)
 #define SCLK_slow           S_TRI_SLEW_RATE   //nominal value for now
+#define SCLK_slow_FCS       SCLK_slow
 
 //transfer gate uses only one slew rate
 
