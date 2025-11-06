@@ -169,20 +169,31 @@ SEQUENCE ClampTest
 
 #endif
 
-
-SEQUENCE StartSeqSummitMode {
+//gets called once at timing reset
+SEQUENCE Boot {
   if engmode StartSeqEngMode();
   if engmode_fcs StartSeqEngModeFCS();
+  StartSeqSummitMode();
+
+}
+
+
+
+//Summit mode run loop - idle both FCS and science focal plane
+SEQUENCE StartSeqSummitMode {
   
   GOTO StartSeqSummitMode();
 
 }
 
+//summit mode FCS and SCI idle (i.e. quiescent mode)
+//this sequence should flush a single line
 SEQUENCE SummitModeSciFCSFlush {
 
 
 }
 
+//summit mode FCS idle only (i.e. integrating on SCI focal plane)
 SEQUENCE SummitModeFCSFlush {
 
 }
@@ -191,6 +202,10 @@ SEQUENCE SummitModeSciReadout {
 
 }
 
+
+SEQUENCE SummitModeFCSReadout {
+
+}
 
 SEQUENCE StartSeqEngModeFCS {
   
