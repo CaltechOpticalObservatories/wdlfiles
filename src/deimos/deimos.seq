@@ -19,8 +19,12 @@
 /** testing constant values **/
 
 
-
-  
+/** parameters interfaced with camerad in summit mode **/
+param FcsExpTimeSec = 0 //FCS exposure time (seconds)
+param FcsExpTimeMSec = 0 // FCS exposure time (milliseconds)
+param SciStart = 0 // trigger to start a science exposure 
+param FcsStart = 0 // trigger to start an FCS exposure
+param SciStop = 0 //trigger to end a science exposure and start readout
   
 
 /** System Control Triggers **/
@@ -173,43 +177,74 @@ SEQUENCE ClampTest
 SEQUENCE Boot {
   if engmode StartSeqEngMode();
   if engmode_fcs StartSeqEngModeFCS();
+  
   StartSeqSummitMode();
 
 }
 
 
 
-//Summit mode run loop - idle both FCS and science focal plane
+//Summit mode initial setup  both FCS and science focal plane
 SEQUENCE StartSeqSummitMode {
-  
+  InitialSetup();
+  InitialSetupFCS();
   GOTO StartSeqSummitMode();
-
 }
 
-//summit mode FCS and SCI idle (i.e. quiescent mode)
-//this sequence should flush a single line
-SEQUENCE SummitModeSciFCSFlush {
+SEQUENCE SummitModeIdle {
+    //flush a line from both FCS and SCI planes
+  SummitModeSciFCSLineFlush();
+  IF SciStart SummitModeSciIntegrate();
 
-
+  GOTO SummitModeIdle();
 }
 
-//summit mode FCS idle only (i.e. integrating on SCI focal plane)
-SEQUENCE SummitModeFCSFlush {
-
+SEQUENCE SummitModeSciIntegrate {
+  //the absence of science mode flushing means science is integrating
+  SummitModeFCSLineFlush();
+  //if we're asked for an FCS readout, do that.
+  IF FcsStart SummitModeFCSIntegrate();
+  IF SciStop SummitModeSciReadout();
+  GOTO SummitModeSciIntegrate();
 }
+
+
+SEQUENCE SummitModeFCSIntegrate
+{
+  KeepThisFrame();
+  Wait1ms(FcsExpTimeMSec);
+  Wait1s(FcsExpTimeSec);
+  SummitModeFCSReadout();
+  RETURN;
+}
+
 
 SEQUENCE SummitModeSciReadout {
+  //very similar to eng mode FrameReadout, except
+  //only two possible modes (sequential or coincident)
+  //also no trigger out operation, no TDI, no linbin.
+  ReadoutBegin();
+  Wait1us(50);
 
+  DumpPixels(_AMPREADCOLS);
+  if llel_seq LineReadout(TOTAL_ROWS);
+  if llel_coincident LineReadoutCoincident(TOTAL_ROWS);
+
+  ReadoutEnd();
+  //this one doesn't RETURN... after a summit mode science readout we go back
+  //to idling
+  GOTO SummitModeIdle();
 }
 
 
 SEQUENCE SummitModeFCSReadout {
 
+
+  RETURN;
 }
 
 SEQUENCE StartSeqEngModeFCS {
-  
-
+  InitialSetupFCS();
   GOTO StartSeqEngModeFCS();
 }
 
@@ -310,6 +345,7 @@ SEQUENCE ReadoutKeep
   framecount--;
   RETURN;
 }
+
 
 
 SEQUENCE FrameReadoutTDCllel
