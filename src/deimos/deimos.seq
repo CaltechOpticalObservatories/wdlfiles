@@ -46,6 +46,11 @@ param flush = 0 // run the flush sequence between every frame
   param tdi_wait_us = 0 // add a TDI wait period to each llel readout in llel_seq mode (for "quickPTC")
 
 
+  //internal summit mode state parameters
+  param summit_sci_is_flushing = 1
+  param summit_fcs_is_flushing = 1
+  
+
 param line_clamp_delay_us = 10
   
   //=====READOUT MODES -- all are MUTUALLY EXCLUSIVE ----
@@ -188,33 +193,34 @@ SEQUENCE Boot {
 SEQUENCE StartSeqSummitMode {
   InitialSetup();
   InitialSetupFCS();
-  GOTO StartSeqSummitMode();
+  SummitModeLoop();
 }
 
-SEQUENCE SummitModeIdle {
+SEQUENCE SummitModeLoop {
     //flush a line from both FCS and SCI planes
-  SummitModeSciFCSLineFlush();
-  IF SciStart SummitModeSciIntegrate();
+  IF SciStart SummitModeSciIntegrateStart();
+  IF FcsStart SummitModeFcsIntegrate();
 
-  GOTO SummitModeIdle();
+  GOTO SummitModeLoop();
 }
 
-SEQUENCE SummitModeSciIntegrate {
-  //the absence of science mode flushing means science is integrating
-  SummitModeFCSLineFlush();
-  //if we're asked for an FCS readout, do that.
-  IF FcsStart SummitModeFCSIntegrate();
-  IF SciStop SummitModeSciReadout();
-  GOTO SummitModeSciIntegrate();
+SEQUENCE SummitModeLineFlush {
+  IF summit_sci_is_flushing SummitScienceLineFlush();
+  IF !summit_sci_is_flushing SummitWaitScienceLineFlush();
+  IF summit_fcs_is_flushing SummitFCSLineFlush();
+  IF !summit_fcs_is_flushing SummitWaitFCSLineFlush();
 }
+
 
 
 SEQUENCE SummitModeFCSIntegrate
 {
+  summit_fcs_is_flushing--;
   KeepThisFrame();
   Wait1ms(FcsExpTimeMSec);
   Wait1s(FcsExpTimeSec);
   SummitModeFCSReadout();
+  summit_fcs_is_flushing++
   RETURN;
 }
 
@@ -233,7 +239,7 @@ SEQUENCE SummitModeSciReadout {
   ReadoutEnd();
   //this one doesn't RETURN... after a summit mode science readout we go back
   //to idling
-  GOTO SummitModeIdle();
+  GOTO SummitModeLoop();
 }
 
 
