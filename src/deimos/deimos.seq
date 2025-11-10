@@ -25,7 +25,7 @@ param FcsExpTimeMSec = 0 // FCS exposure time (milliseconds)
 param SciStart = 0 // trigger to start a science exposure 
 param FcsStart = 0 // trigger to start an FCS exposure
 param SciStop = 0 //trigger to end a science exposure and start readout
-  
+param SciDump = 0 //trigger to end a science exposure and start dump sequence
 
 /** System Control Triggers **/
 
@@ -47,9 +47,7 @@ param flush = 0 // run the flush sequence between every frame
 
 
   //internal summit mode state parameters
-  param summit_sci_is_flushing = 1
-  param summit_fcs_is_flushing = 1
-  
+  param summit_sci_is_integrating = 0
 
 param line_clamp_delay_us = 10
   
@@ -194,33 +192,47 @@ SEQUENCE StartSeqSummitMode {
   InitialSetup();
   InitialSetupFCS();
   SummitModeLoop();
+  RETURN;
 }
 
 SEQUENCE SummitModeLoop {
-    //flush a line from both FCS and SCI planes
-  IF SciStart SummitModeSciIntegrateStart();
-  IF FcsStart SummitModeFcsIntegrate();
-
+  IF !summit_sci_is_integrating SummitModeAllLineFlush();
+  IF summit_sci_is_integrating SummitModeFCSLineFlush();
+  IF SciStart SummitModeSciIntegrate();
+  IF FcsStart SummitModeFCSIntegrate();
+  IF SciStop SummitModeSciReadout();
+  IF SciDump SummitModeSciDump();
   GOTO SummitModeLoop();
 }
 
-SEQUENCE SummitModeLineFlush {
-  IF summit_sci_is_flushing SummitScienceLineFlush();
-  IF !summit_sci_is_flushing SummitWaitScienceLineFlush();
-  IF summit_fcs_is_flushing SummitFCSLineFlush();
-  IF !summit_fcs_is_flushing SummitWaitFCSLineFlush();
+
+SEQUENCE SummitModeAllLineFlush {
+  ParallelForwardNoCoincident();
+  SummitModeFCSLineFlush();
+  RETURN;
 }
 
+SEQUENCE SummitModeFCSLineFlush {
+  FCSParallelForward();
+  
+  RETURN;
+}
+
+SEQUENCE SummitModeSciIntegrate
+{
+  IF SciStart SciStart--;
+  summit_sci_is_integrating++;
+  RETURN;
+}
 
 
 SEQUENCE SummitModeFCSIntegrate
 {
-  summit_fcs_is_flushing--;
+  IF FcsStart FcsStart--;
   KeepThisFrame();
   Wait1ms(FcsExpTimeMSec);
   Wait1s(FcsExpTimeSec);
   SummitModeFCSReadout();
-  summit_fcs_is_flushing++
   RETURN;
 }
 
@@ -229,6 +241,8 @@ SEQUENCE SummitModeSciReadout {
   //very similar to eng mode FrameReadout, except
   //only two possible modes (sequential or coincident)
   //also no trigger out operation, no TDI, no linbin.
+  IF summit_sci_is_integrating summit_sci_is_integrating--;
+  IF SciStop SciStop--;
   ReadoutBegin();
   Wait1us(50);
 
@@ -237,9 +251,14 @@ SEQUENCE SummitModeSciReadout {
   if llel_coincident LineReadoutCoincident(TOTAL_ROWS);
 
   ReadoutEnd();
-  //this one doesn't RETURN... after a summit mode science readout we go back
-  //to idling
-  GOTO SummitModeLoop();
+  RETURN;
+}
+
+SEQUENCE SummitModeSciDump {
+  IF summit_sci_is_integrating summit_sci_is_integrating--;
+  IF SciDump SciDump--;
+
+  RETURN;
 }
 
 
@@ -283,16 +302,6 @@ SEQUENCE TestBrokenReadout
   RETURN;
 }
 
-
-
-SEQUENCE Flush
-{
-  FlushSetup();
-  Wait1ms(10);
-  FlushTearDown();
-  Wait1ms(10);
-  RETURN Flush;
-}
 
 SEQUENCE EvacuateE
 {
