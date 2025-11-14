@@ -1,3 +1,4 @@
+
 /* -*- C -*- */
 /** ---------------------------------------------------------------------------
  * @file     deimos.seq
@@ -25,7 +26,6 @@ param FcsExpTimeMSec = 0 // FCS exposure time (milliseconds)
 param SciStart = 0 // trigger to start a science exposure 
 param FcsStart = 0 // trigger to start an FCS exposure
 param SciStop = 0 //trigger to end a science exposure and start readout
-param SciDump = 0 //trigger to end a science exposure and start dump sequence
 
 /** System Control Triggers **/
 
@@ -38,7 +38,6 @@ param integrate_s = 0 // amount of time to integrate in the dark (s component)
 param framecount = 0 // how many frames to read (set to 1 to trigger a readout on next sequence
 param abortintegrate = 0 // set to 1 to bail out if in the middle of an integration
 
-param flush = 0 // run the flush sequence between every frame
   param illum = 0 //should the light be turned on for integrations
   param integrate_illum_ms = 50 //amount of time to integrate with light on (ms component)
   param integrate_illum_s = 0 //amount of time to integrate with light on (s component)
@@ -181,8 +180,7 @@ SEQUENCE Boot {
   if engmode StartSeqEngMode();
   if engmode_fcs StartSeqEngModeFCS();
   
-  StartSeqSummitMode();
-
+  GOTO StartSeqSummitMode();
 }
 
 
@@ -196,12 +194,10 @@ SEQUENCE StartSeqSummitMode {
 }
 
 SEQUENCE SummitModeLoop {
-  IF !summit_sci_is_integrating SummitModeAllLineFlush();
-  IF summit_sci_is_integrating SummitModeFCSLineFlush();
+  SummitModeFCSLineFlush();
   IF SciStart SummitModeSciIntegrate();
   IF FcsStart SummitModeFCSIntegrate();
   IF SciStop SummitModeSciReadout();
-  IF SciDump SummitModeSciDump();
   GOTO SummitModeLoop();
 }
 
@@ -214,14 +210,20 @@ SEQUENCE SummitModeAllLineFlush {
 
 SEQUENCE SummitModeFCSLineFlush {
   FCSParallelForward();
-  
   RETURN;
 }
 
 SEQUENCE SummitModeSciIntegrate
 {
   IF SciStart SciStart--;
-  summit_sci_is_integrating++;
+  //do a dump sequence before starting integration
+  OpenShutter();
+  SummitModeSciDump();
+  CloseShutter();
+  //set parallels to appropriate static gates here
+
+  //TODO: should  we emit some kind of signal here?
+  IF !summit_sci_is_integrating summit_sci_is_integrating++;
   RETURN;
 }
 
@@ -230,8 +232,10 @@ SEQUENCE SummitModeFCSIntegrate
 {
   IF FcsStart FcsStart--;
   KeepThisFrame();
+  OpenShutter();
   Wait1ms(FcsExpTimeMSec);
   Wait1s(FcsExpTimeSec);
+  CloseShutter();
   SummitModeFCSReadout();
   RETURN;
 }
@@ -255,28 +259,40 @@ SEQUENCE SummitModeSciReadout {
 }
 
 SEQUENCE SummitModeSciDump {
-  IF summit_sci_is_integrating summit_sci_is_integrating--;
-  IF SciDump SciDump--;
-
+  EvacuateEStart();
+  EvacuateFStart();
+  ParallelForwardNoCoincident(TOTAL_ROWS);
+  Wait1us(50);
+  DumpPixels(_AMPREADCOLS);
   RETURN;
 }
 
 
 SEQUENCE SummitModeFCSReadout {
-
-
+  Wait1us(50);
+  //TODO: faster FCS readout with windowing
+  FCSLineReadout(_FCS_ROWS);
   RETURN;
 }
 
+SEQUENCE FCSLineReadout {
+  FCSParallelForward();
+  Wait1us(line_clamp_delay_us);
+  FCSSplitReadout(_FCS_TOTAL_COLS);
+  RETURN;
+}
+
+
 SEQUENCE StartSeqEngModeFCS {
   InitialSetupFCS();
+  if framecount SummitModeFCSIntegrate();
+  
   GOTO StartSeqEngModeFCS();
 }
 
 
 SEQUENCE StartSeqEngMode {
   InitialSetup();
-  if flush Flush();   
   if framecount IntegrateAndReadout();
   if !framecount LineReadoutFast(TOTAL_ROWS);
   if rg_mod_test_mode TestBrokenReadout();
@@ -566,7 +582,7 @@ SEQUENCE Wait1s {
 
 SEQUENCE abortintegration {
   CloseShutter();
-  GOTO StartSeq();
+  GOTO Boot();
 }
 
 SEQUENCE LineReadoutSlowPix
@@ -599,12 +615,6 @@ SEQUENCE LineReadoutFast
 {
   ParallelForwardNoCoincident();
   ReadPixels(_AMPREADCOLS);
-  RETURN;
-}
-
-SEQUENCE LineDump
-{
-  DumpPixels(_AMPREADCOLS);
   RETURN;
 }
 

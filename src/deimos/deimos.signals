@@ -80,12 +80,16 @@
 #define SCI_RGBACKUP2 2 : 1 //new VIB assignment
 #define SCI_SWBACKUP1 2 : 2 //new VIB assignment
 #define FCS2_S2L      2 : 3 //new VIB assignment
+
 #define FCS1_S2L      2 : 4 //new VIB assignment
 #define FCS2_S3L      2 : 5 //new VIB assignmet
+
 #define FCS_S1        2 : 6 //new VIB assignment
 #define SCI_SWBACKUP2 2 : 7 //new VIB assignment
+
 #define FCS_RG        2 : 8 //new VIB assignment
 #define FCS_SW        2 : 9 //new VIB assignment
+
 #define FCS1_S3L      2 : 10 //new VIB assignment
 #define Spare1        2 : 11 //new VIB assignment
 #define Spare2        2 : 12 //new VIB assignment
