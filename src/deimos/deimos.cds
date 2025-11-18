@@ -39,7 +39,7 @@ SHD1          = 448
 SHD2          = 575
 
   //ADM module installed in slot 7
-#define SINGLE_DET_TEST 1
+#define FCS_CDS 1
 
   // NOTE tghere is a re-mapping due to the cameralink cable,
   // that is not accounted for by the current DEIMOS VIB.
@@ -61,6 +61,11 @@ TAPLINE1      ="AM40R,-1,100"
 TAPLINES=2
 FRAMEMODE=0
 
+#elifdef FCS_CDS
+TAPLINES=2
+FRAMEMODE=0
+TAPLINE0      ="AM45L,-1,100"
+TAPLINE1      ="AM46R,-1,100"  
   
 #else
 FRAMEMODE=2
@@ -88,12 +93,3 @@ TRIGOUTFORCE=0
 TRIGOUTINVERT=0
 TRIGOUTLEVEL=0
 TRIGOUTPOWER=1
-
-
-//FCS R is pair 9, FCS L is pair 10
-#ifdef FCS_CDS
-TAPLINES=2
-FRAMEMODE=0
-TAPLINE0      ="AM45L,-1,100"
-TAPLINE1      ="AM46R,-1,100"
-#endif
