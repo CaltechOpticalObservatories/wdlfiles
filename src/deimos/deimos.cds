@@ -6,21 +6,6 @@
 
 #include "voltage_timing_parameters.h"
 
-BIGBUF        = _ARCHON_FRAMEBUFS
-LINECOUNT     = _LINENUM
-PIXELCOUNT    = _AMPREADCOLS
-RAWENABLE     = _RAW_ENABLE
-RAWENDLINE    = 800
-RAWSAMPLES    = 20000
-  //RAWSEL        = _RAW_SELECT
-  //NOTE RAWSEL of 11 should be E channel of slot 2
-RAWSEL        = 11plt.c
-RAWSTARTLINE  = 0
-  //to view the last prescan and start of the line
-  //RAWSTARTPIXEL = 48
-  //to view the end of the line
-  RAWSTARTPIXEL = 1061
-SAMPLEMODE    = 1
 
 //attempt pixel timing coincident with the nearest ADM samples. That means multiples of 8
 //by eye, try 80 to start
@@ -31,12 +16,17 @@ SAMPLEMODE    = 1
   
   // last sample number must fit the series 8*n-1
   // first sample number must be in the series 8*n
+BIGBUF        = _ARCHON_FRAMEBUFS  
+RAWSTARTLINE  = 0
+  //to view the last prescan and start of the line
+  //RAWSTARTPIXEL = 48
+  //to view the end of the line
+  RAWSTARTPIXEL = 1061
+SAMPLEMODE    = 1
+RAWENABLE     = _RAW_ENABLE
+RAWENDLINE    = 800
+RAWSAMPLES    = 20000
   
-  
-SHP1          = 120
-SHP2          = 303
-SHD1          = 448
-SHD2          = 575
 
   //ADM module installed in slot 7
 #define FCS_CDS 1
@@ -61,11 +51,32 @@ TAPLINE1      ="AM40R,-1,100"
 TAPLINES=2
 FRAMEMODE=0
 
+BIGBUF        = _ARCHON_FRAMEBUFS
+LINECOUNT     = _LINENUM
+PIXELCOUNT    = _AMPREADCOLS
+  //RAWSEL        = _RAW_SELECT
+  //NOTE RAWSEL of 11 should be E channel of slot 2
+RAWSEL        = 11
+RAWSTARTLINE  = 0
+  //to view the last prescan and start of the line
+  //RAWSTARTPIXEL = 48
+  //to view the end of the line
+
+SHP1          = 120
+SHP2          = 303
+SHD1          = 448
+SHD2          = 575
+
+
+  
 #elifdef FCS_CDS
 TAPLINES=2
 FRAMEMODE=0
 TAPLINE0      ="AM45L,-1,100"
 TAPLINE1      ="AM46R,-1,100"  
+
+RAWSEL=49
+  //RAWSEL=50
   
 #else
 FRAMEMODE=2
@@ -87,6 +98,21 @@ TAPLINE14     ="AM53L,-1,100"
 TAPLINE15     ="AM54R,-1,100"
 TAPLINES=16
 
+
+
+LINECOUNT     = _LINENUM
+PIXELCOUNT    = _AMPREADCOLS
+  //RAWSEL        = _RAW_SELECT
+  //NOTE RAWSEL of 11 should be E channel of slot 2
+RAWSEL        = 11
+
+SHP1          = 120
+SHP2          = 303
+SHD1          = 448
+SHD2          = 575
+
+  
+  
 #endif
 
 TRIGOUTFORCE=0

@@ -104,6 +104,7 @@
 /****  LVDS Driver Signal definitions   ****/
 
 #define AC_Clamp 12 : 12
+#define AC_Clamp_FCS 12 : 11
 /* NOP Definition - NEEDS TO BE UNUSED */
 #define NOP      12 : 2  //new VIB redefine
 #define PD_OE_IN 12 : 1 //new VIB assignment

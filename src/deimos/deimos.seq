@@ -22,9 +22,13 @@
 
 /** parameters interfaced with camerad in summit mode **/
 param FcsExpTimeSec = 0 //FCS exposure time (seconds)
+
 param FcsExpTimeMSec = 0 // FCS exposure time (milliseconds)
+
 param SciStart = 0 // trigger to start a science exposure 
+
 param FcsStart = 0 // trigger to start an FCS exposure
+
 param SciStop = 0 //trigger to end a science exposure and start readout
 
 /** System Control Triggers **/
@@ -38,15 +42,15 @@ param integrate_s = 0 // amount of time to integrate in the dark (s component)
 param framecount = 0 // how many frames to read (set to 1 to trigger a readout on next sequence
 param abortintegrate = 0 // set to 1 to bail out if in the middle of an integration
 
-  param illum = 0 //should the light be turned on for integrations
-  param integrate_illum_ms = 50 //amount of time to integrate with light on (ms component)
-  param integrate_illum_s = 0 //amount of time to integrate with light on (s component)
-  param rg_mod_test_mode = 0 //go into special output V_RD modulation mode - EXPERTS ONLY
-  param tdi_wait_us = 0 // add a TDI wait period to each llel readout in llel_seq mode (for "quickPTC")
+param illum = 0 //should the light be turned on for integrations
+param integrate_illum_ms = 50 //amount of time to integrate with light on (ms component)
+param integrate_illum_s = 0 //amount of time to integrate with light on (s component)
+param rg_mod_test_mode = 0 //go into special output V_RD modulation mode - EXPERTS ONLY
+param tdi_wait_us = 0 // add a TDI wait period to each llel readout in llel_seq mode (for "quickPTC")
 
 
   //internal summit mode state parameters
-  param summit_sci_is_integrating = 0
+param summit_sci_is_integrating = 0
 
 param line_clamp_delay_us = 10
   
@@ -175,17 +179,6 @@ SEQUENCE ClampTest
 
 #endif
 
-//gets called once at timing reset
-SEQUENCE Boot {
-  if engmode StartSeqEngMode();
-  if engmode_fcs StartSeqEngModeFCS();
-  
-  GOTO StartSeqSummitMode();
-}
-
-
-
-//Summit mode initial setup  both FCS and science focal plane
 SEQUENCE StartSeqSummitMode {
   InitialSetup();
   InitialSetupFCS();
@@ -194,6 +187,8 @@ SEQUENCE StartSeqSummitMode {
 }
 
 SEQUENCE SummitModeLoop {
+  if engmode StartSeqEngMode();
+  if engmode_fcs StartSeqEngModeFCS();
   SummitModeFCSLineFlush();
   IF SciStart SummitModeSciIntegrate();
   IF FcsStart SummitModeFCSIntegrate();
@@ -210,12 +205,15 @@ SEQUENCE SummitModeAllLineFlush {
 
 SEQUENCE SummitModeFCSLineFlush {
   FCSParallelForward();
+  DumpPixelsFCS(_FCS_TOTAL_COLS);
   RETURN;
 }
 
 SEQUENCE SummitModeSciIntegrate
 {
-  IF SciStart SciStart--;
+  //IF SciStart SciStart-- - NOTE do not uncomment before wdl issue #36 fixed
+  //this will generate illegal statements otherwise
+  SciStart--;
   //do a dump sequence before starting integration
   OpenShutter();
   SummitModeSciDump();
@@ -223,14 +221,15 @@ SEQUENCE SummitModeSciIntegrate
   //set parallels to appropriate static gates here
 
   //TODO: should  we emit some kind of signal here?
-  IF !summit_sci_is_integrating summit_sci_is_integrating++;
+  summit_sci_is_integrating++;
   RETURN;
 }
 
 
 SEQUENCE SummitModeFCSIntegrate
 {
-  IF FcsStart FcsStart--;
+  //IF FcsStart FCSStart--;
+  FcsStart--;
   KeepThisFrame();
   OpenShutter();
   Wait1ms(FcsExpTimeMSec);
@@ -245,8 +244,10 @@ SEQUENCE SummitModeSciReadout {
   //very similar to eng mode FrameReadout, except
   //only two possible modes (sequential or coincident)
   //also no trigger out operation, no TDI, no linbin.
-  IF summit_sci_is_integrating summit_sci_is_integrating--;
-  IF SciStop SciStop--;
+  //IF summit_sci_is_integrating summit_sci_is_integrating--;
+  summit_sci_is_integrating--;
+  //IF SciStop SciStop--;
+  SciStop--;
   ReadoutBegin();
   Wait1us(50);
 
@@ -271,6 +272,7 @@ SEQUENCE SummitModeSciDump {
 SEQUENCE SummitModeFCSReadout {
   Wait1us(50);
   //TODO: faster FCS readout with windowing
+  
   FCSLineReadout(_FCS_ROWS);
   RETURN;
 }
@@ -284,15 +286,14 @@ SEQUENCE FCSLineReadout {
 
 
 SEQUENCE StartSeqEngModeFCS {
-  InitialSetupFCS();
   if framecount SummitModeFCSIntegrate();
+  if !framecount SummitModeFCSLineFlush(_FCS_ROWS);
   
   GOTO StartSeqEngModeFCS();
 }
 
 
 SEQUENCE StartSeqEngMode {
-  InitialSetup();
   if framecount IntegrateAndReadout();
   if !framecount LineReadoutFast(TOTAL_ROWS);
   if rg_mod_test_mode TestBrokenReadout();
@@ -582,7 +583,7 @@ SEQUENCE Wait1s {
 
 SEQUENCE abortintegration {
   CloseShutter();
-  GOTO Boot();
+  GOTO StartSeqSummitMode();
 }
 
 SEQUENCE LineReadoutSlowPix

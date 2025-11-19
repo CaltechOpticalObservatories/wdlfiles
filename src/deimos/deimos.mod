@@ -26,14 +26,14 @@ SLOT 1 driverx {
 SLOT 2 driverx {
   DRVX  1 [1,1,1] "SCI_RGBACKUP2";
   DRVX  2 [1,1,1] "SCI_SWBACKUP1";
-  DRVX  3 [1,1,1] "FCS2_S2L";
-  DRVX  4 [1,1,1] "FCS1_S2L";
-  DRVX  5 [1,1,1] "FCS2_S3L";
-  DRVX  6 [1,1,1] "FCS_S1";
+  DRVX  3 [SCLK_fast_FCS,SCLK_slow_FCS,1] "FCS2_S2L";
+  DRVX  4 [SCLK_fast_FCS,SCLK_slow_FCS,1] "FCS1_S2L";
+  DRVX  5 [SCLK_fast_FCS,SCLK_slow_FCS,1] "FCS2_S3L";
+  DRVX  6 [SCLK_fast_FCS,SCLK_slow_FCS,1] "FCS_S1";
   DRVX  7 [1,1,1] "SCI_SWBACKUP2";
-  DRVX  8 [1,1,1] "FCS_RG";
-  DRVX  9 [1,1,1] "FCS_SW";
-  DRVX 10 [1,1,1] "FCS1_S3L";
+  DRVX  8 [SCLK_fast_FCS,SCLK_slow_FCS,1] "FCS_RG";
+  DRVX  9 [SCLK_fast_FCS,SCLK_slow_FCS,1] "FCS_SW";
+  DRVX 10 [SCLK_fast_FCS,SCLK_slow_FCS,1] "FCS1_S3L";
   DRVX 11 [1,1,0] "Spare1";
   DRVX 12 [1,1,0] "Spare2";
 }
@@ -45,10 +45,10 @@ SLOT 3 driverx {
   DRVX  4 [SCLK_fast,SCLK_slow,1] "Serial E1";
   DRVX  5 [SCLK_fast,SCLK_slow,1] "Serial F2";
   DRVX  6 [SCLK_fast,SCLK_slow,1] "Serial F1";
-  DRVX  7 [1,1,0] "FCS PPhase3U";
-  DRVX  8 [1,1,0] "FCS PPhase3L";
-  DRVX  9 [1,1,0] "FCS PPhase2";
-  DRVX 10 [1,1,0] "FCS PPhase1";
+  DRVX  7 [PCLK_fast_FCS,PCLK_slow_FCS,1] "FCS PPhase3U";
+  DRVX  8 [PCLK_fast_FCS,PCLK_slow_FCS,1] "FCS PPhase3L";
+  DRVX  9 [PCLK_fast_FCS,PCLK_slow_FCS,1] "FCS PPhase2";
+  DRVX 10 [PCLK_fast_FCS,PCLK_slow_FCS,1] "FCS PPhase1";
   DRVX 11 [TG_fast,TG_slow,1] "TGA2";
   DRVX 12 [1,1,0];
 }
@@ -111,10 +111,10 @@ SLOT 9 hvbias {
   HVLC 24 [29.30,1] "SCI2 F Output Drain"; //TODO: needs re-assignment!
   HVHC  1 [29.3,10.0,3,1] "SCI E Output Drain";
   HVHC  2 [29.3,10.0,3,1] "SCI F Output Drain"; 
-  HVHC  3 [24.3,2.0,0,1] "FCS1 Output Drain A";
-  HVHC  4 [24.3,2.0,0,1] "FCS1 Output Drain B";
-  HVHC  5 [24.3,2.0,0,1] "FCS2 Output Drain A";
-  HVHC  6 [24.3,2.0,0,1] "FCS2 Output Drain B";
+  HVHC  3 [24.3,4.0,0,1] "FCS1 Output Drain A";
+  HVHC  4 [24.3,4.0,0,1] "FCS1 Output Drain B";
+  HVHC  5 [24.3,4.0,0,1] "FCS2 Output Drain A";
+  HVHC  6 [24.3,4.0,0,1] "FCS2 Output Drain B";
 }
 
 SLOT 10 lvbias {
