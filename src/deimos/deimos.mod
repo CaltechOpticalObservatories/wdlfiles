@@ -92,10 +92,10 @@ SLOT 9 hvbias {
   HVLC  5 [17.5,2] "SCI E Reset Drain";
   HVLC  6 [17.5,2] "SCI F Reset Drain";
   HVLC  7 [0.00,0];
-  HVLC  8 [14.00,0] "FCS1 Reset Drain A";
-  HVLC  9 [14.00,0] "FCS1 Reset Drain B";
-  HVLC 10 [14.00,0] "FCS2 Reset Drain A";
-  HVLC 11 [14.00,0] "FCS2 Reset Drain B";
+  HVLC  8 [14.00,2] "FCS1 Reset Drain A";
+  HVLC  9 [14.00,2] "FCS1 Reset Drain B";
+  HVLC 10 [14.00,2] "FCS2 Reset Drain A";
+  HVLC 11 [14.00,2] "FCS2 Reset Drain B";
   HVLC 12 [13.00,1] "FCS Overflow Drain"; //TODO: what voltage?
   HVLC 13 [0.00,0];
   HVLC 14 [0.00,0];
@@ -107,14 +107,14 @@ SLOT 9 hvbias {
   HVLC 20 [0.00,0];
   HVLC 21 [17.00,2] "SCI2 E Reset Drain";
   HVLC 22 [17.00,2] "SCI2 F Reset Drain";
-  HVLC 23 [29.30,1] "SCI2 E Output Drain" ; //TODO: needs re-assignment!
-  HVLC 24 [29.30,1] "SCI2 F Output Drain"; //TODO: needs re-assignment!
+  HVLC 23 [29.30,3] "SCI2 E Output Drain" ; //TODO: needs re-assignment!
+  HVLC 24 [29.30,3] "SCI2 F Output Drain"; //TODO: needs re-assignment!
   HVHC  1 [29.3,10.0,3,1] "SCI E Output Drain";
   HVHC  2 [29.3,10.0,3,1] "SCI F Output Drain"; 
-  HVHC  3 [24.3,4.0,0,1] "FCS1 Output Drain A";
-  HVHC  4 [24.3,4.0,0,1] "FCS1 Output Drain B";
-  HVHC  5 [24.3,4.0,0,1] "FCS2 Output Drain A";
-  HVHC  6 [24.3,4.0,0,1] "FCS2 Output Drain B";
+  HVHC  3 [24.3,4.0,3,1] "FCS1 Output Drain A";
+  HVHC  4 [24.3,4.0,3,1] "FCS1 Output Drain B";
+  HVHC  5 [24.3,4.0,3,1] "FCS2 Output Drain A";
+  HVHC  6 [24.3,4.0,3,1] "FCS2 Output Drain B";
 }
 
 SLOT 10 lvbias {
@@ -130,10 +130,10 @@ SLOT 10 lvbias {
   // LVLC  8 [11.5,5] "SCI Reset Gate - High";  // NB goes through a line driver
    LVLC  8 [5.5,5] "SCI Reset Gate - LOW";  //// NB at the moment RG low and high are swapped in the cable by accident! 
    LVLC  9 [00.0,0]; 
-   LVLC 10 [-4.0,0] "LastGateA FCS 1"; 
-   LVLC 11 [-4.0,0] "LastGateB FCS 1"; 
-   LVLC 12 [-4.0,0] "LastGateA FCS 2"; 
-   LVLC 13 [-4.0,0] "LastGateB FCS 2";
+   LVLC 10 [-4.0,4] "LastGateA FCS 1"; 
+   LVLC 11 [-4.0,4] "LastGateB FCS 1"; 
+   LVLC 12 [-4.0,4] "LastGateA FCS 2"; 
+   LVLC 13 [-4.0,4] "LastGateB FCS 2";
    LVLC 14 [3.3,0] "SCI E Output Gate 2" ; 
    LVLC 15 [3.3,0] "SCI F Output Gate 2"; 
    LVLC 16 [0.0,0] ; 

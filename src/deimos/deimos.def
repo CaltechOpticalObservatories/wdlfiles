@@ -71,6 +71,7 @@
 
 
 
+
  /** ---------------------------------------------------------------------------
  * CDS-Deinterlace options
  */
@@ -112,7 +113,7 @@
 
 
 
-/** basic constants to assist in somewhat automating slew rate for triange clocking.
+/** basic constants to assist in somewhat automating slew rate for triangle clocking.
     For now we are just entering a slew time manually, then calculating the rate to make
     sure we hit the intended voltage at the top of the triangle waveform **/
 
@@ -125,5 +126,8 @@
 #define _FCS_PRESCAN 25
 #define _FCS_AMPCOLS 1024
 #define _FCS_OVERSCAN 20
+#define _FCS_LLEL_OVERSCAN 20
 
 #define _FCS_TOTAL_COLS #eval _FCS_PRESCAN + _FCS_AMPCOLS + _FCS_OVERSCAN
+
+#define _FCS_LINENUM #eval _FCS_ROWS + _FCS_LLEL_OVERSCAN

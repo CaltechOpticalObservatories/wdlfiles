@@ -84,6 +84,8 @@ param enable_ser_bin = 0
   //const llel_low_level = _PAR_CLOCK_LOW
   //const llel_tri_slew = P_TRI_SLEW_RATE
   
+
+
   
 
   //TODO: wide gate integration mode  
@@ -274,6 +276,7 @@ SEQUENCE SummitModeFCSReadout {
   //TODO: faster FCS readout with windowing
   
   FCSLineReadout(_FCS_ROWS);
+  FCSLineReadout(_FCS_LLEL_OVERSCAN);
   RETURN;
 }
 
@@ -286,11 +289,18 @@ SEQUENCE FCSLineReadout {
 
 
 SEQUENCE StartSeqEngModeFCS {
-  if framecount SummitModeFCSIntegrate();
+  if framecount EngModeFCSIntegrateandReadout();
   if !framecount SummitModeFCSLineFlush(_FCS_ROWS);
   
   GOTO StartSeqEngModeFCS();
 }
+
+SEQUENCE EngModeFCSIntegrateandReadout {
+  SummitModeFCSIntegrate();
+  framecount--;
+  RETURN;
+}
+
 
 
 SEQUENCE StartSeqEngMode {
@@ -579,7 +589,8 @@ SEQUENCE FrameReadout
 SEQUENCE Wait1s {
   if abortintegrate abortintegration();
   Wait1ms(1000);
-  RETURN;}
+  RETURN;
+}
 
 SEQUENCE abortintegration {
   CloseShutter();

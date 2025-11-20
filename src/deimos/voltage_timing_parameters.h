@@ -138,16 +138,18 @@
 
 //FCS related voltage definitions
 
-#define _PAR_CLOCK_HIGH_FCS 2
-#define _PAR_CLOCK_LOW_FCS -7
-#define _MPP_CLOCK_HIGH_FCS 5
-#define _MPP_CLOCK_LOW_FCS -8
-#define _SER_CLOCK_HIGH_FCS 5
-#define _SER_CLOCK_LOW_FCS -7
-#define _RG_LOW_FCS 0
-#define _RG_HIGH_FCS 12
-#define _SW_LOW_FCS -6
-#define _SW_HIGH_FCS 5
+#define _PAR_CLOCK_HIGH_FCS 2.0
+#define _PAR_CLOCK_LOW_FCS -10.0
+#define _MPP_CLOCK_HIGH_FCS 5.0
+#define _MPP_CLOCK_LOW_FCS -8.0
+#define _SER_CLOCK_HIGH_FCS 5.0
+#define _SER_CLOCK_LOW_FCS -7.0
+
+#define _RG_LOW_FCS 0.0
+#define _RG_HIGH_FCS 12.0
+
+#define _SW_LOW_FCS -6.0
+#define _SW_HIGH_FCS 5.0
 
 #define _RESET_DRAIN_FCS 14.0
 #define _OUTPUT_DRAIN_FCS 24.3
