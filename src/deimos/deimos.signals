@@ -100,8 +100,8 @@
 #define Spare2        2 : 12 //new VIB assignment
     
 
-#define RG_CLOCKS [3 : 12, SCI_RGBACKUP2]
-#define SW_CLOCKS [SCI_SWBACKUP1, 2 : 7]
+#define RG_CLOCKS [SCI_RGBACKUP1, SCI_RGBACKUP2]
+#define SW_CLOCKS [SCI_SWBACKUP1, SCI_SWBACKUP2]
 
 #define TG [TGA1,  TGA2] //new VIB assignment
 

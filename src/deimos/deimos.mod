@@ -15,8 +15,8 @@ SLOT 1 driverx {
   DRVX  4 [PCLK_fast,PCLK_slow,1] "PCLK_A2_2";
   DRVX  5 [PCLK_fast,PCLK_slow,1] "PCLK_B1_2";
   DRVX  6 [PCLK_fast,PCLK_slow,1] "PCLK_A1_2";
-  DRVX  7 [PCLK_fast,PCLK_slow,1] "PCLK_B1_1";
-  DRVX  8 [PCLK_fast,PCLK_slow,1] "PCLK_A2_1";
+  DRVX  7 [PCLK_fast,PCLK_slow,1] "PCLK_A1_1";
+  DRVX  8 [PCLK_fast,PCLK_slow,1] "PCLK_B1_1";
   DRVX  9 [PCLK_fast,PCLK_slow,1] "PCLK_A2_1";
   DRVX 10 [PCLK_fast,PCLK_slow,1] "PCLK_B2_1";
   DRVX 11 [PCLK_fast,PCLK_slow,1] "PCLK_A3_1";
@@ -50,7 +50,7 @@ SLOT 3 driverx {
   DRVX  9 [PCLK_fast_FCS,PCLK_slow_FCS,1] "FCS PPhase2";
   DRVX 10 [PCLK_fast_FCS,PCLK_slow_FCS,1] "FCS PPhase1";
   DRVX 11 [TG_fast,TG_slow,1] "TGA2";
-  DRVX 12 [1,1,0];
+  DRVX 12 [1,1,0] "SCI_RGBACKUP1";
 }
 
 
@@ -86,35 +86,35 @@ SLOT 4 xvbias {
 
 SLOT 9 hvbias {
   HVLC  1 [0.00,0];             
-  HVLC  2 [24.0,1] "SCI Guard Drain";
-  HVLC  3 [0.00,0];
+  HVLC  2 [24.0,1] "SCI1 Guard Drain";
+  HVLC  3 [24.0,1] "SCI2 Guard drain";
   HVLC  4 [0.00,0];
-  HVLC  5 [17.5,2] "SCI E Reset Drain";
-  HVLC  6 [17.5,2] "SCI F Reset Drain";
+  HVLC  5 [17.5,2] "SCI1 E Reset Drain";
+  HVLC  6 [17.5,2] "SCI1 F Reset Drain";
   HVLC  7 [0.00,0];
   HVLC  8 [14.00,2] "FCS1 Reset Drain A";
   HVLC  9 [14.00,2] "FCS1 Reset Drain B";
   HVLC 10 [14.00,2] "FCS2 Reset Drain A";
   HVLC 11 [14.00,2] "FCS2 Reset Drain B";
-  HVLC 12 [13.00,1] "FCS Overflow Drain"; //TODO: what voltage?
-  HVLC 13 [0.00,0];
-  HVLC 14 [0.00,0];
-  HVLC 15 [0.00,0];
-  HVLC 16 [0.00,0];
+  HVLC 12 [13.00,1] "FCS Overflow Drain";
+  HVLC 13 [24.3,1] "FCS1 Output Drain A";
+  HVLC 14 [24.3,1] "FCS1 Output Drain B";
+  HVLC 15 [24.3,1] "FCS2 Output Drain A";
+  HVLC 16 [24.3,1] "FCS2 Output Drain B";
   HVLC 17 [0.00,0];
   HVLC 18 [0.00,0];
   HVLC 19 [0.00,0];
   HVLC 20 [0.00,0];
   HVLC 21 [17.00,2] "SCI2 E Reset Drain";
   HVLC 22 [17.00,2] "SCI2 F Reset Drain";
-  HVLC 23 [29.30,3] "SCI2 E Output Drain" ; //TODO: needs re-assignment!
-  HVLC 24 [29.30,3] "SCI2 F Output Drain"; //TODO: needs re-assignment!
-  HVHC  1 [29.3,10.0,3,1] "SCI E Output Drain";
-  HVHC  2 [29.3,10.0,3,1] "SCI F Output Drain"; 
-  HVHC  3 [24.3,4.0,3,1] "FCS1 Output Drain A";
-  HVHC  4 [24.3,4.0,3,1] "FCS1 Output Drain B";
-  HVHC  5 [24.3,4.0,3,1] "FCS2 Output Drain A";
-  HVHC  6 [24.3,4.0,3,1] "FCS2 Output Drain B";
+  HVLC 23 [0.0,0];
+  HVLC 24 [0.0,0]; //TODO: needs re-assignment!
+  HVHC  1 [29.0,10.0,3,1] "SCI E Output Drain";
+  HVHC  2 [29.0,10.0,3,1] "SCI F Output Drain"; 
+  HVHC  3 [29.0,10.0,3,1] "SCI2 E Output Drain";
+  HVHC  4 [29.0,10.0,3,1] "SCI2 F Output Drain";
+  HVHC  5 [0.0,0.0,0,0];
+  HVHC  6 [0.0,0.0,0,0];
 }
 
 SLOT 10 lvbias {
@@ -123,19 +123,16 @@ SLOT 10 lvbias {
    LVLC  3 [3.0,4] "SCI E Output Gate"; 
    LVLC  4 [3.0,4] "SCI F Output Gate";
    LVLC  5 [2.0,5] "SCI Summing Well - Low";  // NB goes through a line driver 
-   LVLC  6 [11.0,5] "SCI Summing Well - High";  // NB goes through a line driver 
-
-     LVLC  7 [11.50,5] "SCI Reset Gate - HIGH";  // NB at the moment RG low and high are swapped in the cable by accident!
-//   LVLC  7 [5.50,5] "SCI Reset Gate - Low";  // NB goes through a line driver 
-  // LVLC  8 [11.5,5] "SCI Reset Gate - High";  // NB goes through a line driver
-   LVLC  8 [5.5,5] "SCI Reset Gate - LOW";  //// NB at the moment RG low and high are swapped in the cable by accident! 
-   LVLC  9 [00.0,0]; 
+   LVLC  6 [11.0,5] "SCI Summing Well - High";  // NB goes through a line driver
+   LVLC  7 [5.50,5] "SCI Reset Gate - LOW";
+   LVLC  8 [11.5,5] "SCI Reset Gate - HIGH";  
+   LVLC  9 [00.0,0];
    LVLC 10 [-4.0,4] "LastGateA FCS 1"; 
    LVLC 11 [-4.0,4] "LastGateB FCS 1"; 
    LVLC 12 [-4.0,4] "LastGateA FCS 2"; 
    LVLC 13 [-4.0,4] "LastGateB FCS 2";
-   LVLC 14 [3.3,0] "SCI E Output Gate 2" ; 
-   LVLC 15 [3.3,0] "SCI F Output Gate 2"; 
+   LVLC 14 [3.0,4] "SCI E Output Gate 2" ; 
+   LVLC 15 [3.0,4] "SCI F Output Gate 2"; 
    LVLC 16 [0.0,0] ; 
    LVLC 17 [00.0,0];
    LVLC 18 [0.0,0] ;
@@ -144,7 +141,7 @@ SLOT 10 lvbias {
    LVLC 21 [00.0,0]; 
    LVLC 22 [00.0,0] "Video offset FCS"; 
    LVLC 23 [0.50,6] "Video offset SCI"; 
-   LVLC 24 [00.0,0];
+   LVLC 24 [0.50,6] "Video offset SCI2";
    LVHC  1 [0.00,0.0,0,0];
    LVHC  2 [0.00,0.0,0,0];
    LVHC  3 [0.00,0.0,0,0];
