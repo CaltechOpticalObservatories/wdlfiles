@@ -161,6 +161,18 @@ SLOT 10 lvbias {
 }
 
 SLOT 12 lvds {
+  LVDSL 1 "PD_OE_IN";
+  LVDSL 2 "NOP";
+  LVDSL 5 "RG_SCI3";
+  LVDSL 6 "RG_SCI4";
+  LVDSL 7 "RG_SCI1";
+  LVDSL 8 "RG_SCI2";
+  LVDSL 11 "AC_clamp_FCS";
+  LVDSL 12 "AC_clamp";
+  LVDSL 13 "SW_SCI4";
+  LVDSL 14 "SW_SCI3";
+  LVDSL 15 "RG_SCI1";
+  LVDSL 16 "SW_SCI2";
   DIO 1 [0,0] "Loopback 4 IN";
   DIO 2 [2,1] "Loopback 4 OUT";
   DIO 3 [0,0] "Loopback 5 IN";
