@@ -122,10 +122,10 @@ SLOT 10 lvbias {
    LVLC  2 [00.0,0]; 
    LVLC  3 [3.0,4] "SCI E Output Gate"; 
    LVLC  4 [3.0,4] "SCI F Output Gate";
-   LVLC  5 [2.0,5] "SCI Summing Well - Low";  // NB goes through a line driver 
-   LVLC  6 [11.0,5] "SCI Summing Well - High";  // NB goes through a line driver
-   LVLC  7 [5.50,5] "SCI Reset Gate - LOW";
-   LVLC  8 [11.5,5] "SCI Reset Gate - HIGH";  
+   LVLC  5 [0.0,0] ;  // NB goes through a line driver 
+   LVLC  6 [0.0,0];  // NB goes through a line driver
+   LVLC  7 [0.0,0];
+   LVLC  8 [0.0,0];  
    LVLC  9 [00.0,0];
    LVLC 10 [-4.0,4] "LastGateA FCS 1"; 
    LVLC 11 [-4.0,4] "LastGateB FCS 1"; 
@@ -142,28 +142,29 @@ SLOT 10 lvbias {
    LVLC 22 [00.0,0] "Video offset FCS"; 
    LVLC 23 [0.50,6] "Video offset SCI"; 
    LVLC 24 [0.50,6] "Video offset SCI2";
-   LVHC  1 [0.00,0.0,0,0];
-   LVHC  2 [0.00,0.0,0,0];
-   LVHC  3 [0.00,0.0,0,0];
-   LVHC  4 [0.00,0.0,0,0];
+   LVHC  1 [2.00,20.0,5,1] "SCI Summing Well - Low";
+   LVHC  2 [11.00,20.0,5,1] "SCI Summing Well - High";
+   LVHC  3 [5.50,20.0,5,1] "SCI Reset Gate - Low";
+   LVHC  4 [12.00,20.0,5,1] "SCI Reset Gate - High";
    LVHC  5 [0.00,0.0,0,0];
    LVHC  6 [0.00,0.0,0,0];
-   DIO 1 [0,0];
-   DIO 2 [0,0];
-   DIO 3 [0,0];
-   DIO 4 [0,0];
-   DIO 5 [0,0];
-   DIO 6 [0,0];
-   DIO 7 [0,0];
-   DIO 8 [0,0];
+   DIO 1 [0,0] "Driver Output Enable (unused)";
+   DIO 2 [0,0] "Loopback 1 IN";
+   DIO 3 [2,1] "Loopback 1 OUT";
+   DIO 4 [2, 1] "Loopback 2 OUT";
+   DIO 5 [0,0] "Loopback 2 IN";
+   DIO 6 [0, 0] "Loopback 3 IN";
+   DIO 7 [2,1] "Loopback 3 OUT";
+   DIO 8 [2,1] "Trig out EXT";
+   DIOPOWER = 1;
 }
 
 SLOT 12 lvds {
-  DIO 1 [0,0];
-  DIO 2 [0,0];
-  DIO 3 [0,0];
-  DIO 4 [0,0];
-  DIOPOWER = 0;
+  DIO 1 [0,0] "Loopback 4 IN";
+  DIO 2 [2,1] "Loopback 4 OUT";
+  DIO 3 [0,0] "Loopback 5 IN";
+  DIO 4 [2,1] "Loopback 5 OUT";
+  DIOPOWER = 1;
     
 }
 
