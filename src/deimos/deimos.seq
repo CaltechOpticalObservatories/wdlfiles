@@ -93,6 +93,7 @@ param enable_ser_bin = 0
   //calculations for linbin...
 //number of linbin valuable measurements you'll get
 #define LINBIN_MEAS #exec echo " (sqrt(1 + 8 * _IMAGEROWS) -1)/2 " | bc
+
   //number of non measured linbin rows to read out to maintain total same image size
 #define LINBIN_NOBIN_ROWS #eval TOTAL_ROWS - LINBIN_MEAS
 
@@ -103,6 +104,7 @@ param enable_ser_bin = 0
 //this does floor arithmetic, so might end up with wrong number
 //if number cols changes
 #define PIXELS_PER_SEG #eval _AMPREADCOLS  / 3
+
 #define REMAINDER_PIX #eval _AMPREADCOLS - (PIXELS_PER_SEG * 3)
 
 
@@ -113,16 +115,21 @@ param enable_ser_bin = 0
   //number of lines in the TDC segment (including
   //one bright line and the rest dark)
 #define LLEL_TDC_LINES 60
+
 #define LLEL_TDC_BININCR 1 
 
 #define LLEL_TDC_LOOPS #eval TOTAL_ROWS / LLEL_TDC_LINES
-  #define LLEL_TDC_REMAINDER #eval TOTAL_ROWS % LLEL_TDC_LINES
+
+#define LLEL_TDC_REMAINDER #eval TOTAL_ROWS % LLEL_TDC_LINES
 
 #define SER_TDC_COLS 21
+
 #define SER_TDC_COLSm1 #eval SER_TDC_COLS -1
 
 #define SER_TDC_BININCR 1
+
 #define SER_TDC_LOOPS #eval (_AMPCOLS + _SERIALOVERSCAN) / SER_TDC_COLS
+
 #define SER_TDC_REMAINDER #eval (_AMPCOLS + _SERIALOVERSCAN) % SER_TDC_COLS
 
 
@@ -645,6 +652,7 @@ SEQUENCE LineReadout
   if enable_ser_bin SerBinReadPixels(_AMPCOLS);
   if enable_ser_bin ReadPixels(_SERIALOVERSCAN);
   if !enable_ser_bin ReadPixels(_AMPREADCOLS);
+
   if tdi_wait_us Wait1us(tdi_wait_us);
   //if there are leftover pixels, do them here
    RETURN;

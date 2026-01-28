@@ -9,6 +9,7 @@ deimos_TMP
 
 
 SLOT 1 driverx {
+
   DRVX  1 [PCLK_fast,PCLK_slow,1] "PCLK_B3_2";
   DRVX  2 [PCLK_fast,PCLK_slow,1] "PCLK_A3_2";
   DRVX  3 [PCLK_fast,PCLK_slow,1] "PCLK_B2_2";
@@ -24,13 +25,13 @@ SLOT 1 driverx {
 }
 
 SLOT 2 driverx {
-  DRVX  1 [1,1,1] "SCI_RGBACKUP2";
-  DRVX  2 [1,1,1] "SCI_SWBACKUP1";
+  DRVX  1 [SCLK_fast,SCLK_slow,1] "SCI_RGBACKUP2";
+  DRVX  2 [SCLK_fast,SCLK_slow,1] "SCI_SWBACKUP1";
   DRVX  3 [SCLK_fast_FCS,SCLK_slow_FCS,1] "FCS2_S2L";
   DRVX  4 [SCLK_fast_FCS,SCLK_slow_FCS,1] "FCS1_S2L";
   DRVX  5 [SCLK_fast_FCS,SCLK_slow_FCS,1] "FCS2_S3L";
   DRVX  6 [SCLK_fast_FCS,SCLK_slow_FCS,1] "FCS_S1";
-  DRVX  7 [1,1,1] "SCI_SWBACKUP2";
+  DRVX  7 [SCLK_fast,SCLK_slow,1] "SCI_SWBACKUP2";
   DRVX  8 [SCLK_fast_FCS,SCLK_slow_FCS,1] "FCS_RG";
   DRVX  9 [SCLK_fast_FCS,SCLK_slow_FCS,1] "FCS_SW";
   DRVX 10 [SCLK_fast_FCS,SCLK_slow_FCS,1] "FCS1_S3L";

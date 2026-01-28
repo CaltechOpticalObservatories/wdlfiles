@@ -20,8 +20,8 @@
 #define _RG_LOW            5.0 /* [-0.5, 1.0] */
 #define _RG_HIGH           12.0 /* [8.0, 14.0] */
 
-#defeval _SW_LOW            _SER_CLOCK_LOW /* [-0.5, 1.0] */
-#defeval _SW_HIGH           _SER_CLOCK_HIGH /* [8.0, 14.0] */
+#define _SW_LOW            _SER_CLOCK_LOW /* [-0.5, 1.0] */
+#define _SW_HIGH           _SER_CLOCK_HIGH /* [8.0, 14.0] */
 
 
 /** ---------------------------------------------------------------------------
