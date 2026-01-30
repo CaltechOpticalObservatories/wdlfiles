@@ -145,8 +145,8 @@ SLOT 10 lvbias {
    LVLC 24 [0.50,6] "Video offset SCI2";
    LVHC  1 [2.00,20.0,5,1] "SCI Summing Well - Low";
    LVHC  2 [11.00,20.0,5,1] "SCI Summing Well - High";
-   LVHC  3 [5.50,20.0,5,1] "SCI Reset Gate - Low";
-   LVHC  4 [12.00,20.0,5,1] "SCI Reset Gate - High";
+   LVHC  3 [12.0,20.0,5,1] "SCI Reset Gate - High";
+   LVHC  4 [5.5,20.0,5,1] "SCI Reset Gate - Low";
    LVHC  5 [0.00,0.0,0,0];
    LVHC  6 [0.00,0.0,0,0];
    DIO 1 [0,0] "Driver Output Enable (unused)";
