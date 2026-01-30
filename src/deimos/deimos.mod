@@ -140,7 +140,7 @@ SLOT 10 lvbias {
    LVLC 19 [0.0,0] ;
    LVLC 20 [00.0,0]; 
    LVLC 21 [00.0,0]; 
-   LVLC 22 [00.0,0] "Video offset FCS"; 
+   LVLC 22 [00.0,6] "Video offset FCS"; 
    LVLC 23 [0.50,6] "Video offset SCI"; 
    LVLC 24 [0.50,6] "Video offset SCI2";
    LVHC  1 [2.00,20.0,5,1] "SCI Summing Well - Low";
