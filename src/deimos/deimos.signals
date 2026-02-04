@@ -11,7 +11,7 @@
  *       slot          is the slot number containing the module,
  *       channel       is the channel number on the module
  * 
- * Combinations of signals can also be made by creating a comma-separated
+ * Combinations of signals can also be made by creating a comma-separatedv
  * list enclosed in square brackets as follows:
  *
  * #define newlabel [ signallabel, signallabel [, signallabel] ]
@@ -69,8 +69,8 @@
 
 #define FCS_P3U     3 : 7 // new VIB assignment
 #define FCS_P3L     3 : 8 // new VIB assignment
-#define FCS_P2      3 : 9 // new VIB assignment
-#define FCS_P1      3 : 10 // new VIB assignment
+#define FCS_P2a      3 : 9 // new VIB assignment
+#define FCS_P1a      3 : 10 // new VIB assignment
 
 #define TGA2        3 : 11 // new VIB assignment
 
@@ -133,12 +133,17 @@
 
 
 #define VRD_E   9 : 5
+
+
+//redefine VRD_F to modulate FCS RD channels
 #define VRD_F   9 : 6
 
 #define VRD [VRD_E, VRD_F]
 
 /**** Readout Method ****/
 /* Science Serials */
+
+#define VRD_FCS [9:8, 9:9, 9:10, 9:11]
 
 
 #define SCI_SCLK1 [SCLK_E2, SCLK_F2]
@@ -179,6 +184,9 @@
 #define SCI_SCLK2_FONLY SCLK_F1
 
 //FCS readout
-#define FCS_P3 [FCS_P3U, FCS_P3L]
+
+#defeval FCS_P1 FCS_P2a
+#defeval FCS_P2 3:10
+#defeval FCS_P3 [FCS_P3U, FCS_P3L]
 #define FCS_S2 [FCS1_S2L, FCS2_S2L]
 #define FCS_S3 [FCS1_S3L, FCS2_S3L]

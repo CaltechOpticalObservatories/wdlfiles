@@ -112,7 +112,7 @@
 #define PCLK_fast           #exec printf "%2.4f" $(echo "scale=4; (_PAR_CLOCK_HIGH - _PAR_CLOCK_LOW) / 1.5" | bc)
 
 
-#defeval PCLK_fast_FCS  PCLK_fast
+
 
 //e2v says need on average 90ns rise time for a serial clock
 #define SCLK_fast           #exec printf "%2.4f" $(echo "scale=4; (_SER_CLOCK_HIGH - _SER_CLOCK_LOW) / 0.2" | bc)
@@ -140,18 +140,21 @@
 
 #define _PAR_CLOCK_HIGH_FCS 2.0
 #define _PAR_CLOCK_LOW_FCS -10.0
-#define _MPP_CLOCK_HIGH_FCS 5.0
+#define _MPP_CLOCK_HIGH_FCS 5.8
 #define _MPP_CLOCK_LOW_FCS -8.0
 #define _SER_CLOCK_HIGH_FCS 5.0
-#define _SER_CLOCK_LOW_FCS -7.0
+#define _SER_CLOCK_LOW_FCS -5.0
 
-#define _RG_LOW_FCS 0.0
+#define _RG_LOW_FCS 4.0
 #define _RG_HIGH_FCS 12.0
 
-#define _SW_LOW_FCS -6.0
-#define _SW_HIGH_FCS 5.0
+#define _SW_LOW_FCS -4.0
+#define _SW_HIGH_FCS 4.0
 
 #define _RESET_DRAIN_FCS 14.0
 #define _OUTPUT_DRAIN_FCS 24.3
 #define _LASTGATE_FCS -4.0
-#define _DUMP_DRAIN_FCS 14.0
+#define _DUMP_DRAIN_FCS 20.0
+
+
+#define PCLK_fast_FCS  #exec printf "%2.4f" $(echo "scale=4; (_PAR_CLOCK_HIGH_FCS - _PAR_CLOCK_LOW_FCS) / 3.0" | bc)

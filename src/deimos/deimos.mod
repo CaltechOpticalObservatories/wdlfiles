@@ -97,7 +97,7 @@ SLOT 9 hvbias {
   HVLC  9 [14.00,2] "FCS1 Reset Drain B";
   HVLC 10 [14.00,2] "FCS2 Reset Drain A";
   HVLC 11 [14.00,2] "FCS2 Reset Drain B";
-  HVLC 12 [13.00,1] "FCS Overflow Drain";
+  HVLC 12 [14.90,1] "FCS Overflow Drain";
   HVLC 13 [24.3,1] "FCS1 Output Drain A";
   HVLC 14 [24.3,1] "FCS1 Output Drain B";
   HVLC 15 [24.3,1] "FCS2 Output Drain A";

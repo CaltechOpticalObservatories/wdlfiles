@@ -326,15 +326,18 @@ SEQUENCE IntegrateAndReadout
 }
 
 
+//re-purposed to do FCS output testing
 SEQUENCE TestBrokenReadout
 {
   OutputTestSetup();
-  PulseTGA();
+  //  PulseTGA();
 
   VRDModulate();
 
   RETURN;
 }
+
+
 
 
 SEQUENCE EvacuateE
