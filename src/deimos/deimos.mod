@@ -85,7 +85,7 @@ SLOT 4 xvbias {
 /* 4 : Reset Gate Low            */
 /* 5 : Back Substrate to -100V   */
 
-SLOT 9 hvbias {
+SLOT 9 hvxbias {
   HVLC  1 [0.00,0];             
   HVLC  2 [24.0,1] "SCI1 Guard Drain";
   HVLC  3 [24.0,1] "SCI2 Guard drain";
@@ -118,7 +118,7 @@ SLOT 9 hvbias {
   HVHC  6 [0.0,0.0,0,0];
 }
 
-SLOT 10 lvbias {
+SLOT 10 lvxbias {
    LVLC  1 [3.3,6] "LVDS Receiver Output Enable"; 
    LVLC  2 [00.0,0]; 
    LVLC  3 [3.0,4] "SCI E Output Gate"; 

@@ -143,7 +143,11 @@
 /**** Readout Method ****/
 /* Science Serials */
 
-#define VRD_FCS [9:8, 9:9, 9:10, 9:11]
+#define VRD_FCSA 9:8
+#define VRD_FCSB 9:9
+#define VRD_FCSA2 9:10
+#define VRD_FCSB2 9:11
+
 
 
 #define SCI_SCLK1 [SCLK_E2, SCLK_F2]
