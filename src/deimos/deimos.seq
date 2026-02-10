@@ -279,11 +279,8 @@ SEQUENCE SummitModeSciDump {
 
 
 SEQUENCE SummitModeFCSReadout {
-  Wait1us(50);
   //TODO: faster FCS readout with windowing
-  
-  FCSLineReadout(_FCS_ROWS);
-  FCSLineReadout(_FCS_LLEL_OVERSCAN);
+  FCSLineReadout(_FCS_LINENUM);
   RETURN;
 }
 
@@ -295,20 +292,13 @@ SEQUENCE FCSLineReadout {
 }
 
 
+
 SEQUENCE StartSeqEngModeFCS {
-  if framecount EngModeFCSIntegrateandReadout();
-  if !framecount SummitModeFCSLineFlush(_FCS_ROWS);
-  
+  if framecount SummitModeFCSIntegrate();
+  framecount--;
+  if !framecount SummitModeFCSLineFlush(_FCS_LINENUM);
   GOTO StartSeqEngModeFCS();
 }
-
-SEQUENCE EngModeFCSIntegrateandReadout {
-  SummitModeFCSIntegrate();
-  framecount--;
-  RETURN;
-}
-
-
 
 SEQUENCE StartSeqEngMode {
   if framecount IntegrateAndReadout();
