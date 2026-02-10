@@ -145,7 +145,7 @@
 #define _SER_CLOCK_HIGH_FCS 5.0
 #define _SER_CLOCK_LOW_FCS -5.0
 
-#define _RG_LOW_FCS 4.0
+#define _RG_LOW_FCS 2.0
 #define _RG_HIGH_FCS 12.0
 
 #define _SW_LOW_FCS -4.0
