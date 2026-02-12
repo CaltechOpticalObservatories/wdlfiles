@@ -244,6 +244,7 @@ SEQUENCE SummitModeFCSIntegrate
   Wait1ms(FcsExpTimeMSec);
   Wait1s(FcsExpTimeSec);
   CloseShutter();
+  Wait1ms(2);
   SummitModeFCSReadout();
   RETURN;
 }

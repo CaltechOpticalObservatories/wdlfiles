@@ -95,8 +95,10 @@ SLOT 9 hvxbias {
   HVLC  7 [0.00,0];
   HVLC  8 [14.00,2] "FCS1 Reset Drain A";
   HVLC  9 [14.00,2] "FCS1 Reset Drain B";
-  HVLC 10 [14.00,2] "FCS2 Reset Drain A";
-  HVLC 11 [14.00,2] "FCS2 Reset Drain B";
+//FCS2 selected needs a spicier reset drain too
+//to avoid smearing
+  HVLC 10 [14.50,2] "FCS2 Reset Drain A";
+  HVLC 11 [14.50,2] "FCS2 Reset Drain B";
   HVLC 12 [14.90,1] "FCS Overflow Drain";
   HVLC 13 [24.3,1] "FCS1 Output Drain A";
   HVLC 14 [24.3,1] "FCS1 Output Drain B";
@@ -129,9 +131,10 @@ SLOT 10 lvxbias {
    LVLC  8 [0.0,0];  
    LVLC  9 [00.0,0];
    LVLC 10 [-4.0,4] "LastGateA FCS 1"; 
-   LVLC 11 [-4.0,4] "LastGateB FCS 1"; 
-   LVLC 12 [-4.0,4] "LastGateA FCS 2"; 
-   LVLC 13 [-4.0,4] "LastGateB FCS 2";
+   LVLC 11 [-4.0,4] "LastGateB FCS 1";
+// NOTE: it seems last gate on FCS2 detector needs a bit more oomph
+   LVLC 12 [-1.0,4] "LastGateA FCS 2"; 
+   LVLC 13 [-1.0,4] "LastGateB FCS 2";
    LVLC 14 [3.0,4] "SCI E Output Gate 2" ; 
    LVLC 15 [3.0,4] "SCI F Output Gate 2"; 
    LVLC 16 [0.0,0] ; 
