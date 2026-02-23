@@ -90,8 +90,8 @@ SLOT 9 hvxbias {
   HVLC  2 [24.0,1] "SCI1 Guard Drain";
   HVLC  3 [24.0,1] "SCI2 Guard drain";
   HVLC  4 [0.00,0];
-  HVLC  5 [17.5,2] "SCI1 E Reset Drain";
-  HVLC  6 [17.5,2] "SCI1 F Reset Drain";
+  HVLC  5 [17.5,1] "SCI1 E Reset Drain";
+  HVLC  6 [17.5,1] "SCI1 F Reset Drain";
   HVLC  7 [0.00,0];
   HVLC  8 [14.00,2] "FCS1 Reset Drain A";
   HVLC  9 [14.00,2] "FCS1 Reset Drain B";
@@ -99,17 +99,17 @@ SLOT 9 hvxbias {
 //to avoid smearing
   HVLC 10 [14.50,2] "FCS2 Reset Drain A";
   HVLC 11 [14.50,2] "FCS2 Reset Drain B";
-  HVLC 12 [14.90,1] "FCS Overflow Drain";
-  HVLC 13 [24.3,1] "FCS1 Output Drain A";
-  HVLC 14 [24.3,1] "FCS1 Output Drain B";
-  HVLC 15 [24.3,1] "FCS2 Output Drain A";
-  HVLC 16 [24.3,1] "FCS2 Output Drain B";
+  HVLC 12 [14.90,2] "FCS Overflow Drain";
+  HVLC 13 [24.3,2] "FCS1 Output Drain A";
+  HVLC 14 [24.3,2] "FCS1 Output Drain B";
+  HVLC 15 [24.3,2] "FCS2 Output Drain A";
+  HVLC 16 [24.3,2] "FCS2 Output Drain B";
   HVLC 17 [0.00,0];
   HVLC 18 [0.00,0];
   HVLC 19 [0.00,0];
   HVLC 20 [0.00,0];
-  HVLC 21 [17.00,2] "SCI2 E Reset Drain";
-  HVLC 22 [17.00,2] "SCI2 F Reset Drain";
+  HVLC 21 [17.00,1] "SCI2 E Reset Drain";
+  HVLC 22 [17.00,1] "SCI2 F Reset Drain";
   HVLC 23 [0.0,0];
   HVLC 24 [0.0,0]; //TODO: needs re-assignment!
   HVHC  1 [29.0,25.0,3,1] "SCI E Output Drain";
