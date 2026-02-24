@@ -75,7 +75,6 @@ param enable_ser_bin = 0
   //backwards from F. direction 1 means read
   //out towards F, dump backwards from E
   param dsch_ser_direction = 0
-
   //serial CTI should we dump the bright columns?
   param dsch_ser_dump_bcs = 0
 
@@ -85,8 +84,29 @@ param enable_ser_bin = 0
   //const llel_tri_slew = P_TRI_SLEW_RATE
   
 
+  //defined voltage constants
 
+  //science clocks
+  const sci_llel_high = _PAR_CLOCK_HIGH
+  const sci_llel_low = _PAR_CLOCK_LOW
+  const sci_ser_high = _SER_CLOCK_HIGH
+  const sci_ser_low = _SER_CLOCK_LOW
+  const sci_ser_rcv = _SER_CLOCK_RCV
+  const sci_tg_high = _TG_CLOCK_HIGH
+  const sci_tg_low = _TG_CLOCK_LOW
   
+  //fcs clocks
+  const fcs_llel_high = _PAR_CLOCK_HIGH_FCS
+  //  const fcs_llel_low = _PAR_CLOCK_LOW_FCS
+  //const fcs_mpp_low = _MPP_CLOCK_LOW_FCS
+  const fcs_mpp_high = _MPP_CLOCK_HIGH_FCS
+  //const fcs_ser_low = _SER_CLOCK_LOW_FCS
+  const fcs_ser_high = _SER_CLOCK_HIGH_FCS
+  
+  const fcs_rg_low = _RG_LOW_FCS
+  const fcs_rg_high = _RG_HIGH_FCS
+  // const fcs_sw_low = _SW_LOW_FCS
+  const fcs_sw_high = _SW_HIGH_FCS
 
   //TODO: wide gate integration mode  
   
