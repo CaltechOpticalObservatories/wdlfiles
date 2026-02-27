@@ -282,7 +282,7 @@ SEQUENCE SummitModeSciReadout {
   
   Wait1us(50);
 
-  ReadPixels(_AMPREADCOLS); //make this a fast/  dump readout if need to speed up
+  DumpPixels(_AMPREADCOLS); //make this a fast/  dump readout if need to speed up
   if llel_seq LineReadout(TOTAL_ROWS);
   if llel_coincident LineReadoutCoincident(TOTAL_ROWS);
 
