@@ -1,0 +1,94 @@
+/** -*- C -*- ---------------------------------------------------------------------------
+ * use "#define" to define user macros used within the Archon files,
+ * i.e. within the .script, .states, .cds, or .modules files
+ * Do not edit or remove the following line.
+ */
+
+/** ---------------------------------------------------------------------------
+ * Various configuration modes
+ */
+#define _SER_PATTERN_PIXELS_REAL 2       /* Num real pixels to clock */
+#define _SER_PATTERN_PIXELS_NOP  2       /* Num dummy pixels */
+
+#define _SHDEL                   470       /* miliseconds to delay before readout to allow shutter to close */ /* Add to 30 ms to turn the amps back on so we have a total delay time of 500 ms for shutter close */
+
+/** ---------------------------------------------------------------------------
+ * CDS-Deinterlace options
+ */
+#define _SKIP_LINES              0 /*0*/
+#define _SERIALPRESCAN           4
+#define _SERIALOVERSCAN          30 /* Use overscan for intial tests */
+#define _PARALLELOVERSCAN        50 /* Use overscan for initial tests */
+#defeval _IMAGEROWS              #eval 4080/2  /* Value from CCD data sheet (quadrant) */
+#defeval _IMAGECOLS              #eval 4080/2  /* Value from CCD data sheet (quadrant) */
+#defeval _IDLE_LINES             #eval _SKIP_LINES + _IMAGEROWS
+
+/* Are these lines for raw data? Keep, but comment out */
+/*#define _RAW_LINES                   2 */
+/*#defeval _CDS_LINES_PER_TAP          2 *//*#eval _IMAGEROWS + _PARALLELOVERSCAN - _SKIP_LINES*/
+/*#defeval _CDS_PIXELS_PER_TAP         2 *//*#eval _IMAGECOLS + _SERIALPRESCAN + _SERIALOVERSCAN*/ /*3272*/ /*3072*/
+
+#defeval _LINES_PER_TAP          #eval _IMAGEROWS + _PARALLELOVERSCAN - _SKIP_LINES
+#defeval _PIXELS_PER_TAP         #eval _IMAGECOLS + _SERIALPRESCAN + _SERIALOVERSCAN /*3272*/ /*3072*/
+
+/* This is for concurrent clocking, but need to divide by 3 since only 3 parallel phases */
+#defeval _PIXBYTHREE             #eval (_IMAGECOLS + _SERIALPRESCAN + _SERIALOVERSCAN)/3
+#defeval NumReads                #eval (_SERIALPRESCAN + _IMAGECOLS + _SERIALOVERSCAN)/3 - 1  /* Number of reads in concurrent clocking */
+
+
+/* The following define the pixel time and the width of some clocks */
+#define PixelT       84 /* Full pixel time */
+#define RGsettleT    17 /* Settling Time for the reset gate */
+#define SWsettleT    16 /* Settling Time for the summing well (charge dump) */
+
+#define _FIRST_RESET_SAMPLE      #eval RGsettleT    /* Start sampling after reset gate settling */
+#define _LAST_RESET_SAMPLE       #eval PixelT/2 - 1 /* End sampling at half of the pixel time   */
+#define _FIRST_VIDEO_SAMPLE      #eval PixelT/2 - 1 + SWsettleT /* Start sampling after summing well settling */
+#define _LAST_VIDEO_SAMPLE       #eval PixelT - 1               /* End sampling at the end of the pixel time  */
+
+#define _ARCHON_SAMPLE_MODE        1     /* 0=16bit, 1=32bit  */
+#define _ARCHON_FRAMEMODE          2     /* 0=top, 1=bottom, 2=split */
+#define _ARCHON_FRAMEBUFS          0     /* 0=3x512MB, 1=2x768MB, I.E. "BIGBUF" */
+
+/* This is information for raw sampling mode */
+#define _RAW_ENABLE                0 /* 0=no, 1=yes */
+#define _RAW_STARTLINE             0 /* first line of raw data, 0-65535 */
+#define _RAW_ENDLINE              10 /* last line of raw data, 0-65535 */
+#define _RAW_STARTPIXEL            0
+#define _RAW_SAMPLES           25600
+#define _RAW_SELECT               3  /* AD channel for raw data capture, 0-15 */
+
+/** ---------------------------------------------------------------------------
+ * Define clock voltage levels here (units are Volts)
+ */
+/* ____________________
+ * Clock voltage and the biases will be hard coded for the parallel low clock, 
+ * but calculated for the other clocks.  This is due to the data sheet advising
+ * bias and clock levels with respect to parallel clock level low               */
+
+/* Clocks */
+#define _SER_CLOCK_LOW      -5.0
+#define _SER1_CLOCK_LOW     -5.0
+#define _SER2_CLOCK_LOW     -5.0
+#define _SER3_CLOCK_LOW     -5.0
+#define _SER1_CLOCK_HIGH     5.0
+#define _SER2_CLOCK_HIGH     5.0
+#define _SER3_CLOCK_HIGH     5.0
+#define _SER_CLOCK_HIGH      5.0
+
+#define _SER_CLOCK_RCV       8.0 /* This is when charge goes from parallel to serial register */
+
+#define _PAR_CLOCK_IDLE_LOW   -9.0
+#define _PAR_CLOCK_IDLE_HIGH   3.0
+
+#define _PAR_CLOCK_EXP_LOW    -9.0 /* Default to parallel clock levels for now */
+#define _PAR_CLOCK_EXP_HIGH    3.0
+
+#define _PAR_CLOCK_LOW        -9.0
+#define _PAR_CLOCK_HIGH        3.0
+#define _PAR_CLOCK_HIGHEST     3.0
+
+#define _PAR_LASTGATE_HIGH     3.0
+
+#define _TG_CLOCK_LOW         -9.0
+#define _TG_CLOCK_HIGH         3.0
