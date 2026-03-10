@@ -1,0 +1,41 @@
+/** -*- C -*- ---------------------------------------------------------------------------
+ * use "#define" to define user macros used within the Archon files,
+ * i.e. within the .script, .states, .cds, or .modules files
+ * Do not edit or remove the following line.
+ */
+
+/** ---------------------------------------------------------------------------
+ * Set the size of the CMOS array
+ */
+#define _DARK_ROWS    0
+#define _MAX_ROWS  2048   /* Maximum number of rows in H2RG array      */
+#define _MAX_COLS  1024   /* Maximum number of columns in H2RG array   */
+#define _MAX_YADDR 1023   /* Maximum Y Address - zero index            */
+#define _MAX_XADDR 64    /* Maximum X Address - zero index            */
+
+#define _TOTAL_ROWS #eval _DARK_ROWS + _MAX_ROWS
+
+#define _NUM_CDS_SAMPLES 20  /* The number of samples taken for CDS conversion */
+
+
+
+/** ---------------------------------------------------------------------------
+ * CDS-Deinterlace engine options
+ */
+#define _ARCHON_SAMPLE_MODE        0     /* 0=16bit, 1=32bit  */
+#define _ARCHON_FRAMEMODE          1     /* 0=top, 1=bottom, 2=split */
+/* Each tap will only contain ~2MB of data, so normal buffers are fine */
+#define _ARCHON_FRAMEBUFS          0     /* 0=3x512MB, 1=2x768MB, I.E. "BIGBUF" */
+
+/* We won't begin with raw stuff, so leave this be for now */
+#define _RAW_ENABLE                0 /* 0=no, 1=yes */
+#define _RAW_STARTLINE             0     /* first line of raw data, 0-65535 */
+#define _RAW_ENDLINE              10     /* last line of raw data, 0-65535 */
+#define _RAW_STARTPIXEL            0
+#define _RAW_SAMPLES           25600
+#define _RAW_SELECT               0 /* AD channel for raw data capture */
+
+#define _FIRST_RESET_SAMPLE       256
+#define _LAST_RESET_SAMPLE        692
+#define _FIRST_VIDEO_SAMPLE       700
+#define _LAST_VIDEO_SAMPLE        700
