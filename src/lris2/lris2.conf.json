@@ -1,0 +1,9 @@
+{
+    "INCLUDE_FILE": "cryoscope.def",
+    "CDS_FILE": "cryoscope.cds",
+    "SIGNAL_FILE": "cryoscope.signals",
+    "WAVEFORM_FILE": "cryoscope.waveform",
+    "SEQUENCE_FILE": "cryoscope.seq",
+    "MODULE_FILE": "cryoscope.mod",
+    "MODE_FILE": "cryoscope.modes"
+}
