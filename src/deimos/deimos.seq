@@ -105,7 +105,7 @@ param enable_ser_bin = 0
   
   const fcs_rg_low = _RG_LOW_FCS
   const fcs_rg_high = _RG_HIGH_FCS
-  // const fcs_sw_low = _SW_LOW_FCS
+  const fcs_sw_low = _SW_LOW_FCS
   const fcs_sw_high = _SW_HIGH_FCS
 
   //TODO: wide gate integration mode  
@@ -370,7 +370,7 @@ SEQUENCE EvacuateF
   
 SEQUENCE Integrate
 {
-  KeepThisFrame();
+  //KeepThisFrame();
   //NOTE: do ONE line of readout now,
   //to get the buffer locked
   //so we can see it's moving from outside
