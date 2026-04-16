@@ -12,7 +12,7 @@
  * parameter definitions
  * syntax: param paramname=value
 */
-param Start=0
+param Start=1
 param Expose=0
 param ExposeWindow=0
 param exptime=0
@@ -21,10 +21,10 @@ param Abort=0
 param freerun=0
 param mode_FreerunRX=0
 param mode_FreerunRXR=0
-param mode_UTR_RR=0
+param mode_UTR_RR=1
 param mode_UTR_GR=0
 param mode_EnhancedRollingReset=0
-param mode_RX=1
+param mode_RX=0
 param mode_RXR=0
 param mode_PermanentReset=0
 param mode_Guiding=0
@@ -239,7 +239,6 @@ return;
 SEQUENCE RXR_Sequence {
 if Expose RXR_GrabFrame();
 if Abort GOTO AbortSeq();
-if freerun GOTO  RXR_Sequence();
 GOTO WaitForExpose();
 }
 
@@ -247,6 +246,8 @@ SEQUENCE RXR_GrabFrame {
 Expose--;
 if !prv_ghostframe wFrame();
 StartFrame();
+StartRow();
+prv_firstrow++;
 RR_SkipRow(H2RG_rows_skip);
 RXR_ReadRow(H2RG_rows);
 PulseVCLK();
@@ -258,12 +259,13 @@ return;
 SEQUENCE RXR_ReadRow {
 wLine();
 StartRow();
+prv_firstrow--;
 wReadEN();
 ReadPixel_Blank(2); /*Needs two extra pixels because of the internl delay.*/
 ReadPixel(H2RG_columns);
 ResetPulse(); /* Reset Pulse after reading out the row */
 LSyncBPulse();
-ReadPixel_Blank(2);
+ReadPixel_Blank(1);
 ReadPixel(H2RG_columns);
 wbHclk();
 wbReadEN();
