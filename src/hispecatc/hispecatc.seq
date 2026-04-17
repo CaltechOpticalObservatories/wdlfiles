@@ -243,7 +243,6 @@ GOTO WaitForExpose();
 }
 
 SEQUENCE RXR_GrabFrame {
-Expose--;
 if !prv_ghostframe wFrame();
 StartFrame();
 StartRow();
