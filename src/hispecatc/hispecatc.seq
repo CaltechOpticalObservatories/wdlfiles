@@ -1,9 +1,9 @@
 /* -*- C -*- */
 /** ---------------------------------------------------------------------------
- * @file     cryoscope.seq
+ * @file     hispecatc.seq
  * @brief    sequence file for HxRG imager
- * @author   Timothee Greffe
- * @date     2021-06-21 Initial creation
+ * @author   Elijah Anakalea-Buckley
+ * @date     2026-04-02 Initial creation
  * @modified 
  *
  */
@@ -12,32 +12,36 @@
  * parameter definitions
  * syntax: param paramname=value
 */
-param Start=0
+param Start=1
 param Expose=0
 param ExposeWindow=0
 param exptime=0
 param longexposure=0 /* s|ms . To have exposure time longer than ~20min */
 param Abort=0
-param mode_UTR_RR=0
+param freerun=0
+param mode_FreerunRX=0
+param mode_FreerunRXR=0
+param mode_UTR_RR=1
 param mode_UTR_GR=0
 param mode_EnhancedRollingReset=0
-param mode_VideoRX=1
-param mode_VideoRXR=0
+param mode_RX=0
+param mode_RXR=0
 param mode_PermanentReset=0
 param mode_Guiding=0
 param mode_InterleavedGuiding=0
 param exp_PulseWhileGlobReset=0
 param H2RG_rows=2048
 param H2RG_rows_skip=0
-param H2RG_columns=64
-param H2RG_win_rows=10
-param H2RG_win_columns=10
+param H2RG_columns=512
+/* param H2RG_win_rows=2048 */
+/* param H2RG_win_columns=512 */
 param H2RGMainReset=0 /*We use this to reset the H2RG internal register to its default values*/
 param EnhancedRR_Delta=100
 param Hold4Programming=0
 param WindowPixelNb=100
 param prv_flag_reset=0 /* We use this to reset only the first frame of an UTR sequence*/
 param prv_ghostframe=0 /* We use this to readout a frame out of the detector without storing pixels to buffer */
+param prv_firstrow=0
 
 /** ---------------------------------------------------------------------------
  * @fn     SetupHxRG
@@ -66,24 +70,59 @@ return;
 SEQUENCE WaitForExpose {
 if Expose        SelectMode();
 if H2RGMainReset ResetRegHxRG();
-prv_ghostframe++;
-if mode_VideoRXR VideoRXR_GrabFrame();
-if mode_VideoRX VideoRX_GrabFrame();
-prv_ghostframe--;
-wResetEN();
   GOTO WaitForExpose();
 }
 
 SEQUENCE SelectMode {
 if mode_UTR_RR     UTR_RR_Sequence();
 if mode_UTR_GR     UTR_GR_Sequence();
-if mode_VideoRX    VideoRX_Sequence();
-if mode_VideoRXR   VideoRXR_Sequence();
+if mode_FreerunRX  FreerunRX_Sequence();
+if mode_FreerunRXR FreerunRXR_Sequence();
+if mode_RX    RX_Sequence();
+if mode_RXR   RXR_Sequence();
 if mode_PermanentReset  PGR_Sequence();
 if mode_EnhancedRollingReset EnhancedRR_Sequence();
 if exp_PulseWhileGlobReset Persistence_PulseGlobalReset();
-if mode_Guiding Guiding_Sequence();
+/* if mode_Guiding Guiding_Sequence(); */
 GOTO WaitForExpose();
+}
+
+/******** Freerun RX and RXR ****************/
+SEQUENCE FreerunRX_Sequence {
+if freerun  FreerunRX_GrabFrame();
+if Abort    AbortSeq();
+GOTO FreerunRX_Sequence();
+}
+
+SEQUENCE FreerunRX_GrabFrame {
+if !prv_ghostframe  wFrame();
+StartFrame();
+StartRow();
+RR_SkipRow(H2RG_rows_skip);
+RX_ReadRow(H2RG_rows);
+PulseVCLK();
+ExposureTimer();
+if !prv_ghostframe  DecrExposeCpt(1000);
+return;
+}
+
+SEQUENCE FreerunRXR_Sequence {
+if freerun  FreerunRXR_GrabFrame();
+if Abort    AbortSeq();
+GOTO FreerunRXR_Sequence();
+}
+
+SEQUENCE FreerunRXR_GrabFrame {
+if !prv_ghostframe  wFrame();
+StartFrame();
+StartRow();
+prv_firstrow++;
+if H2RG_rows_skip   RR_SkipRow(H2RG_rows_skip);
+RXR_ReadRow(H2RG_rows);
+PulseVCLK();
+ExposureTimer();
+if !prv_ghostframe  DecrExposeCpt(1000);
+return;
 }
 
 /******** Up The Ramp ROLLING RESET *********/
@@ -162,23 +201,23 @@ wbReadEN();
 return;
 }
 
-/**** VIDEO RX -- Read then Reeset per row ***/
+/****  RX -- Read then Reeset per row ***/
 
-SEQUENCE VideoRX_Sequence {
-if Expose VideoRX_GrabFrame();
+SEQUENCE RX_Sequence {
+if Expose RX_GrabFrame();
 if Abort  AbortSeq();
-if !Expose GOTO WaitForExpose();
-GOTO VideoRX_Sequence();
+if freerun GOTO RX_Sequence();
+GOTO WaitForExpose();
 }
 
-SEQUENCE VideoRX_GrabFrame {
+SEQUENCE RX_GrabFrame {
 if !prv_ghostframe wFrame(); /* We save the pixels only not during idling */
 StartFrame();
 RR_SkipRow(H2RG_rows_skip);
 RX_ReadRow(H2RG_rows);
 PulseVCLK();
 ExposureTimer();
-/* if !prv_ghostframe DecrExposeCpt();*/
+if !prv_ghostframe DecrExposeCpt();
 return;
 }
 
@@ -195,18 +234,19 @@ return;
 }
 
 
-/**** VIDEO RXR -- Read, Reset then Read again per row ***/
+/****  RXR -- Read, Reset then Read again per row ***/
 
-SEQUENCE VideoRXR_Sequence {
-if Expose VideoRXR_GrabFrame();
+SEQUENCE RXR_Sequence {
+if Expose RXR_GrabFrame();
 if Abort GOTO AbortSeq();
-if !Expose GOTO WaitForExpose();
-GOTO VideoRXR_Sequence();
+GOTO WaitForExpose();
 }
 
-SEQUENCE VideoRXR_GrabFrame {
+SEQUENCE RXR_GrabFrame {
 if !prv_ghostframe wFrame();
 StartFrame();
+StartRow();
+prv_firstrow++;
 RR_SkipRow(H2RG_rows_skip);
 RXR_ReadRow(H2RG_rows);
 PulseVCLK();
@@ -218,12 +258,13 @@ return;
 SEQUENCE RXR_ReadRow {
 wLine();
 StartRow();
+prv_firstrow--;
 wReadEN();
 ReadPixel_Blank(2); /*Needs two extra pixels because of the internl delay.*/
 ReadPixel(H2RG_columns);
 ResetPulse(); /* Reset Pulse after reading out the row */
 LSyncBPulse();
-ReadPixel_Blank(2);
+ReadPixel_Blank(1);
 ReadPixel(H2RG_columns);
 wbHclk();
 wbReadEN();
@@ -282,8 +323,8 @@ return;
 /******** Guiding Only Mode *********/
 
 SEQUENCE Guiding_Sequence {
-if Expose GrabWindow();
-if Abort  AbortSeq();
+if Expose  GrabWindow();
+if Abort    AbortSeq();
 GOTO Guiding_Sequence();
 }
 
@@ -291,7 +332,7 @@ SEQUENCE GrabWindow {
 Expose--;
 wFrame();
 StartFrame();
-WinRX_ReadRow(H2RG_win_rows);
+WinRX_ReadRow(H2RG_rows);
 PulseVCLK();
 ExposureTimer();
 return;
@@ -302,7 +343,7 @@ wLine();
 StartRow();
 wReadEN();
 ReadPixel_Blank(2); /*Needs two extra pixels because of the internl delay.*/
-ReadPixel(H2RG_win_columns);
+ReadPixel(H2RG_columns);
 ResetPulse(); /* Reset Pulse after reading out the row */
 wbHclk();
 wbReadEN();
@@ -315,18 +356,13 @@ return;
 
 SEQUENCE ExposureTimer {
 if longexposure    Sec(exptime);  /*If longexposure, counts in s*/
-if !longexposure   HectoMicroSec(exptime); /*If shortexposure, counts in 100us*/
+if !longexposure   MilliSec(exptime); /*If shortexposure, counts in ms*/
 if Abort GOTO AbortSeq();
 return;
 }
 
 SEQUENCE MilliSec {
   wDelay1ms();
-  return;
-}
-
-SEQUENCE HectoMicroSec {
-wDelay1us(100);
 return;
 }
 
@@ -337,10 +373,11 @@ if Abort GOTO AbortSeq();
 }
 
 SEQUENCE AbortSeq{
+freerun--;
 DecrExposeCpt(1000);
 InitResetCpt(100);
-mode_VideoRX--;
-mode_VideoRXR--;
+mode_RX--;
+mode_RXR--;
 mode_Guiding--;
 Abort--;
 GOTO WaitForExpose();

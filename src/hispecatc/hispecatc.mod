@@ -7,9 +7,9 @@
 #define V_VDD            3.3  
 #define V_VReset         0.3  
 #define V_VDDA           3.3  
-#define V_VRef           2.9 
+#define V_VRef           2.65
 #define V_CLK_EN         3.3 
-#define V_Preamp_EN      2.0  
+#define V_Preamp_EN      4.5
 #define V_VideoPullUp    3.3  
 #define VSPARE    0.0  /*  */
 
@@ -46,7 +46,7 @@ SLOT 10 lvxbias { /* slot 10 with cryoscope*/
   LVHC  6 [VSPARE,70,1,1] "Light Bulb";   /* Spare                  */
 }
 
-SLOT 11 lvds {/* slot 11 with Cryoscope*/
+SLOT 11 lvds {/* slot 11 with Hispec*/
   DIO 1 [0,0];
   DIO 2 [0,0];
   DIO 3 [0,0];

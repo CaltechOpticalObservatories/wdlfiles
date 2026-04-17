@@ -11,7 +11,7 @@
 #define _MAX_ROWS  2048   /* Maximum number of rows in H2RG array      */
 #define _MAX_COLS  1024   /* Maximum number of columns in H2RG array   */
 #define _MAX_YADDR 1023   /* Maximum Y Address - zero index            */
-#define _MAX_XADDR 64    /* Maximum X Address - zero index            */
+#define _MAX_XADDR 512    /* Maximum X Address - zero index            */
 
 #define _TOTAL_ROWS #eval _DARK_ROWS + _MAX_ROWS
 
@@ -36,6 +36,6 @@
 #define _RAW_SELECT               0 /* AD channel for raw data capture */
 
 #define _FIRST_RESET_SAMPLE       256
-#define _LAST_RESET_SAMPLE        592
-#define _FIRST_VIDEO_SAMPLE       600
-#define _LAST_VIDEO_SAMPLE        600
+#define _LAST_RESET_SAMPLE        992
+#define _FIRST_VIDEO_SAMPLE       1000
+#define _LAST_VIDEO_SAMPLE        1000
