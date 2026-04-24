@@ -46,7 +46,7 @@
 #define 10ms            #eval 10 ms
 #define 10us            #eval 10 us
 /* Timing specific to HxRG waveform */
-#define Tpix    #eval 10 us /*2.85 us */
+#define Tpix    #eval 7 us /*2.85 us */
 #define Tpulse  #eval 0.8 us /**/
 #define T1Reset #eval 10 us /* chapter 6.2 says 10us or less is ok but it should be /2048 this value*/ 
 /* Logical state defines */

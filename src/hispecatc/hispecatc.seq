@@ -21,7 +21,7 @@ param Abort=0
 param freerun=0
 param mode_FreerunRX=0
 param mode_FreerunRXR=0
-param mode_UTR_RR=1
+param mode_UTR_RR=0
 param mode_UTR_GR=0
 param mode_EnhancedRollingReset=0
 param mode_RX=0
@@ -83,7 +83,7 @@ if mode_RXR   RXR_Sequence();
 if mode_PermanentReset  PGR_Sequence();
 if mode_EnhancedRollingReset EnhancedRR_Sequence();
 if exp_PulseWhileGlobReset Persistence_PulseGlobalReset();
-/* if mode_Guiding Guiding_Sequence(); */
+if mode_Guiding Guiding_Sequence();
 GOTO WaitForExpose();
 }
 
@@ -150,7 +150,7 @@ StartRow();
 wReadEN();
 if prv_flag_reset ResetPulse();
 if !prv_flag_reset ResetPulse_Dummy();
-ReadPixel_Blank(2); /*Needs two extra pixels because of the internl delay.*/
+ReadPixel_Blank(2); /*Needs two extra pixels because of the internal delay.*/
 ReadPixel(H2RG_columns);
 wbHclk();
 wbReadEN();
@@ -159,6 +159,7 @@ return;
 
 SEQUENCE RR_SkipRow {
 StartRow();
+wDelay10us();
 if prv_flag_reset ResetPulse(); /* In RR, we pulse rows we don;t read to avoid build up that could overflow */
 return;
 }
