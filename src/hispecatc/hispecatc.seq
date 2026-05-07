@@ -116,7 +116,6 @@ SEQUENCE FreerunRXR_GrabFrame {
 if !prv_ghostframe  wFrame();
 StartFrame();
 StartRow();
-prv_firstrow++;
 if H2RG_rows_skip   RR_SkipRow(H2RG_rows_skip);
 RXR_ReadRow(H2RG_rows);
 PulseVCLK();
@@ -247,7 +246,6 @@ SEQUENCE RXR_GrabFrame {
 if !prv_ghostframe wFrame();
 StartFrame();
 StartRow();
-prv_firstrow++;
 RR_SkipRow(H2RG_rows_skip);
 RXR_ReadRow(H2RG_rows);
 PulseVCLK();
@@ -259,7 +257,6 @@ return;
 SEQUENCE RXR_ReadRow {
 wLine();
 StartRow();
-prv_firstrow--;
 wReadEN();
 ReadPixel_Blank(2); /*Needs two extra pixels because of the internl delay.*/
 ReadPixel(H2RG_columns);
