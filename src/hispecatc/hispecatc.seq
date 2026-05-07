@@ -40,8 +40,8 @@ param EnhancedRR_Delta=100
 param Hold4Programming=0
 param WindowPixelNb=100
 param prv_flag_reset=0 /* We use this to reset only the first frame of an UTR sequence*/
-param prv_ghostframe=0 /* We use this to readout a frame out of the detector without storing pixels to buffer */
-param prv_firstrow=0
+param const_prv_total_rows=2048
+
 
 /** ---------------------------------------------------------------------------
  * @fn     SetupHxRG
@@ -71,6 +71,9 @@ return;
 SEQUENCE WaitForExpose {
 if Expose        SelectMode();
 if H2RGMainReset ResetRegHxRG();
+prv_flag_reset++;
+RR_SkipRow(const_prv_total_rows) /*when prv_flag_reset is configured, it also resets the row*/
+if prv_flag_reset prv_flag_reset--; /*just in case, check first*/
   GOTO WaitForExpose();
 }
 
@@ -159,7 +162,7 @@ return;
 
 SEQUENCE RR_SkipRow {
 StartRow();
-wDelay10us();
+wDelay1us();
 if prv_flag_reset ResetPulse(); /* In RR, we pulse rows we don;t read to avoid build up that could overflow */
 return;
 }
