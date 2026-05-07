@@ -204,11 +204,4 @@ WAVEFORM wLine {
  0:			SET LINE TO High;
 }
 
-WAVEFORM wPixel {
- 0:			SET PIXEL   TO High;
- .+TICK:		SET PIXEL   TO Low;
-			SET FRAME   TO Low;
-			SET LINE    TO Low;
-}
-
 
