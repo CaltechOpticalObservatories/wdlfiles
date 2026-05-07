@@ -39,6 +39,7 @@ param H2RGMainReset=0 /*We use this to reset the H2RG internal register to its d
 param EnhancedRR_Delta=100
 param Hold4Programming=0
 param WindowPixelNb=100
+param reset_while_idling=1 /*flag to decide whether to row-by-row reset when the detector is idling*/
 param prv_flag_reset=0 /* We use this to reset only the first frame of an UTR sequence*/
 param const_prv_total_rows=2048
 
@@ -67,12 +68,11 @@ return;
  * @fn	    WaitForExposure
  * @brief   Here we wait until the host asks for an image
  */
-
 SEQUENCE WaitForExpose {
 if Expose        SelectMode();
 if H2RGMainReset ResetRegHxRG();
-prv_flag_reset++;
-RR_SkipRow(const_prv_total_rows) /*when prv_flag_reset is configured, it also resets the row*/
+if reset_while_idling prv_flag_reset++;
+if reset_while_idling RR_SkipRow(const_prv_total_rows) /*when prv_flag_reset is configured, it also resets the row*/
 if prv_flag_reset prv_flag_reset--; /*just in case, check first*/
   GOTO WaitForExpose();
 }
@@ -136,7 +136,7 @@ GOTO WaitForExpose();
 }
 
 SEQUENCE UTR_RR_GrabFrame {
-Expose--;Expose--;
+Expose--;Expose--; /*TODO: @elijah, why is this subtracted twice? I think this is a bug and might have caused the original freerun mode -JZ*/
 if !prv_flag_reset ExposureTimer(); /* Do not expose before the first frame*/
 wFrame();
 StartFrame();
