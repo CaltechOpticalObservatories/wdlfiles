@@ -60,7 +60,7 @@ GOTO Init();
 
 SEQUENCE ResetRegHxRG {
 ResetRegistersDefault();
-if H2RGMainReset        H2RGMainReset--; /*implicitly always more than 0 by call*/
+if H2RGMainReset Dec_H2RGMainReset(); /*implicitly always more than 0 by call*/
 return;
 }
 
@@ -74,7 +74,7 @@ if H2RGMainReset        ResetRegHxRG();
 
 prv_flag_reset++;
 if reset_while_idling   RR_SkipRow(const_prv_total_rows)    /*when prv_flag_reset is configured, it also resets the row*/
-if prv_flag_reset       prv_flag_reset--;                   /*just in case, check first*/
+if prv_flag_reset       Dec_prv_flag_reset();                   /*just in case, check first*/
 GOTO WaitForExpose();
 }
 
@@ -137,14 +137,14 @@ GOTO WaitForExpose();
 }
 
 SEQUENCE UTR_RR_GrabFrame {
-if Expose           Expose--;
+if Expose           Dec_Expose();
 if !prv_flag_reset  ExposureTimer();     /* Do not expose before the first frame*/
 wFrame();
 StartFrame();
 RR_SkipRow(H2RG_rows_skip);
 RR_ReadRow(H2RG_rows);
 PulseVCLK();
-if prv_flag_reset   prv_flag_reset--;
+if prv_flag_reset   Dec_prv_flag_reset();
 return;
 }
 
@@ -185,13 +185,13 @@ GOTO WaitForExpose();
 
 
 SEQUENCE UTR_GR_GrabFrame {
-if Expose           Expose--;
+if Expose           Dec_Expose();
 wFrame();
 StartFrame();
 PulseVCLK();        /* Not documented but have to add 1 pulse to start from 1 and not 0 apparently*/
 GR_ReadRow(2048);
 PulseVCLK();
-if prv_flag_reset   prv_flag_reset--;
+if prv_flag_reset   Dec_prv_flag_reset();
 return;
 }
 
@@ -294,7 +294,7 @@ GOTO WaitForExpose();
 }
 
 SEQUENCE EnhancedRR_GrabFrame {
-if Expose   Expose--;           /*implicitly should never be 0 because of call condition*/
+if Expose   Dec_Expose();           /*implicitly should never be 0 because of call condition*/
 wFrame();
 /*somehow, lower FSYNCB for Delta rows and then rise it for 2048-Delta rows*/
 wbFSyncB();
@@ -332,7 +332,7 @@ GOTO Guiding_Sequence();
 }
 
 SEQUENCE GrabWindow {
-if Expose   Expose--;   /*implicitly cannot be 0 because of call condition, check anyway*/
+if Expose   Dec_Expose();   /*implicitly cannot be 0 because of call condition, check anyway*/
 wFrame();
 StartFrame();
 WinRX_ReadRow(H2RG_rows);
@@ -376,23 +376,62 @@ return;
 }
 
 SEQUENCE AbortSeq{                    /*check for value to prevent underflow*/
-if freerun          freerun--;
+if freerun          Dec_freerun();
 DecreaseExposeCount(1000);
 InitResetCpt(100);
-if mode_RX          mode_RX--;
-if mode_RXR         mode_RXR--;
-if mode_Guiding     mode_Guiding--;
-if Abort            Abort--;
+if mode_RX          Dec_mode_RX();
+if mode_RXR         Dec_mode_RXR();
+if mode_Guiding     Dec_mode_Guiding();
+if Abort            Dec_Abort();
 GOTO WaitForExpose();
 }
 
 SEQUENCE DecreaseExposeCount {
-if Expose Expose--;                   /*make sure that expose can't underflow*/
+if Expose   Dec_Expose();                   /*make sure that expose can't underflow*/
 return;
 } 
 
-SEQUENCE InitResetCpt {
-if prv_flag_reset prv_flag_reset--;   /*make sure that the prv_flag_reset param can't underflow*/
+SEQUENCE Dec_Expose {
+Expose--;
 return;
 }
 
+SEQUENCE InitResetCpt {
+if prv_flag_reset Dec_prv_flag_reset();   /*make sure that the prv_flag_reset param can't underflow*/
+return;
+}
+
+SEQUENCE Dec_prv_flag_reset {
+  prv_flag_reset--;
+  return;
+}
+
+SEQUENCE Dec_mode_RX {
+  mode_RX--;
+  return;
+}
+
+SEQUENCE Dec_mode_RXR {
+  mode_RXR--;
+  return;
+}
+
+SEQUENCE Dec_mode_Guiding {
+  mode_Guiding--;
+  return;
+}
+
+SEQUENCE Dec_freerun {
+  freerun--;
+  return;
+}
+
+SEQUENCE Dec_Abort {
+  Abort--;
+  return;
+}
+
+SEQUENCE Dec_H2RGMainReset {
+  H2RGMainReset--;
+  return;
+}
