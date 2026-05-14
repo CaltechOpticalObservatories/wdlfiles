@@ -42,6 +42,9 @@ param WindowPixelNb=100
 param reset_while_idling=1 /*flag to decide whether to row-by-row reset when the detector is idling*/
 param prv_flag_reset=0 /* We use this to reset only the first frame of an UTR sequence*/
 param const_prv_total_rows=2048
+param const_prv_total_columns=512
+param prv_started_idle_readout=0 /*flag to make sure we only start the idle readout sequence once when we start idling and not at every row in the event of a quick exit*/
+param prv_idle_counter=0 
 
 
 /** ---------------------------------------------------------------------------
@@ -72,11 +75,50 @@ SEQUENCE WaitForExpose {
 if Expose               GOTO SelectMode();
 if H2RGMainReset        ResetRegHxRG();
 
-prv_flag_reset++;
-if reset_while_idling   RR_SkipRow(const_prv_total_rows)    /*when prv_flag_reset is configured, it also resets the row*/
-if prv_flag_reset       Dec_prv_flag_reset();                   /*just in case, check first*/
+if reset_while_idling   IdleReadout();
 GOTO WaitForExpose();
 }
+
+/*
+  * @fn	    IdleReadout
+  * @brief   This sequence is used to read out the detector while it is idling without triggering the frame, line, or pixel signals. This is useful to avoid the build up of charge that could overflow the detector when it is idling for a long time. It can is enabled by the reset_while_idling flag
+*/
+SEQUENCE IdleReadout {
+/* we use the prv_started_idle_readout flag to ensure we only start the idle readout sequence once. We need this because we call this IdleReadout sequence multiple times while idling due to the fact that IdleReadout and IdleReadoutRow use GOTO statement to limit call depth. 
+
+Anyways, we do a couple things here:
+
+1. send the start frame signals to the detector. This does not trigger the archon to start a frame!
+
+2. we increment a counter to equal the number of rows in the detector so that we know when we're done reading out after multiple function calls.
+
+3. we set a flag to indicate that the idle readout sequence has started.
+*/
+if !prv_started_idle_readout  StartFrame();
+if !prv_started_idle_readout  Inc_prv_idle_counter(const_prv_total_rows);
+if !prv_started_idle_readout  Inc_prv_started_idle_readout();
+Dec_prv_idle_counter();
+/* if someone wants an exposure, we make sure to escape quickly! We quickly decrement the number of rows left (while making sure to check that we're not underflowing).*/
+if Expose                     Test_Dec_prv_idle_counter(const_prv_total_rows);
+/* if we are still idling, we keep reading out row by row until we have read out the whole detector */
+if prv_idle_counter           GOTO IdleReadoutRow();
+/* if we are done reading out, we tell the detector to reset its vertical shift register and reset our start flag */
+if !prv_idle_counter          PulseVCLK();
+if !prv_idle_counter          Test_Dec_prv_started_idle_readout();
+return;
+}
+
+SEQUENCE IdleReadoutRow { 
+StartRow();             /* send the horizontal shift register reset signal to the detector */
+wReadEN();              /* tell it we're ready to read */
+ReadPixel_Blank(2);     /* copy the internal delay thing that we do in real modes for consistent frame readout timing */
+ReadPixel_Blank(const_prv_total_columns); /* fake read all the pixels */
+ResetPulse();           /* Reset Pulse after reading out the row */
+wbHclk();               
+wbReadEN();             
+GOTO IdleReadout();     /* GOTO instead of CALL to limit call depth */
+}
+
 
 SEQUENCE SelectMode {
 if mode_UTR_RR          UTR_RR_Sequence();
@@ -433,5 +475,35 @@ SEQUENCE Dec_Abort {
 
 SEQUENCE Dec_H2RGMainReset {
   H2RGMainReset--;
+  return;
+}
+
+SEQUENCE Inc_prv_idle_counter {
+  prv_idle_counter++;
+  return;
+}
+
+SEQUENCE Test_Dec_prv_idle_counter {
+  if prv_idle_counter  Dec_prv_idle_counter();
+  return;
+}
+
+SEQUENCE Dec_prv_idle_counter {
+  prv_idle_counter--;
+  return;
+}
+
+SEQUENCE Test_Dec_prv_started_idle_readout {
+  if prv_started_idle_readout  Dec_prv_started_idle_readout();
+  return;
+}
+
+SEQUENCE Inc_prv_started_idle_readout {
+  prv_started_idle_readout++;
+  return;
+}
+
+SEQUENCE Dec_prv_started_idle_readout {
+  prv_started_idle_readout--;
   return;
 }
