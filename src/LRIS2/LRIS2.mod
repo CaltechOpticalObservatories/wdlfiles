@@ -137,13 +137,57 @@ SLOT 10 xvbias {
   NBIAS 4 0 [0, -0];
 }
 
+#define HTR_CTRL_LOOP_TIME_MS 2000
+
 SLOT 11 heaterx {
   DIOPOWER=1;
+  HEATERUPDATETIME=HTR_CTRL_LOOP_TIME_MS;
+  
+  //detector heater (enabled, target -110C)
+  //Heater is 100 Ohm, 6.25W, 25V max (STA4850 datasheet)
+  HEATERAENABLE=1;
+  HEATERAFORCE=0;
+  HEATERATARGET=-110;
+
+
+  //getter heater (disabled by default, target 30 C for bakeout)
+  HEATERBENABLE=0;
+  HEATERBFORCE=0;
+  HEATERBTARGET=30;
+
+
+  //sensor A (detector on board)
+  SENSORATYPE=4; //RTD1000
+
+  //sensor B (getter cold plate)
+  SENSORBTYPE=4; //RTD1000
+
+  //sensor C (cryostat wall at cryocooler end)
+  SENSORCTYPE=4; //RTD1000
   
 }
 
 SLOT 12 heaterx {
   DIOPOWER=1;
+  HEATERUPDATETIME=HTR_CTRL_LOOP_TIME_MS;
+  
+  //heater A (cryocooler heater)
+  HEATERAENABLE=0;
+  HEATERAFORCE=0;
+  HEATERATARGET=-130;
+
+  //heater B disabled (not used)
+  HEATERBENABLE=0;
+
+  //sensor A (cryocooler side of getter heat strap)
+  SENSORATYPE=4; //RTD1000
+
+  //sensor B (getter side of getter heat strap)
+  SENSORBTYPE=4; //RTD1000
+  
+  //sensor C (cryostat walll at detector end)
+  SENSORCTYPE=4; //RTD1000
+  
 }
 
 
