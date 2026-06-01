@@ -1,0 +1,39 @@
+#include "geometry.inc"
+
+param etime_ms = 0
+param etime_s = 0
+param etime_illum_ms = 0
+param etime_illum_s = 0
+param illum_frames = 0
+param framecount = 0
+param abort_integration = 0
+
+
+SEQUENCE StartSeq {
+   if framecount IntegrateAndReadout();
+
+
+
+}
+
+
+SEQUENCE IntegrateAndReadout {
+
+
+}
+
+SEQUENCE Wait1s {
+  if abort_integration AbortSeq();
+  Wait1ms(1000);
+  RETURN;
+}
+
+SEQUENCE AbortSeq {
+
+
+}
+
+SEQUENCE Integrate {
+
+
+}
