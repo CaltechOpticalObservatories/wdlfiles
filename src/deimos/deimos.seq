@@ -1,0 +1,740 @@
+
+/* -*- C -*- */
+/** ---------------------------------------------------------------------------
+ * @file     deimos.seq
+ * @brief    sequence file for DEIMOS science detectors
+ * @author   Joseph Bichel
+ * @date     2024-12-02
+ * @modified 
+ *
+ */
+
+/** ---------------------------------------------------------------------------
+
+/** ---------------------------------------------------------------------------
+ * parameter definitions
+ * syntax: param paramname=value
+*/
+
+
+/** testing constant values **/
+
+
+/** parameters interfaced with camerad in summit mode **/
+param FcsExpTimeSec = 0 //FCS exposure time (seconds)
+
+param FcsExpTimeMSec = 0 // FCS exposure time (milliseconds)
+
+param SciStart = 0 // trigger to start a science exposure 
+
+param FcsStart = 0 // trigger to start an FCS exposure
+
+param SciStop = 0 //trigger to end a science exposure and start readout
+
+/** System Control Triggers **/
+
+param engmode = 0 //run in the engineering mode
+param engmode_fcs = 0 //run in the FCS engineering mode
+
+param integrate_ms = 0 // amount of time to integrate in the dark (ms component)
+param integrate_s = 0 // amount of time to integrate in the dark (s component)
+
+param framecount = 0 // how many frames to read (set to 1 to trigger a readout on next sequence
+param abortintegrate = 0 // set to 1 to bail out if in the middle of an integration
+
+param illum = 0 //should the light be turned on for integrations
+param integrate_illum_ms = 50 //amount of time to integrate with light on (ms component)
+param integrate_illum_s = 0 //amount of time to integrate with light on (s component)
+param rg_mod_test_mode = 0 //go into special output V_RD modulation mode - EXPERTS ONLY
+param tdi_wait_us = 0 // add a TDI wait period to each llel readout in llel_seq mode (for "quickPTC")
+
+
+  //internal summit mode state parameters
+param summit_sci_is_integrating = 0
+
+param line_clamp_delay_us = 10
+  
+  //=====READOUT MODES -- all are MUTUALLY EXCLUSIVE ----
+param llel_coincident = 0 //use coincident llel clocks
+param llel_seq = 1 //use sequential (normal) llel clocks
+param slow_pix = 0 // use "slow pixel" serials
+param linbin = 0 //Kaye/Smith/Greffe "linearity via binning" sequence
+param dch_llel = 0 // total deferred charge measurement (llel CTI)
+param dch_ser = 0 // total deferred charge measurement (serial CTI)
+
+
+//----- END OF READOUT MODES --- 
+param llel_bin = 1
+param ser_bin = 1
+param enable_ser_bin = 0
+
+
+
+  //serial CTI measurement configuration modes
+  //direction 0 means read out towards E, dump
+  //backwards from F. direction 1 means read
+  //out towards F, dump backwards from E
+  param dsch_ser_direction = 0
+  //serial CTI should we dump the bright columns?
+  param dsch_ser_dump_bcs = 0
+
+
+  // const llel_high_level = _PAR_CLOCK_HIGH
+  //const llel_low_level = _PAR_CLOCK_LOW
+  //const llel_tri_slew = P_TRI_SLEW_RATE
+  
+
+  //defined voltage constants
+
+  //science clocks
+  const sci_llel_high = _PAR_CLOCK_HIGH
+  const sci_llel_low = _PAR_CLOCK_LOW
+  const sci_ser_high = _SER_CLOCK_HIGH
+  const sci_ser_low = _SER_CLOCK_LOW
+  const sci_ser_rcv = _SER_CLOCK_RCV
+  const sci_tg_high = _TG_CLOCK_HIGH
+  const sci_tg_low = _TG_CLOCK_LOW
+  
+  //fcs clocks
+  const fcs_llel_high = _PAR_CLOCK_HIGH_FCS
+  //  const fcs_llel_low = _PAR_CLOCK_LOW_FCS
+  //const fcs_mpp_low = _MPP_CLOCK_LOW_FCS
+  const fcs_mpp_high = _MPP_CLOCK_HIGH_FCS
+  //const fcs_ser_low = _SER_CLOCK_LOW_FCS
+  const fcs_ser_high = _SER_CLOCK_HIGH_FCS
+  
+  const fcs_rg_low = _RG_LOW_FCS
+  const fcs_rg_high = _RG_HIGH_FCS
+  const fcs_sw_low = _SW_LOW_FCS
+  const fcs_sw_high = _SW_HIGH_FCS
+
+  //TODO: wide gate integration mode  
+  
+  //calculations for linbin...
+//number of linbin valuable measurements you'll get
+#define LINBIN_MEAS #exec echo " (sqrt(1 + 8 * _IMAGEROWS) -1)/2 " | bc
+
+  //number of non measured linbin rows to read out to maintain total same image size
+#define LINBIN_NOBIN_ROWS #eval TOTAL_ROWS - LINBIN_MEAS
+
+
+  
+
+//segment calculations
+//this does floor arithmetic, so might end up with wrong number
+//if number cols changes
+#define PIXELS_PER_SEG #eval _AMPREADCOLS  / 3
+
+#define REMAINDER_PIX #eval _AMPREADCOLS - (PIXELS_PER_SEG * 3)
+
+
+#define  TOTAL_ROWS #eval _IMAGEROWS + _PARALLELOVERSCAN
+
+  //calculations for total deferred charge measurements
+
+  //number of lines in the TDC segment (including
+  //one bright line and the rest dark)
+#define LLEL_TDC_LINES 60
+
+#define LLEL_TDC_BININCR 1 
+
+#define LLEL_TDC_LOOPS #eval TOTAL_ROWS / LLEL_TDC_LINES
+
+#define LLEL_TDC_REMAINDER #eval TOTAL_ROWS % LLEL_TDC_LINES
+
+#define SER_TDC_COLS 21
+
+#define SER_TDC_COLSm1 #eval SER_TDC_COLS -1
+
+#define SER_TDC_BININCR 1
+
+#define SER_TDC_LOOPS #eval (_AMPCOLS + _SERIALOVERSCAN) / SER_TDC_COLS
+
+#define SER_TDC_REMAINDER #eval (_AMPCOLS + _SERIALOVERSCAN) % SER_TDC_COLS
+
+
+  
+  
+#if NOISETEST
+SEQUENCE NoiseTest {
+  setupTGTest();
+  BounceTGTestOuter(_IMAGEROWS);
+  BounceTGTestOuter(_PARALLELOVERSCAN);
+  GOTO NoiseTest();
+}
+
+  
+
+SEQUENCE BounceTGTestOuter
+{
+  TGTestLineStart();
+  BounceTGTest(_AMPREADCOLS);
+  RETURN;
+}
+
+#endif
+
+#if CLAMPTEST
+
+#define CLAMP_TEST_ITERS  #eval  _AMPREADCOLS / 4
+
+SEQUENCE ClampTestRun {
+  //note clamp test and TG setup are the same
+  setupTGTest();
+
+  ClampTestOuter(_IMAGEROWS);
+  ClampTestOuter(_PARALLELOVERSCAN);
+  GOTO ClampTestRun;
+}
+
+
+SEQUENCE ClampTestOuter
+{
+  ClampTestLineStart();
+  ClampTest(CLAMP_TEST_ITERS);
+  RETURN;
+
+}
+
+
+SEQUENCE ClampTest
+{
+  ClampOn();
+  ClampTestInner(2);
+  ClampOff();
+  ClampTestInner(2);
+  RETURN;
+}
+
+#endif
+
+SEQUENCE StartSeqSummitMode {
+  InitialSetup();
+  InitialSetupFCS();
+  SummitModeLoop();
+  RETURN;
+}
+
+SEQUENCE SummitModeLoop {
+  if engmode StartSeqEngMode();
+  if engmode_fcs StartSeqEngModeFCS();
+  SummitModeFCSLineFlush();
+  IF SciStart SummitModeSciIntegrate();
+  IF FcsStart SummitModeFCSIntegrate();
+  IF SciStop SummitModeSciReadout();
+  GOTO SummitModeLoop();
+}
+
+
+SEQUENCE SummitModeAllLineFlush {
+  ParallelForwardNoCoincident();
+  SummitModeFCSLineFlush();
+  RETURN;
+}
+
+SEQUENCE SummitModeFCSLineFlush {
+  FCSParallelForward();
+  DumpPixelsFCS(_FCS_TOTAL_COLS);
+  RETURN;
+}
+
+SEQUENCE SummitModeSciIntegrate
+{
+  //IF SciStart SciStart-- - NOTE do not uncomment before wdl issue #36 fixed
+  //this will generate illegal statements otherwise
+  SciStart--;
+  //do a dump sequence before starting integration
+  OpenShutter();
+  SummitModeSciDump();
+  CloseShutter();
+  //set parallels to appropriate static gates here
+
+  //TODO: should  we emit some kind of signal here?
+  summit_sci_is_integrating++;
+  RETURN;
+}
+
+
+SEQUENCE SummitModeFCSIntegrate
+{
+  //IF FcsStart FCSStart--;
+  FcsStart--;
+  KeepThisFrame();
+  OpenShutter();
+  Wait1ms(FcsExpTimeMSec);
+  Wait1s(FcsExpTimeSec);
+  CloseShutter();
+  Wait1ms(2);
+  SummitModeFCSReadout();
+  RETURN;
+}
+
+
+SEQUENCE SummitModeSciReadout {
+  //very similar to eng mode FrameReadout, except
+  //only two possible modes (sequential or coincident)
+  //also no trigger out operation, no TDI, no linbin.
+  //IF summit_sci_is_integrating summit_sci_is_integrating--;
+  summit_sci_is_integrating--;
+  //IF SciStop SciStop--;
+  SciStop--;
+  ReadoutBegin();
+  
+  Wait1us(50);
+
+  DumpPixels(_AMPREADCOLS); //make this a fast/  dump readout if need to speed up
+  if llel_seq LineReadout(TOTAL_ROWS);
+  if llel_coincident LineReadoutCoincident(TOTAL_ROWS);
+
+  ReadoutEnd();
+  RETURN;
+}
+
+SEQUENCE SummitModeSciDump {
+  EvacuateEStart();
+  EvacuateFStart();
+  ParallelForwardNoCoincident(TOTAL_ROWS);
+  Wait1us(50);
+  DumpPixels(_AMPREADCOLS);
+  RETURN;
+}
+
+
+SEQUENCE SummitModeFCSReadout {
+  //TODO: faster FCS readout with windowing
+  FCSLineReadout(_FCS_LINENUM);
+  RETURN;
+}
+
+SEQUENCE FCSLineReadout {
+  FCSParallelForward();
+  Wait1us(line_clamp_delay_us);
+  FCSSplitReadout(_FCS_TOTAL_COLS);
+  RETURN;
+}
+
+
+
+SEQUENCE StartSeqEngModeFCS {
+  if framecount SummitModeFCSIntegrate();
+  framecount--;
+  if !framecount SummitModeFCSLineFlush(_FCS_LINENUM);
+  GOTO StartSeqEngModeFCS();
+}
+
+SEQUENCE StartSeqEngMode {
+  if framecount IntegrateAndReadout();
+  if !framecount LineReadoutFast(TOTAL_ROWS);
+  if rg_mod_test_mode TestBrokenReadout();
+   GOTO StartSeqEngMode();
+}
+
+
+SEQUENCE IntegrateAndReadout
+{
+  Integrate();
+  ReadoutKeep();
+  RETURN;
+}
+
+
+//re-purposed to do FCS output testing
+SEQUENCE TestBrokenReadout
+{
+  OutputTestSetup();
+  //  PulseTGA();
+
+  VRDModulate();
+
+  RETURN;
+}
+
+
+
+
+SEQUENCE EvacuateE
+{
+  EvacuateEStart();
+  Wait1ms();
+  EvacuateEFinish();
+  RETURN;
+}
+
+SEQUENCE EvacuateF
+{
+  EvacuateFStart();
+  Wait1ms();
+  EvacuateFFinish();
+  RETURN;
+}
+  
+SEQUENCE Integrate
+{
+  //KeepThisFrame();
+  //NOTE: do ONE line of readout now,
+  //to get the buffer locked
+  //so we can see it's moving from outside
+  ReadPixels(_AMPREADCOLS);
+  
+  //NOTE: open shutter if either TDI wait or
+  //illumination requested...
+  if illum OpenShutter();
+  Wait1ms(integrate_illum_ms);
+  Wait1s(integrate_illum_s);
+  //but only close it if illumination (if
+  // doing TDI we need to close it later on)
+  if illum CloseShutter();  
+  Wait1ms(integrate_ms);
+  Wait1s(integrate_s);
+
+  RETURN;
+}
+
+SEQUENCE ReadoutKeep
+{
+  //read one "dummy" line to get the frame
+  //into the buffers (i.e. visible)
+  ReadoutBegin();
+
+  //select the readout type
+
+  //"normal" image readout modes
+  if llel_coincident FrameReadout();
+  if llel_seq FrameReadout();
+  if slow_pix FrameReadout();
+  if linbin FrameReadout();
+  if dch_llel FrameReadoutTDCllel();
+  if dch_ser FrameReadoutTDCser();
+  
+  framecount--;
+  RETURN;
+}
+
+
+
+SEQUENCE FrameReadoutTDCllel
+{
+
+  Wait1us(50);
+  DumpPixels(_AMPREADCOLS);
+
+  //each inner loop call reads out LLEL_TDC_LINES
+  //lines. The total number of times we need to
+  //run the inner loop is therefore
+  // floor(TOTAL_ROWS / LLEL_TDC_LINES)
+  FrameReadoutTDCllel_Innerloop(LLEL_TDC_LOOPS);
+  
+  //and readout an extra TOTAL_ROWS % LLEL_TDC_LINES
+  //to get the same total number of lines in the
+  //resulting buffer
+  LineReadout(LLEL_TDC_REMAINDER);
+
+  ReadoutEnd();
+
+  //reset linbin
+  linbindecr(llel_bin);
+  linbinincr();
+  
+  RETURN;
+}
+
+SEQUENCE FrameReadoutTDCllel_Innerloop
+{
+  //the first bunch of times this happens,
+  //all lines will be bright (from section A)
+  //but as we exhaust section A, we will end up
+  //with dark lines from section B coming through
+  LineReadoutAOnly(LLEL_TDC_LINES);
+
+  //clock Section B forward a number of times,
+  //this will effectively "bin" into section A
+  ForwardParallelSectionBNoCoincident(llel_bin);
+
+  //increment linbin by the predefined amount
+  linbinincr(LLEL_TDC_BININCR);
+
+  RETURN;
+}
+
+SEQUENCE FrameReadoutTDCser
+{
+  Wait1us(50);
+  DumpPixels(_AMPREADCOLS);
+  
+  //each inner loop returns one row, so
+  //just match total rows for other readout
+  //sequences
+  LineReadoutTDCser(TOTAL_ROWS);
+
+  ReadoutEnd();
+  RETURN;
+}
+
+SEQUENCE LineReadoutTDCser
+{
+  //load a line
+  ParallelForwardNoCoincident(llel_bin);
+
+  Wait1us(line_clamp_delay_us);
+
+  //do the TDC measurement
+  TDCser_Innerloop(SER_TDC_LOOPS);
+
+  //dump our half of the register in front of TDC lines
+  if !dsch_ser_direction DumpPixelsEOnly(SER_TDC_REMAINDER);
+  if dsch_ser_direction DumpPixelsFOnly(SER_TDC_REMAINDER);
+
+  if !dsch_ser_dump_bcs TDCser_ReadoutLoop();
+  if dsch_ser_dump_bcs TDCser_ReadoutLoopDumpBright();
+  //ser_bin has been incremented a bunch, need to decrement it back to 1
+
+  //now evacuate the other side of the register
+  //evacuate our entire half of the register
+  if !dsch_ser_direction EvacuateF();
+  if dsch_ser_direction EvacuateE();
+
+  
+  serbindecr(ser_bin); //now it's 0
+  serbinincr(); //now it's 1
+  
+  RETURN;
+}
+
+SEQUENCE TDCser_ReadoutLoopDumpBright
+{
+  //need to know how many to read ahead of the first
+  //reading out the prescan puts the first bright line
+  //at the output
+  if !dsch_ser_direction ReadPixelsEOnly(_SERIALPRESCAN);
+  if dsch_ser_direction ReadPixelsFOnly(_SERIALPRESCAN);
+
+  //run the inner loop the same number of times as you
+  //did to generate the lines
+  TDCser_ReadoutLoopDumpBright_Inner(SER_TDC_LOOPS);
+
+  if !dsch_ser_direction ReadPixelsEOnly(SER_TDC_REMAINDER);
+  if dsch_ser_direction ReadPixelsFOnly(SER_TDC_REMAINDER);
+
+  RETURN;
+}
+
+SEQUENCE TDCser_ReadoutLoop
+{
+
+  //read a whole row
+  if !dsch_ser_direction ReadPixelsEOnly(_AMPREADCOLS);
+  if dsch_ser_direction ReadPixelsFOnly(_AMPREADCOLS);
+
+  
+  RETURN;
+}
+
+
+
+SEQUENCE TDCser_ReadoutLoopDumpBright_Inner
+{
+  //at the point of this sequence being called,
+  //bright line is next to be read out. So, instead,
+  //we'll dump it
+
+  //manually tag a pixel, it should end up just being reset
+
+  trigpix();
+  if !dsch_ser_direction DumpPixelsEOnly();
+  if dsch_ser_direction DumpPixelsFOnly();
+
+  //now we need to do a real readout on SER_TDC_COLS-1
+  if !dsch_ser_direction ReadPixelsEOnly(SER_TDC_COLSm1);
+  if dsch_ser_direction ReadPixelsFOnly(SER_TDC_COLSm1);
+
+  RETURN;
+}
+
+ 
+SEQUENCE TDCser_Innerloop
+ {
+  //now readout a number of pixels
+  if !dsch_ser_direction DumpPixelsEOnly(SER_TDC_COLS);
+  if dsch_ser_direction DumpPixelsFOnly(SER_TDC_COLS);
+
+  //clock the other output backwards into the opposite register half
+  if !dsch_ser_direction SerialFBackwards(ser_bin);
+  if dsch_ser_direction  SerialEBackwards(ser_bin);
+
+  serbinincr(SER_TDC_BININCR);
+  RETURN;
+} 
+
+SEQUENCE serbinincr
+{
+  ser_bin++;
+  RETURN;
+}
+
+SEQUENCE serbindecr
+{
+  ser_bin--;
+  RETURN;
+}
+
+SEQUENCE FrameReadout
+{
+
+  //Readout begin does half a llel transfer, so wait while that settles doewn
+  Wait1us(50);
+  //single serial read to flush the register
+  DumpPixels(_AMPREADCOLS);
+  if tdi_wait_us OpenShutter();
+
+  //read all image rows and the desired overscan
+  //note these parameters are ALL mutually exclusive
+  IF llel_seq LineReadout(TOTAL_ROWS);
+  IF llel_coincident  LineReadoutCoincident(TOTAL_ROWS);
+  IF slow_pix LineReadoutSlowPix(TOTAL_ROWS);
+  IF linbin LineReadout(LINBIN_MEAS);
+  IF linbin LineReadoutFast(LINBIN_NOBIN_ROWS);
+
+  if tdi_wait_us CloseShutter();
+  ReadoutEnd();
+
+  //reset llel_bin value
+  if linbin linbindecr(llel_bin);
+  if linbin linbinincr();
+  
+  
+  RETURN;
+}
+
+
+//NOTE this has to be a sequence because can't call
+//enough repeats in 1ms archon limit of repeats
+SEQUENCE Wait1s {
+  if abortintegrate abortintegration();
+  Wait1ms(1000);
+  RETURN;
+}
+
+SEQUENCE abortintegration {
+  CloseShutter();
+  GOTO StartSeqSummitMode();
+}
+
+SEQUENCE LineReadoutSlowPix
+{
+  ParallelForwardNoCoincident();
+  Wait1us(50);
+  ReadPixelsSlow(_AMPREADCOLS);
+  Wait1us(10);
+  RETURN;
+}
+
+SEQUENCE linbinincrcheck {
+  if framecount linbinincr();
+  RETURN;
+}
+
+
+SEQUENCE linbinincr {
+  llel_bin++;
+  RETURN;
+}
+
+SEQUENCE linbindecr {
+  llel_bin--;
+  RETURN;
+}
+
+
+SEQUENCE LineReadoutFast
+{
+  ParallelForwardNoCoincident();
+  ReadPixels(_AMPREADCOLS);
+  RETURN;
+}
+
+
+SEQUENCE LineReadout
+{
+  ParallelForwardNoCoincident(llel_bin);
+  //if we're doing a "linbin", increment llel_bin
+  //by one for each line
+  if linbin linbinincr();
+  
+  //wait here is for the clamp to die down. Put some of it in prescan, but not all
+  Wait1us(line_clamp_delay_us);
+
+  if enable_ser_bin ReadPixels(_SERIALPRESCAN);
+  if enable_ser_bin SerBinReadPixels(_AMPCOLS);
+  if enable_ser_bin ReadPixels(_SERIALOVERSCAN);
+  if !enable_ser_bin ReadPixels(_AMPREADCOLS);
+
+  if tdi_wait_us Wait1us(tdi_wait_us);
+  //if there are leftover pixels, do them here
+   RETURN;
+}
+
+SEQUENCE SerBinReadPixels
+{
+  PrepSerBin();
+  //decrement ser_bin by one that's how much extra forward serials we need
+  serbindecr();
+  //extra serial forwards
+  SerialBinForwards(ser_bin);
+  //do a normal pixel read
+  ReadPixels();
+  //reset serial bin variable to original value
+  serbinincr();
+
+  RETURN;
+
+}
+
+
+
+SEQUENCE LineReadoutCoincident
+{
+  if tdi_wait_us Wait1us(tdi_wait_us);
+   //charge assumed must be under I2 at this point, set up in preamble 
+  ParallelForwardSegment1();
+  TransferToSerialRegisterCoincident();
+  ReadPixels(PIXELS_PER_SEG);
+  ParallelForwardSegment2();
+  ReadPixels(PIXELS_PER_SEG);
+  ParallelForwardSegment3();
+  ReadPixels(PIXELS_PER_SEG)
+    #if REMAINDER_PIX
+    ReadPixels(REMAINDER_PIX);
+  #endif
+
+  RETURN;
+}
+
+
+SEQUENCE LineReadoutAOnly
+{
+  ForwardParallelSectionANoCoincident();
+
+  Wait1us(line_clamp_delay_us);
+  ReadPixels(_AMPREADCOLS);
+
+  RETURN;
+}
+
+SEQUENCE LineReadoutAOnlyCoincident
+{
+  TransferToSerialRegisterCoincident();
+  ReadPixels(_SERIALPRESCAN);
+  ParallelForwardSectionASegment1();
+  ReadPixels(PIXELS_PER_SEG);
+  ParallelForwardSectionASegment2();
+  ReadPixels(PIXELS_PER_SEG);
+  ParallelForwardSectionASegment3();
+  ReadPixels(PIXELS_PER_SEG);
+
+  #if REMAINDER_PIX
+      ReadPixels(REMAINDER_PIX);
+  #endif
+      RETURN ;
+}
+
+

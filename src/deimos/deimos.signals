@@ -1,0 +1,194 @@
+/* -*- C -*- */
+/** ---------------------------------------------------------------------------
+ * @file   deimos.signals
+ * @brief  DEIMOS signal names and module/channel assignments
+ * 
+ * syntax:
+ *
+ * #define signallabel slot : channel
+ *
+ * where signallabel   is any ASCII text string to identify the signal name
+ *       slot          is the slot number containing the module,
+ *       channel       is the channel number on the module
+ * 
+ * Combinations of signals can also be made by creating a comma-separatedv
+ * list enclosed in square brackets as follows:
+ *
+ * #define newlabel [ signallabel, signallabel [, signallabel] ]
+ *
+ * where newlabel    is any ASCII text string to define a new signal
+ *       signallabel is any signal already defined above
+ *
+ * any number can be combined in a comma-separated list between square brackets,
+ * or a single signal can be defined in square brackets to effectively asign
+ * a different name to the signal
+ *
+ * Update in progress for new Hardware
+ */
+
+ 
+#define SHUTTER 0 : 1 /* INT signal from the backplane   */
+#define FRAME	 0 : 2 /* FRAME signal from the backplane	*/
+#define LINE	 0 : 3 /* LINE signal from the backplane	*/
+#define PIXEL	 0 : 4 /* PIXEL signal from the backplane	*/
+
+/**** Parallel Phase Signal Definitions ****/
+/* Each detector is made of two 2048x2048  
+   vertically stacked image areas. The top 
+   detector is addressed by three B phase 
+   signals and the bottom detector is 
+   addresed by three A phase signals. The
+   focal plane is made of 8 detectors. The
+   detector signals are ganged together 
+   into two sets of 4.
+/* Note: _1 refers to detectors 1-4        */
+/*       _2 refers to detectors 5-8        */
+
+#define PCLK_B3_2   1 : 1 
+#define PCLK_A3_2   1 : 2 
+#define PCLK_B2_2   1 : 3 
+#define PCLK_A2_2   1 : 4 
+#define PCLK_B1_2   1 : 5 
+#define PCLK_A1_2   1 : 6 
+#define PCLK_A1_1   1 : 7 
+#define PCLK_B1_1   1 : 8 
+#define PCLK_A2_1   1 : 9 
+#define PCLK_B2_1   1 : 10
+#define PCLK_A3_1   1 : 11
+#define PCLK_B3_1   1 : 12
+#define TGA1        3 : 1  //new VIB assignment
+
+
+/****  Serial Phase Signal Definitions  ****/
+
+#define SCLK_EF     3 : 2
+#define SCLK_E2     3 : 3
+#define SCLK_E1     3 : 4
+#define SCLK_F2     3 : 5
+#define SCLK_F1     3 : 6
+
+#define FCS_P3U     3 : 7 // new VIB assignment
+#define FCS_P3L     3 : 8 // new VIB assignment
+#define FCS_P2      3 : 9 // new VIB assignment
+#define FCS_P1      3 : 10 // new VIB assignment
+
+#define TGA2        3 : 11 // new VIB assignment
+
+#define SCI_RGBACKUP1 3 : 12 //new VIB assignment
+
+//** FCS serials and more backups **
+
+#define SCI_RGBACKUP2 2 : 1 //new VIB assignment
+#define SCI_SWBACKUP1 2 : 2 //new VIB assignment
+
+#define FCS2_S2L      2 : 3 //new VIB assignment
+
+#define FCS1_S2L      2 : 4 //new VIB assignment
+
+#define FCS2_S3L      2 : 5 //new VIB assignmet
+
+#define FCS_S1        2 : 6 //new VIB assignment
+
+#define SCI_SWBACKUP2 2 : 7 //new VIB assignment
+
+#define FCS_RG        2 : 8 //new VIB assignment
+
+#define FCS_SW        2 : 9 //new VIB assignment
+
+#define FCS1_S3L      2 : 10 //new VIB assignment
+
+#define Spare1        2 : 11 //new VIB assignment
+#define Spare2        2 : 12 //new VIB assignment
+    
+
+#define RG_CLOCKS [SCI_RGBACKUP1, SCI_RGBACKUP2]
+#define SW_CLOCKS [SCI_SWBACKUP1, SCI_SWBACKUP2]
+
+#define TG [TGA1,  TGA2] //new VIB assignment
+
+
+/****  LVDS Driver Signal definitions   ****/
+
+#define AC_Clamp 12 : 12
+#define AC_Clamp_FCS 12 : 11
+/* NOP Definition - NEEDS TO BE UNUSED */
+#define NOP      12 : 2  //new VIB redefine
+#define PD_OE_IN 12 : 1 //new VIB assignment
+
+#define RG_SCI3  12 : 5 //new VIB assignment
+#define RG_SCI4  12 : 6 //new VIB assignment
+#define RG_SCI1  12 : 7 //new VIB assignment
+#define RG_SCI2  12 : 8 //new VIB assignment
+
+#define SW_SCI2  12 : 16 //new VIB redefine
+#define SW_SCI1  12 : 15 //new VIB redefine
+
+#define SW_SCI3  12 : 14 //new VIB assignment
+
+#define SW_SCI4  12 : 13 //new VIB assignment
+
+
+/****     Bias Voltage Definitions      ****/
+
+
+
+#define VRD_E   9 : 5
+
+
+//redefine VRD_F to modulate FCS RD channels
+#define VRD_F   9 : 6
+
+#define VRD [VRD_E, VRD_F]
+
+/**** Readout Method ****/
+/* Science Serials */
+
+#define VRD_FCSA 9:8
+#define VRD_FCSB 9:9
+#define VRD_FCSA2 9:10
+#define VRD_FCSB2 9:11
+
+
+
+#define SCI_SCLK1 [SCLK_E2, SCLK_F2]
+#define SCI_SCLK2 [SCLK_E1, SCLK_F1]
+
+#define SCI_SCLK3 SCLK_EF
+/* Reset Gate Combine */
+#define RG [ RG_SCI3 , RG_SCI4 , RG_SCI1 , RG_SCI2]
+
+/* Summing Well Combine */
+/*define SW [SW_SCI1, SW_SCI2, SW_SCI3, SW_SCI4] */
+#define SW [SW_SCI2 , SW_SCI3 , SW_SCI4, SW_SCI1]
+
+/* Science Parallels */
+ #define SCI_PCLK1 [PCLK_A1_1, PCLK_A1_2, PCLK_B1_1, PCLK_B1_2] 
+ #define SCI_PCLK2 [PCLK_A2_1, PCLK_A2_2, PCLK_B2_1, PCLK_B2_2] 
+ #define SCI_PCLK3 [PCLK_A3_1, PCLK_A3_2, PCLK_B3_1, PCLK_B3_2] 
+// #define SCI_PCLK1 [PCLK_A1_1, PCLK_A1_2] 
+// #define SCI_PCLK2 [PCLK_A2_1, PCLK_A2_2] 
+// #define SCI_PCLK3 [PCLK_A3_1, PCLK_A3_2] 
+
+
+
+
+/* Science parallels section A */
+#define SCI_PCLK1_A [PCLK_A1_1, PCLK_A1_2]
+#define SCI_PCLK2_A [PCLK_A2_1, PCLK_A2_2]
+#define SCI_PCLK3_A [PCLK_A3_1, PCLK_A3_2]
+
+#define SCI_PCLK1_B [PCLK_B1_1, PCLK_B1_2]
+#define SCI_PCLK2_B [PCLK_B2_1, PCLK_B2_2]
+#define SCI_PCLK3_B [PCLK_B3_1, PCLK_B3_2]
+
+#define SCI_SCLK1_EONLY SCLK_E2
+#define SCI_SCLK1_FONLY SCLK_F2
+
+#define SCI_SCLK2_EONLY SCLK_E1
+#define SCI_SCLK2_FONLY SCLK_F1
+
+//FCS readout
+
+#defeval FCS_P3 [FCS_P3U, FCS_P3L]
+#define FCS_S2 [FCS1_S2L, FCS2_S2L]
+#define FCS_S3 [FCS1_S3L, FCS2_S3L]
