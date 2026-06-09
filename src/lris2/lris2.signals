@@ -1,0 +1,68 @@
+/* -*- C -*- */
+/** ---------------------------------------------------------------------------
+ * @file     cryoscope.signals
+ * @brief    cryoscope signal names and module/channel assignments
+ * @author   Timothee Greffe
+ * @date     2021-06-15 Initial creation
+ * @modified 
+ * 
+ * syntax:
+ *
+ * #define signallabel slot : channel
+ *
+ * where signallabel   is any ASCII text string to identify the signal name
+ *       slot          is the slot number containing the module,
+ *       channel       is the channel number on the module
+ * 
+ * Combinations of signals can also be made by creating a comma-separated
+ * list enclosed in square brackets as follows:
+ *
+ * #define newlabel [ signallabel, signallabel [, signallabel] ]
+ *
+ * where newlabel    is any ASCII text string to define a new signal
+ *       signallabel is any signal already defined above
+ *
+ * any number can be combined in a comma-separated list between square brackets,
+ * or a single signal can be defined in square brackets to effectively asign
+ * a different name to the signal
+ *
+ */
+
+/* These are the control signals needed to */
+/* fire the shutter and get a frame of data */
+#define SHUTTER	0 : 1   /* INT signal from the backplane - is there a shutter?	*/
+#define FRAME	0 : 2   /* FRAME signal from the backplane			*/
+#define LINE	0 : 3   /* LINE signal from the backplane			*/
+#define PIXEL	0 : 4   /* PIXEL signal from the backplane			*/
+
+
+
+
+/* These are the biases which can now be commanded in states                       */
+#define BiasGate       10 : 1 
+#define BiasPower      10 : 2  
+#define DSub           10 : 3  
+#define VDD            10 : 4  
+#define VReset         10 : 5 
+#define VDDA           10 : 6  
+#define VRefNeg        10 : 7 
+#define CLK_EN         10 : 8
+#define PreAmpEN       10 : 9
+
+/* These are the clock signals which come from the LVDS board           */
+#define VResetB    	11 : 1  /*  	   */
+#define ReadEN     	11 : 2  /*  */
+#define ResetEN     	11 : 3  /*       */
+#define FSyncB     	11 : 4  /*       	   */
+#define Vclk    	11 : 5  /*   	   */
+#define HresetB	        11 : 6  /*     	   */
+#define LSyncB  	11 : 7  /*  */
+#define Hclk    	11 : 8  /*         	   */
+#define HorzWmem    11 : 9  /*         */
+#define VreadEdge   11 : 10 /*              */
+#define VertWmem    11 : 11 /*        */
+#define HreadEdge   11 : 12 /*      */
+#define MainResetB  11 : 13 /*              */
+#define DataIn      11 : 14 /*              */
+#define CSB         11 : 15 /*                */
+#define DataClk     11 : 16 /*                              */
