@@ -20,14 +20,6 @@ SLOT 1  driverx {
   DRVX 12 [PCLK_FAST, PCLK_SLOW,1] "A3y";
      }
 
-#define A1 [A1x, A1y]
-#define A2 [A2x, A2y]
-#define A3 [A3x, A3y]
-
-#define T1 [T1x, T1y]
-#define T2 [T2x, T2y]
-
-#define DG [DGx, DGy]
 
 
 #define SCLK_FAST 500.0
@@ -164,7 +156,32 @@ SLOT 11 heaterx {
 
   //sensor C (cryostat wall at cryocooler end)
   SENSORCTYPE=4; //RTD1000
+
+
+  //GPIO 1 is Bonn shutter error state
+  DIO_LABEL1="Bonn Shutter ~Error";
+
+  //GPIO 2 is n/c
+
+  //GPIO 1 & 2 are input
+  DIO_DIR12=0;
+
   
+  //GPIO 3 is Bonn shutter Blade B state
+  DIO_LABEL3="Bonn Shutter ~Blade B";
+  //GPIO 4 is Bonn shutter Blade A state
+  DIO_LABEL4="Bonn Shutter ~BladeA";
+
+  //GPIO 3 & 4 are input
+  DIO_DIR34=0;
+
+  //GPIO 5 is Bonn shutter output control
+  DIO_LABEL5="Bonn Shutter ~Control";
+  //GPIO 5 is output
+  DIO_DIR56=1;
+  //GPIO 5 source is timing core
+  DIO_SOURCE5=2;
+
 }
 
 SLOT 12 heaterx {
@@ -176,6 +193,7 @@ SLOT 12 heaterx {
   HEATERAFORCE=0;
   HEATERATARGET=-130;
 
+  
   //heater B disabled (not used)
   HEATERBENABLE=0;
 
@@ -187,6 +205,14 @@ SLOT 12 heaterx {
   
   //sensor C (cryostat walll at detector end)
   SENSORCTYPE=4; //RTD1000
+
+  //GPIO4 is the clamp signal in GPIO mode
+  //source - timing clock
+  DIO_SOURCE4=2;
+  //direction - output
+  DIO_DIR34=1;
+  DIO_LABEL4="GPIO clamp signal";
+  
   
 }
 
