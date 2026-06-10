@@ -1,24 +1,33 @@
 #include "geometry.inc"
 
-param etime_ms = 0
-param etime_s = 0
+param etime_dark_ms = 0
+param etime_dark_s = 0
 param etime_illum_ms = 0
 param etime_illum_s = 0
-param illum_frames = 0
+
+param run_shutter = 0
+param run_illum_trig = 0
+
+
 param framecount = 0
 param abort_integration = 0
 
-
 SEQUENCE StartSeq {
+
+   CALL RunSeq();
+
+}
+
+
+SEQUENCE RunSeq {
    if framecount IntegrateAndReadout();
-
-
+   GOTO RunSeq();
 
 }
 
 
 SEQUENCE IntegrateAndReadout {
-
+   CALL Integrate();
 
 }
 
@@ -29,11 +38,21 @@ SEQUENCE Wait1s {
 }
 
 SEQUENCE AbortSeq {
-
+  //DO an emergency flush here!!
+  GOTO StartSeq();
 
 }
 
 SEQUENCE Integrate {
+  if run_shutter oshutter();
+  if run_illum_trig trig_on();
+  Wait1s(etime_illum_s);
+  Wait1s(etime_illum_ms);
 
+  if run_shutter cshutter();
+  if run_illum_trig trig_off();
 
-}
+  Wait1s(etime_dark_s);
+  Wait1ms(etime_dark_ms);
+  RETURN;
+} 

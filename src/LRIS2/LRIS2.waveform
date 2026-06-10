@@ -1,0 +1,23 @@
+#include "LRIS2.def"
+
+
+WAVEFORM Wait1ms {
+0: SET NOP TO HIGH;
+.+1ms: RETURN;
+}
+
+WAVEFORM oshutter {
+0: SET BONN_SHUTTER_CONTROL to 0;
+}
+
+WAVEFORM cshutter {
+0: SET BONN_SHUTTER_CONTROL to 1;
+}
+
+WAVEFORM trig_on {
+0: SET TRIG_OUT to 1;
+}
+
+WAVEFORM trig_off{
+0: SET TRIG_OUT to 0;
+}

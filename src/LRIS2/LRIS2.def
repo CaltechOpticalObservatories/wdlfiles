@@ -1,0 +1,31 @@
+
+//control signals
+#define BONN_SHUTTER_CTRL 11:5
+#define TRIG_OUT 0:1
+#define FRAME 0:2
+#define LINE 0:3
+#define PIXEL 0:4
+
+
+//parallel clocks
+#define A1 [A1x, A1y]
+#define A2 [A2x, A2y]
+#define A3 [A3x, A3y]
+
+#define T1 [T1x, T1y]
+#define T2 [T2x, T2y]
+
+#define DG [DGx, DGy]
+
+
+//serial clocks
+#define S1 [S1a, S1b, S1c, S1d]
+#define S2 [S2a, S2b, S2c, S2d]
+#define S3 [S3a, S3b, S3c, S3d]
+
+
+
+//timing things
+#define clockfreq  100000000                      /* 100 MHz master clock frequency in Hz */
+#define 1ms #eval 100000 clicks
+
