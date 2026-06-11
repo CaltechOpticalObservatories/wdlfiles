@@ -27,5 +27,5 @@
 
 //timing things
 #define clockfreq  100000000                      /* 100 MHz master clock frequency in Hz */
-#define 1ms #eval 100000 clicks
+#define 1ms 1000000 
 

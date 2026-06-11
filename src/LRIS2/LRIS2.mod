@@ -69,10 +69,10 @@ SLOT 3 driverx {
 //SLOT 5 ADM no config
 
 SLOT 6 AD {
-  CLAMP1 = 0.0;
-  CLAMP2 = 0.0;
-  CLAMP3 = 0.0;
-  CLAMP4 = 0.0;
+  CLAMP 1 = 0.0;
+  CLAMP 2 = 0.0;
+  CLAMP 3 = 0.0;
+  CLAMP 4 = 0.0;
   PREAMPGAIN = low;
 
 }
@@ -91,15 +91,15 @@ SLOT 9 HVXBias {
   HVLC 3 [VRD, 1] "Reset Drain b";
   HVLC 4 [VOD, 1] "Output Drain a";
   HVLC 5 [VRD, 1] "Reset Drain a";
-  HVLC 6 [VOTG, 3] "Output Gate a";
-  HVLC 7 [VOTG, 3] "Output Gate d";
+//  HVLC 6 [VOTG, 3] "Output Gate a"; - needs to be on an LVX
+//  HVLC 7 [VOTG, 3] "Output Gate d"; - nEEDS to be on an LVX
   HVLC 8 [VDD, 2] "Dump Drain y";
   HVLC 9 [VOD, 1] "Output Drain d";
   HVLC 10 [VRD, 1] "Reset Drain d";
-  HVLC 11 [VOD, 1] "Output Drain c"
+  HVLC 11 [VOD, 1] "Output Drain c";
   HVLC 12 [VRD, 1] "Reset Drain c";
   HVLC 13 [0.0, 0] "NC";
-  HVLC 14 [VOTG, 3] "Output Gate b";
+//  HVLC 14 [VOTG, 3] "Output Gate b"; - needs to be on an LVX
   HVLC 15 [0.0, 0] "NC";
   HVLC 16 [0.0, 0] "NC";
   HVLC 17 [0.0, 0] "OFFSET a";
@@ -107,10 +107,10 @@ SLOT 9 HVXBias {
   HVLC 19 [0.0, 0] "OFFSET c";
   HVLC 20 [0.0, 0] "OFFSET d";
   HVLC 21 [0.0, 0] "NC";
-  HVLC 22 [0.0, 0], "NC";
+  HVLC 22 [0.0, 0] "NC";
   HVLC 23 [0.0, 0] "NC";
   HVLC 24 [0.0, 0] "NC";
-  HVHC 1 [VOTG, 5.0,  3, 1] "Output Gate c";
+//  HVHC 1 [VOTG, 5.0,  3, 1] "Output Gate c"; - needs ot be on an LVX
   HVHC 2 [0.0, 0.0, 0, 0] "NC";
   HVHC 3 [5.0, 20.0, 0, 1] "+5V";
   HVHC 4 [0.0, 20.0, 0, 1] "should be -5V";
@@ -132,86 +132,58 @@ SLOT 10 xvbias {
 #define HTR_CTRL_LOOP_TIME_MS 2000
 
 SLOT 11 heaterx {
-  DIOPOWER=1;
-  HEATERUPDATETIME=HTR_CTRL_LOOP_TIME_MS;
-  
-  //detector heater (enabled, target -110C)
-  //Heater is 100 Ohm, 6.25W, 25V max (STA4850 datasheet)
-  HEATERAENABLE=1;
-  HEATERAFORCE=0;
-  HEATERATARGET=-110;
+     DIOPOWER=1;
+     UPDATETIME=HTR_CTRL_LOOP_TIME_MS;
+     //HEATER n [ target, sensor, limit, forcelevel, force, enable]
+     //detector heater (enabled, target -110C)
+     //Heater is 100 Ohm, 6.25W, 25V max (STA4850 datasheet)
+     HTR A [-110.0, A, 25.0, 0.0, 0, 1] "detector heater";
 
-
+ 
   //getter heater (disabled by default, target 30 C for bakeout)
-  HEATERBENABLE=0;
-  HEATERBFORCE=0;
-  HEATERBTARGET=30;
+   HTR B [30.0, B, 25.0, 0.0, 0, 0] "getter heater";
+   
 
-
-  //sensor A (detector on board)
-  SENSORATYPE=4; //RTD1000
-
-  //sensor B (getter cold plate)
-  SENSORBTYPE=4; //RTD1000
-
+  //SENSOR [type, current, low lim, high lim, filter]
+     //sensor A (detector on board)
+   SENSOR A [4, 0.0, -150.0, 50.0, 0];
+   
+   //sensor B (getter cold plate)
+   SENSOR B [4, 0.0, -150.0, 50.0, 0];
   //sensor C (cryostat wall at cryocooler end)
-  SENSORCTYPE=4; //RTD1000
+   SENSOR C [4, 0.0, -150.0, 50.0, 0];
+   
 
+   //GPIO 1 is Bonn shutter error state
+   DIO 1 [0, 0] "Bonn Shutter ~Error";
+   DIO 3 [0, 0] "Bonn Shutter ~BladeB";
+   
+   DIO 4 [0, 0] "Bonn Shutter ~BladeA";
+   DIO 5 [2, 1] "Bonn Shutter ~Control";
 
-  //GPIO 1 is Bonn shutter error state
-  DIO_LABEL1="Bonn Shutter ~Error";
-
-  //GPIO 2 is n/c
-
-  //GPIO 1 & 2 are input
-  DIO_DIR12=0;
-
-  
-  //GPIO 3 is Bonn shutter Blade B state
-  DIO_LABEL3="Bonn Shutter ~Blade B";
-  //GPIO 4 is Bonn shutter Blade A state
-  DIO_LABEL4="Bonn Shutter ~BladeA";
-
-  //GPIO 3 & 4 are input
-  DIO_DIR34=0;
-
-  //GPIO 5 is Bonn shutter output control
-  DIO_LABEL5="Bonn Shutter ~Control";
-  //GPIO 5 is output
-  DIO_DIR56=1;
-  //GPIO 5 source is timing core
-  DIO_SOURCE5=2;
 
 }
 
 SLOT 12 heaterx {
-  DIOPOWER=1;
-  HEATERUPDATETIME=HTR_CTRL_LOOP_TIME_MS;
-  
-  //heater A (cryocooler heater)
-  HEATERAENABLE=0;
-  HEATERAFORCE=0;
-  HEATERATARGET=-130;
+     DIOPOWER=1;
+     UPDATETIME=HTR_CTRL_LOOP_TIME_MS;
 
-  
-  //heater B disabled (not used)
-  HEATERBENABLE=0;
+    
+     //heater A (cryocooler heater)
+     HTR A [-130.0, A, 25.0, 0.0, 0, 0] "cryocooler heater";
 
-  //sensor A (cryocooler side of getter heat strap)
-  SENSORATYPE=4; //RTD1000
+     
 
-  //sensor B (getter side of getter heat strap)
-  SENSORBTYPE=4; //RTD1000
-  
-  //sensor C (cryostat walll at detector end)
-  SENSORCTYPE=4; //RTD1000
+     //sensor A (cryocooler side of getter heat strap)
+     SENSOR A [4, 0.0, -150.0, 50.0, 0];
+    
+     //sensor B (getter side of getter heat strap)
+     SENSOR B [4, 0.0, -150.0, 50.0, 0];
 
-  //GPIO4 is the clamp signal in GPIO mode
-  //source - timing clock
-  DIO_SOURCE4=2;
-  //direction - output
-  DIO_DIR34=1;
-  DIO_LABEL4="GPIO clamp signal";
+     //sensor C (cryostat walll at detector end)
+     SENSOR C [4, 0.0, -150.0, 50.0, 0];
+
+     DIO 4 [2, 1] "GPIO clamp signal";
   
   
 }
