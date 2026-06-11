@@ -1,4 +1,4 @@
-#include "geometry.inc"
+
 
 param etime_dark_ms = 0
 param etime_dark_s = 0
@@ -13,9 +13,12 @@ param framecount = 0
 param abort_integration = 0
 
 SEQUENCE StartSeq {
+  //Q: should we close shutter even if not running with shutter?
+   cshutter();
+   trig_off();
 
-   CALL RunSeq();
-
+   CALL RunSeq(); //never returns  
+   RETURN; //only here to keep WDL happy
 }
 
 
@@ -28,7 +31,7 @@ SEQUENCE RunSeq {
 
 SEQUENCE IntegrateAndReadout {
    CALL Integrate();
-
+   RETURN;
 }
 
 SEQUENCE Wait1s {
