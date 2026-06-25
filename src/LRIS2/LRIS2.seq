@@ -17,7 +17,7 @@ SEQUENCE StartSeq {
    cshutter();
    trig_off();
 
-   CALL RunSeq(); //never returns  
+   RunSeq(); //never returns  
    RETURN; //only here to keep WDL happy
 }
 
@@ -30,7 +30,7 @@ SEQUENCE RunSeq {
 
 
 SEQUENCE IntegrateAndReadout {
-   CALL Integrate();
+   Integrate();
    RETURN;
 }
 
