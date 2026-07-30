@@ -694,13 +694,12 @@ SEQUENCE SerBinReadPixels
 SEQUENCE LineReadoutCoincident
 {
   if tdi_wait_us Wait1us(tdi_wait_us);
-   //charge assumed must be under I2 at this point, set up in preamble 
-  ParallelForwardSegment1();
   TransferToSerialRegisterCoincident();
-  ReadPixels(PIXELS_PER_SEG);
   ParallelForwardSegment2();
   ReadPixels(PIXELS_PER_SEG);
   ParallelForwardSegment3();
+  ReadPixels(PIXELS_PER_SEG);
+  ParallelForwardSegment1();
   ReadPixels(PIXELS_PER_SEG)
     #if REMAINDER_PIX
     ReadPixels(REMAINDER_PIX);

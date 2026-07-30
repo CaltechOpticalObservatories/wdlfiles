@@ -131,10 +131,10 @@ RAWSEL        = _RAW_SELECT
   //NOTE RAWSEL of 11 should be E channel of slot 2
 RAWSEL        = 11
 
-SHP1          = 120
-SHP2          = 303
-SHD1          = 448
-SHD2          = 575
+SHP1          = 200
+SHP2          = 447
+SHD1          = 536
+SHD2          = 831
 
   
   
