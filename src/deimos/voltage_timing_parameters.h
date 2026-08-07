@@ -10,7 +10,7 @@
 #define _TG_CLOCK_HIGH      10.5 /* [ 8.00, 14.0] */
 #define _TG_CLOCK_LOW       0.0 /* [-0.50, 0.50] */
 
-#define _SER_CLOCK_HIGH    11.0 /* [ 8.00, 14.0] */
+#define _SER_CLOCK_HIGH    10.5 /* [ 8.00, 14.0] */
 #define _SER_CLOCK_LOW     1.0 /* [-0.50, 1.50] */
 #define _SER_CLOCK_RCV     11.5 /* Higher than serial clock high */
 
