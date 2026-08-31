@@ -234,6 +234,7 @@ StartRow();
 wReadEN();
 ReadPixel_Blank(2);   /*Needs two extra pixels because of the internal delay.*/
 ReadPixel(H2RG_columns);
+ReadPixel_Blank(1); /*ashley added this to fix last pixel reset issue but need a detector person to check!*/
 ResetPulse();         /* Reset Pulse after reading out the row */
 wbHclk();
 wbReadEN();
@@ -253,7 +254,6 @@ GOTO WaitForExpose();
 SEQUENCE RXR_GrabFrame {
 wFrame();
 StartFrame();
-StartRow();
 RR_SkipRow(H2RG_rows_skip);
 RXR_ReadRow(H2RG_rows);
 PulseVCLK();
@@ -268,6 +268,7 @@ StartRow();
 wReadEN();
 ReadPixel_Blank(2);           /*Needs two extra pixels because of the internal delay.*/
 ReadPixel(H2RG_columns);
+ReadPixel_Blank(1); /*ashley added this to fix last pixel reset issue but need a detector person to check!*/
 ResetPulse();                 /* Reset Pulse after reading out the row */
 LSyncBPulse();
 ReadPixel_Blank(1);
