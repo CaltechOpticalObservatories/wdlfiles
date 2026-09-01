@@ -15,6 +15,8 @@ param etime_dark_s = 0
 param etime_illum_ms = 0
 param etime_illum_s = 0
 
+param etime_wait_shutter_ms = 0
+
 param run_shutter = 0
 param run_illum_trig = 0
 
@@ -90,6 +92,9 @@ SEQUENCE AbortSeq {
 
 
 SEQUENCE Integrate {
+  Wait1s(etime_dark_s);
+  Wait1ms(etime_dark_ms);
+
   if run_shutter oshutter();
   if run_illum_trig trig_on();
   Wait1s(etime_illum_s);
@@ -98,8 +103,8 @@ SEQUENCE Integrate {
   if run_shutter cshutter();
   if run_illum_trig trig_off();
 
-  Wait1s(etime_dark_s);
-  Wait1ms(etime_dark_ms);
+  wait1ms(etime_wait_shutter_ms);
+
   RETURN;
 }
 
