@@ -32,14 +32,13 @@ TAPLINE0="AM16L,1,100" //tapline a
 
 TAPLINE1="AM18R,1,100" //tapline b
 
-TAPLINE2="AM12L,1,100" //tapline d
+TAPLINE2="AD7L,1,100" //tapline a
 
-TAPLINE3="AM14R,1,100" //tapline c
+TAPLINE3="AD8R,1,100" //tapline b
 
+TAPLINE4="AM12L,1,100" //tapline d
 
-TAPLINE4="AD7L,1,100" //tapline a
-
-TAPLINE5="AD8R,1,100" //tapline b
+TAPLINE5="AM14R,1,100" //tapline c
 
 TAPLINE6="AD6L,1,100" //tapline d
 
