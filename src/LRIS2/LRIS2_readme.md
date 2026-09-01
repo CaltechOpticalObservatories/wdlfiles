@@ -1,8 +1,6 @@
 LRIS2 sequencer usage
 =====================
 
-The LRIS2 sequencer is a conventional sequencer with internally timed exposure times. At the moment, only reading out through all 4 outputs is supported. Presently, dummy pixels are read. This will change once the LRIS2 VIB goes through safe-2-mate procedure.
-
 exposure time setting
 ---------------------
 
@@ -27,7 +25,7 @@ The "dark time" wait is likely only useful for engineering tests (e.g. doing a p
 Triggering / aborting an integration
 ------------------------------------
 
-To start an integration whilst the sequencer is in idle mode, set the **framecount** parameter to 1. While an integration is running, as long as it is during the "light" or "dark" waiting periods within the whole seconds setting, the parameter `abort_integration`
+To start an integration whilst the sequencer is in idle mode, set the `framecount` parameter to 1. While an integration is running, as long as it is during the "light" or "dark" waiting periods within the whole seconds setting, the parameter `abort_integration`
 can be set to 1 to abort the current integration.
 
 
