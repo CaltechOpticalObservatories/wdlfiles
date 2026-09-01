@@ -64,8 +64,25 @@ SLOT 3 driverx {
 #define SW [SWa, SWb, SWc, SWd]
 
 
-//SLOT 4 empty
+#ifdef TC_REV2
+	
+//SLOT 4 LVXBias
+SLOT 4 lvxbias {
+     LVLC1 [0.0,3] "OTG0";
+     LVLC2 [0.0,3] "OTG1";
+     LVLC13 [0.0,3] "OTG2";
+     LVLC14 [0.0,3] "OTG3";
+     LVLC15 [0.0,3] "offset0";
+     LVLC16 [0.0,3] "offset1";
+     LVLC17 [0.0,3] "offset2";
+     LVLC18 [0.0,3] "offset3";
 
+
+}
+
+#endif
+
+	
 //SLOT 5 ADM no config
 
 SLOT 6 AD {
@@ -183,7 +200,15 @@ SLOT 12 heaterx {
      //sensor C (cryostat walll at detector end)
      SENSOR C [4, 0.0, -150.0, 50.0, 0];
 
+     //output GPIO signals
      DIO 4 [2, 1] "GPIO clamp signal";
+     DIO 3 [2, 1] "Integration signal out";
+     DIO 5 [2, 1] "Readout signal out";
+     DIO 6 [2, 1] "Idle signal out";
+
+     DIO 2 [0, 0] "Integration signal in";
+     DIO 7 [0, 0] "Readout signal in";
+     DIO 8 [0, 0] "Idle signal in";
   
   
 }

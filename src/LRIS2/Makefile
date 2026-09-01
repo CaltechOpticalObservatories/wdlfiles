@@ -22,3 +22,6 @@ LRIS2_TMP.script LRIS2_TMP.states &: LRIS2_TMP.wdl geometry.inc
 	wdl --debug wavgen ${PRJ}_TMP
 
 
+.PHONY: clean
+clean:
+	rm *_TMP.* LRIS2.system LRIS2.modules LRIS2.acf

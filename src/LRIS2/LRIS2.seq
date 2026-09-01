@@ -1,13 +1,4 @@
-
-#define NROWS 2040
-#define POSCAN_ROWS 20
-
-#define NCOLS 2040
-#define PSCAN_COLS 4
-#define OSCAN_COLS 20
-
-#define RO_ROWS #eval NROWS + POSCAN_ROWS
-#define RO_COLS #eval NCOLS + PSCAN_COLS + OSCAN_COLS
+#include "geometry.inc"
 
 
 param etime_dark_ms = 0
@@ -49,9 +40,9 @@ SEQUENCE frameCountDecrContinue {
 
 
 SEQUENCE RunSeq {
+   LoopbackIndicateIdle();
    if framecount IntegrateAndReadout(framecount);
    GOTO RunSeq();
-
 }
 
 
@@ -62,6 +53,7 @@ SEQUENCE IntegrateAndReadout {
 }
 
 SEQUENCE dummyReadout {
+  LoopbackIndicateRO();
   dummyLineReadout(RO_ROWS);
 
   RETURN;
@@ -92,6 +84,7 @@ SEQUENCE AbortSeq {
 
 
 SEQUENCE Integrate {
+  LoopbackIndicateIntg();
   Wait1s(etime_dark_s);
   Wait1ms(etime_dark_ms);
 
@@ -103,7 +96,7 @@ SEQUENCE Integrate {
   if run_shutter cshutter();
   if run_illum_trig trig_off();
 
-  wait1ms(etime_wait_shutter_ms);
+  Wait1ms(etime_wait_shutter_ms);
 
   RETURN;
 }

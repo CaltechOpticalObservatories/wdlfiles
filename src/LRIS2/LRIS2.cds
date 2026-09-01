@@ -19,8 +19,8 @@ FRAMEMODE=2 //split frame top bottom
 
 
 //setup for reading thru all 4 outputs
-LINECOUNT= TOTAL_ROWS_PER_OUTPUT
-PIXELCOUNT= TOTAL_COLS_PER_OUTPUT
+LINECOUNT= RO_ROWS
+PIXELCOUNT= RO_COLS
 
 #define USE_BOTH
 

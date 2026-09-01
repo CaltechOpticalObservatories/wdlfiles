@@ -32,6 +32,25 @@ WAVEFORM LineStart {
 }
 
 
+WAVEFORM LoopbackIndicateIdle {
+0:  SET INTG_LB to 0;
+    SET RO_LB TO 0;
+    SET IDLE_LB TO 1;
+}
+
+WAVEFORM LoopbackIndicateIntg{
+0:  SET INTG_LB to 1;
+    SET RO_LB TO 0;
+    SET IDLE_LB TO 0;
+}
+
+WAVEFORM LoopbackIndicateRO{
+0:  SET INTG_LB to 0;
+    SET RO_LB TO 1;
+    SET IDLE_LB TO 0;
+}
+
+
 
 
 

@@ -6,6 +6,21 @@
 #define LINE 0:3
 #define PIXEL 0:4
 
+//GPIO
+#define NOP 12:1 //unused GPIO on heaterx
+
+
+//NOTE need empty line following line trailing comment in WDL1 because oF COURSE YOU DO!
+
+#define CLAMP_OUT 12:4 //CLAMP_OUT_GPIO signal
+
+#define INTG_LB 12:3 //indication that we're integrating
+
+#define RO_LB 12:5 //indication that we're reading out
+
+#define IDLE_LB 12:6 //indication that we're looping waiting on commands
+
+
 
 //parallel clocks
 #define A1 [A1x, A1y]
