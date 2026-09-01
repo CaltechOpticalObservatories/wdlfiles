@@ -163,12 +163,12 @@ SLOT 11 heaterx {
 
   //SENSOR [type, current, low lim, high lim, filter]
      //sensor A (detector on board)
-   SENSOR A [4, 0.0, -150.0, 50.0, 0];
+   SENSOR A [4, 10000.0, -150.0, 50.0, 0] "Detector on-board";
    
    //sensor B (getter cold plate)
-   SENSOR B [4, 0.0, -150.0, 50.0, 0];
+   SENSOR B [4, 10000.0, -150.0, 50.0, 0] "Getter cold plate";
   //sensor C (cryostat wall at cryocooler end)
-   SENSOR C [4, 0.0, -150.0, 50.0, 0];
+   SENSOR C [4, 10000.0, -150.0, 50.0, 0] "Cryostat wall - cryocooler end";
    
 
    //GPIO 1 is Bonn shutter error state
@@ -192,13 +192,13 @@ SLOT 12 heaterx {
      
 
      //sensor A (cryocooler side of getter heat strap)
-     SENSOR A [4, 0.0, -150.0, 50.0, 0];
+     SENSOR A [4, 10000.0, -150.0, 50.0, 0] "Heat strap - cryocooler side";
     
      //sensor B (getter side of getter heat strap)
-     SENSOR B [4, 0.0, -150.0, 50.0, 0];
+     SENSOR B [4, 10000.0, -150.0, 50.0, 0] "Heat strap - Getter side";
 
      //sensor C (cryostat walll at detector end)
-     SENSOR C [4, 0.0, -150.0, 50.0, 0];
+     SENSOR C [4, 10000.0, -150.0, 50.0, 0] "Cryostat wall - detector end";
 
      //output GPIO signals
      DIO 4 [2, 1] "GPIO clamp signal";
