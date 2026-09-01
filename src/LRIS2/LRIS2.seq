@@ -1,4 +1,14 @@
 
+#define NROWS 2040
+#define POSCAN_ROWS 20
+
+#define NCOLS 2040
+#define PSCAN_COLS 4
+#define OSCAN_COLS 20
+
+#define RO_ROWS #eval NROWS + POSCAN_ROWS
+#define RO_COLS #eval NCOLS + PSCAN_COLS + OSCAN_COLS
+
 
 param etime_dark_ms = 0
 param etime_dark_s = 0
@@ -12,7 +22,10 @@ param run_illum_trig = 0
 param framecount = 0
 param abort_integration = 0
 
+
 SEQUENCE StartSeq {
+  resetFrameCount();
+
   //Q: should we close shutter even if not running with shutter?
    cshutter();
    trig_off();
@@ -21,9 +34,20 @@ SEQUENCE StartSeq {
    RETURN; //only here to keep WDL happy
 }
 
+SEQUENCE resetFrameCount {
+   if framecount frameCountDecrContinue();
+   RETURN;
+}
+
+SEQUENCE frameCountDecrContinue {
+   framecount--;
+   GOTO resetFrameCount();
+}
+
+
 
 SEQUENCE RunSeq {
-   if framecount IntegrateAndReadout();
+   if framecount IntegrateAndReadout(framecount);
    GOTO RunSeq();
 
 }
@@ -31,8 +55,25 @@ SEQUENCE RunSeq {
 
 SEQUENCE IntegrateAndReadout {
    Integrate();
+   dummyReadout();
    RETURN;
 }
+
+SEQUENCE dummyReadout {
+  dummyLineReadout(RO_ROWS);
+
+  RETURN;
+ 
+}
+
+SEQUENCE dummyLineReadout {
+   dummyPixelReadout(RO_COLS);
+   RETURN; 
+}
+
+
+
+
 
 SEQUENCE Wait1s {
   if abort_integration AbortSeq();
@@ -46,11 +87,13 @@ SEQUENCE AbortSeq {
 
 }
 
+
+
 SEQUENCE Integrate {
   if run_shutter oshutter();
   if run_illum_trig trig_on();
   Wait1s(etime_illum_s);
-  Wait1s(etime_illum_ms);
+  Wait1ms(etime_illum_ms);
 
   if run_shutter cshutter();
   if run_illum_trig trig_off();
@@ -58,4 +101,5 @@ SEQUENCE Integrate {
   Wait1s(etime_dark_s);
   Wait1ms(etime_dark_ms);
   RETURN;
-} 
+}
+

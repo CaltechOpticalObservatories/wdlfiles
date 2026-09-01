@@ -22,11 +22,30 @@ FRAMEMODE=2 //split frame top bottom
 LINECOUNT= TOTAL_ROWS_PER_OUTPUT
 PIXELCOUNT= TOTAL_COLS_PER_OUTPUT
 
+#define USE_BOTH
 
 
-#define USE_ADM
+#ifdef USE_BOTH 
 
-#ifdef USE_ADM
+TAPLINE0="AM16L,1,100" //tapline a
+
+TAPLINE1="AM36R,1,100" //tapline b
+
+TAPLINE2="AM32L,1,100" //tapline d
+
+TAPLINE3="AM30R,1,100" //tapline c
+
+
+TAPLINE4="AD7L,1,100" //tapline a
+
+TAPLINE5="AD8R,1,100" //tapline b
+
+TAPLINE6="AD6L,1,100" //tapline d
+
+TAPLINE7="AD5R,1,100" //tapline c
+
+
+#elif  defined(USE_ADM)
 
 TAPLINE0="AM16L,1,100" //tapline a
 
@@ -47,3 +66,11 @@ TAPLINE3="AD5R,1,100" //tapline c
 
 
 #endif
+
+
+//dummy values for now
+SHP1=50
+SHP2=100
+SHP3=101
+SHP4=151
+
