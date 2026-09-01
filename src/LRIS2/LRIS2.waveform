@@ -21,3 +21,26 @@ WAVEFORM trig_on {
 WAVEFORM trig_off{
 0: SET TRIG_OUT to 0;
 }
+
+WAVEFORM FrameStart {
+0: SET FRAME TO HIGH;
+}
+
+
+WAVEFORM LineStart {
+0: SET LINE TO HIGH;
+}
+
+
+
+
+
+WAVEFORM dummyPixelReadout {
+0: SET PIXEL TO HIGH;
+.+1: SET FRAME TO LOW;
+    SET LINE TO LOW;
+    SET PIXEL TO LOW;
+
+
+.+200: SET NOP TO HIGH;
+}
