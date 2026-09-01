@@ -22,6 +22,7 @@ FRAMEMODE=2 //split frame top bottom
 LINECOUNT= RO_ROWS
 PIXELCOUNT= RO_COLS
 
+//NOTE: it looks like this currently isn't supported by archon firmware. Talk to Greg about
 #define USE_BOTH
 
 
@@ -29,11 +30,11 @@ PIXELCOUNT= RO_COLS
 
 TAPLINE0="AM16L,1,100" //tapline a
 
-TAPLINE1="AM36R,1,100" //tapline b
+TAPLINE1="AM18R,1,100" //tapline b
 
-TAPLINE2="AM32L,1,100" //tapline d
+TAPLINE2="AM12L,1,100" //tapline d
 
-TAPLINE3="AM30R,1,100" //tapline c
+TAPLINE3="AM14R,1,100" //tapline c
 
 
 TAPLINE4="AD7L,1,100" //tapline a
@@ -44,16 +45,20 @@ TAPLINE6="AD6L,1,100" //tapline d
 
 TAPLINE7="AD5R,1,100" //tapline c
 
+TAPLINES=8
+
 
 #elif  defined(USE_ADM)
 
 TAPLINE0="AM16L,1,100" //tapline a
 
-TAPLINE1="AM36R,1,100" //tapline b
+TAPLINE1="AM18R,1,100" //tapline b
 
-TAPLINE2="AM32L,1,100" //tapline d
+TAPLINE2="AM12L,1,100" //tapline d
 
-TAPLINE3="AM30R,1,100" //tapline c
+TAPLINE3="AM14R,1,100" //tapline c
+
+TAPLINES=4
 
 #else
 TAPLINE0="AD7L,1,100" //tapline a
@@ -64,6 +69,8 @@ TAPLINE2="AD6L,1,100" //tapline d
 
 TAPLINE3="AD5R,1,100" //tapline c
 
+TAPLINES=4
+
 
 #endif
 
@@ -71,6 +78,6 @@ TAPLINE3="AD5R,1,100" //tapline c
 //dummy values for now
 SHP1=50
 SHP2=100
-SHP3=101
-SHP4=151
+SHD1=101
+SHD2=151
 
