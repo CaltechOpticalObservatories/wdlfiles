@@ -56,7 +56,7 @@ SEQUENCE dummyReadout {
   FrameStart();
   LoopbackIndicateRO();
   dummyLineReadout(RO_ROWS);
-
+  framecount--;
   RETURN;
  
 }
