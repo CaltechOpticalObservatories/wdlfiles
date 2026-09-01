@@ -53,6 +53,7 @@ SEQUENCE IntegrateAndReadout {
 }
 
 SEQUENCE dummyReadout {
+  FrameStart();
   LoopbackIndicateRO();
   dummyLineReadout(RO_ROWS);
 
@@ -61,11 +62,10 @@ SEQUENCE dummyReadout {
 }
 
 SEQUENCE dummyLineReadout {
+   LineStart();
    dummyPixelReadout(RO_COLS);
    RETURN; 
 }
-
-
 
 
 

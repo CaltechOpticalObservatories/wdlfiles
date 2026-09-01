@@ -2,7 +2,7 @@
 
 
 WAVEFORM Wait1ms {
-0: SET NOP TO HIGH;
+0: SET NOP TO 1;
 .+1ms: RETURN;
 }
 
@@ -23,12 +23,12 @@ WAVEFORM trig_off{
 }
 
 WAVEFORM FrameStart {
-0: SET FRAME TO HIGH;
+0: SET FRAME TO 1;
 }
 
 
 WAVEFORM LineStart {
-0: SET LINE TO HIGH;
+0: SET LINE TO 1;
 }
 
 
@@ -52,14 +52,12 @@ WAVEFORM LoopbackIndicateRO{
 
 
 
-
-
 WAVEFORM dummyPixelReadout {
-0: SET PIXEL TO HIGH;
-.+1: SET FRAME TO LOW;
-    SET LINE TO LOW;
-    SET PIXEL TO LOW;
+0: SET PIXEL TO 1;
+.+1: SET FRAME TO 0;
+    SET LINE TO 0;
+    SET PIXEL TO 0;
 
 
-.+200: SET NOP TO HIGH;
+.+200: SET NOP TO 1;
 }
