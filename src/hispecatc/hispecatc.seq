@@ -19,9 +19,8 @@ param exptime=0
 param longexposure=0 /* s|ms . To have exposure time longer than ~20min */
 param Abort=0
 param freerun=0
-param mode_FreerunRX=0
-param mode_FreerunRXR=0
 param mode_UTR_RR=0
+param guiding=0
 param mode_UTR_GR=0
 param mode_EnhancedRollingReset=0
 param mode_RX=0
@@ -123,8 +122,6 @@ GOTO IdleReadout();     /* GOTO instead of CALL to limit call depth */
 SEQUENCE SelectMode {
 if mode_UTR_RR          UTR_RR_Sequence();
 if mode_UTR_GR          UTR_GR_Sequence();
-if mode_FreerunRX       FreerunRX_Sequence();
-if mode_FreerunRXR      FreerunRXR_Sequence();
 if mode_RX              RX_Sequence();
 if mode_RXR             RXR_Sequence();
 if mode_PermanentReset  PGR_Sequence();
@@ -132,43 +129,6 @@ if mode_EnhancedRollingReset  EnhancedRR_Sequence();
 if exp_PulseWhileGlobReset    Persistence_PulseGlobalReset();
 if mode_Guiding         Guiding_Sequence();
 GOTO WaitForExpose();
-}
-
-/******** Freerun RX and RXR ****************/
-SEQUENCE FreerunRX_Sequence {
-if freerun  FreerunRX_GrabFrame();
-if Abort    AbortSeq();
-GOTO FreerunRX_Sequence();
-}
-
-SEQUENCE FreerunRX_GrabFrame {
-wFrame();
-StartFrame();
-StartRow();
-RR_SkipRow(H2RG_rows_skip);
-RX_ReadRow(H2RG_rows);
-PulseVCLK();
-ExposureTimer();
-DecreaseExposeCount(1000);
-return;
-}
-
-SEQUENCE FreerunRXR_Sequence {
-if freerun  FreerunRXR_GrabFrame();
-if Abort    AbortSeq();
-GOTO FreerunRXR_Sequence();
-}
-
-SEQUENCE FreerunRXR_GrabFrame {
-wFrame();
-StartFrame();
-StartRow();
-RR_SkipRow(H2RG_rows_skip);
-RXR_ReadRow(H2RG_rows);
-PulseVCLK();
-ExposureTimer();
-DecreaseExposeCount(1000);
-return;
 }
 
 /******** Up The Ramp ROLLING RESET *********/
@@ -251,7 +211,7 @@ return;
 /****  RX -- Read then Reset per row ***/
 
 SEQUENCE RX_Sequence {
-if Expose     RX_GrabFrame();
+RX_GrabFrame();
 if Abort      AbortSeq();
 if freerun    GOTO RX_Sequence();
 GOTO WaitForExpose();
@@ -260,7 +220,7 @@ GOTO WaitForExpose();
 SEQUENCE RX_GrabFrame {
 wFrame();
 StartFrame();
-RR_SkipRow(H2RG_rows_skip);
+if H2RG_rows_skip  RR_SkipRow(H2RG_rows_skip);
 RX_ReadRow(H2RG_rows);
 PulseVCLK();
 ExposureTimer();
@@ -284,8 +244,9 @@ return;
 /****  RXR -- Read, Reset then Read again per row ***/
 
 SEQUENCE RXR_Sequence {
-if Expose   RXR_GrabFrame();
-if Abort    GOTO AbortSeq();
+RXR_GrabFrame();
+if Abort      AbortSeq();
+if freerun    GOTO RXR_Sequence();
 GOTO WaitForExpose();
 }
 
