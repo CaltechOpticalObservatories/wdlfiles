@@ -19,9 +19,8 @@ param exptime=0
 param longexposure=0 /* s|ms . To have exposure time longer than ~20min */
 param Abort=0
 param freerun=0
-param mode_FreerunRX=0
-param mode_FreerunRXR=0
 param mode_UTR_RR=0
+param guiding=0
 param mode_UTR_GR=0
 param mode_EnhancedRollingReset=0
 param mode_RX=0
@@ -39,9 +38,13 @@ param H2RGMainReset=0 /*We use this to reset the H2RG internal register to its d
 param EnhancedRR_Delta=100
 param Hold4Programming=0
 param WindowPixelNb=100
+param reset_while_idling=1 /*flag to decide whether to row-by-row reset when the detector is idling*/
 param prv_flag_reset=0 /* We use this to reset only the first frame of an UTR sequence*/
-param prv_ghostframe=0 /* We use this to readout a frame out of the detector without storing pixels to buffer */
-param prv_firstrow=0
+param const_prv_total_rows=2048
+param const_prv_total_columns=512
+param prv_started_idle_readout=0 /*flag to make sure we only start the idle readout sequence once when we start idling and not at every row in the event of a quick exit*/
+param prv_idle_counter=0 
+
 
 /** ---------------------------------------------------------------------------
  * @fn     SetupHxRG
@@ -50,15 +53,16 @@ param prv_firstrow=0
  */
 SEQUENCE Init {
  /* Powert UP, manages the MainResetB sequence and leave the detector in defautl operation mode. */
- InitClocks();
- wCLKEn();
+InitClocks();
+wCLKEn();
 ResetRegistersDefault();
-if Start GOTO WaitForExpose();
+if Start                GOTO WaitForExpose();
 GOTO Init();
 }
+
 SEQUENCE ResetRegHxRG {
 ResetRegistersDefault();
-H2RGMainReset--;
+if H2RGMainReset Dec_H2RGMainReset(); /*implicitly always more than 0 by call*/
 return;
 }
 
@@ -66,63 +70,65 @@ return;
  * @fn	    WaitForExposure
  * @brief   Here we wait until the host asks for an image
  */
-
 SEQUENCE WaitForExpose {
-if Expose        SelectMode();
-if H2RGMainReset ResetRegHxRG();
-  GOTO WaitForExpose();
-}
+if Expose               GOTO SelectMode();
+if H2RGMainReset        ResetRegHxRG();
 
-SEQUENCE SelectMode {
-if mode_UTR_RR     UTR_RR_Sequence();
-if mode_UTR_GR     UTR_GR_Sequence();
-if mode_FreerunRX  FreerunRX_Sequence();
-if mode_FreerunRXR FreerunRXR_Sequence();
-if mode_RX    RX_Sequence();
-if mode_RXR   RXR_Sequence();
-if mode_PermanentReset  PGR_Sequence();
-if mode_EnhancedRollingReset EnhancedRR_Sequence();
-if exp_PulseWhileGlobReset Persistence_PulseGlobalReset();
-if mode_Guiding Guiding_Sequence();
+if reset_while_idling   IdleReadout();
 GOTO WaitForExpose();
 }
 
-/******** Freerun RX and RXR ****************/
-SEQUENCE FreerunRX_Sequence {
-if freerun  FreerunRX_GrabFrame();
-if Abort    AbortSeq();
-GOTO FreerunRX_Sequence();
-}
+/*
+  * @fn	    IdleReadout
+  * @brief   This sequence is used to read out the detector while it is idling without triggering the frame, line, or pixel signals. This is useful to avoid the build up of charge that could overflow the detector when it is idling for a long time. It can is enabled by the reset_while_idling flag
+*/
+SEQUENCE IdleReadout {
+/* we use the prv_started_idle_readout flag to ensure we only start the idle readout sequence once. We need this because we call this IdleReadout sequence multiple times while idling due to the fact that IdleReadout and IdleReadoutRow use GOTO statement to limit call depth. 
 
-SEQUENCE FreerunRX_GrabFrame {
-if !prv_ghostframe  wFrame();
-StartFrame();
-StartRow();
-RR_SkipRow(H2RG_rows_skip);
-RX_ReadRow(H2RG_rows);
-PulseVCLK();
-ExposureTimer();
-if !prv_ghostframe  DecrExposeCpt(1000);
+Anyways, we do a couple things here:
+
+1. send the start frame signals to the detector. This does not trigger the archon to start a frame!
+
+2. we increment a counter to equal the number of rows in the detector so that we know when we're done reading out after multiple function calls.
+
+3. we set a flag to indicate that the idle readout sequence has started.
+*/
+if !prv_started_idle_readout  StartFrame();
+if !prv_started_idle_readout  Inc_prv_idle_counter(const_prv_total_rows);
+if !prv_started_idle_readout  Inc_prv_started_idle_readout();
+Dec_prv_idle_counter();
+/* if someone wants an exposure, we make sure to escape quickly! We quickly decrement the number of rows left (while making sure to check that we're not underflowing).*/
+if Expose                     Test_Dec_prv_idle_counter(const_prv_total_rows);
+/* if we are still idling, we keep reading out row by row until we have read out the whole detector */
+if prv_idle_counter           GOTO IdleReadoutRow();
+/* if we are done reading out, we tell the detector to reset its vertical shift register and reset our start flag */
+if !prv_idle_counter          PulseVCLK();
+if !prv_idle_counter          Test_Dec_prv_started_idle_readout();
 return;
 }
 
-SEQUENCE FreerunRXR_Sequence {
-if freerun  FreerunRXR_GrabFrame();
-if Abort    AbortSeq();
-GOTO FreerunRXR_Sequence();
+SEQUENCE IdleReadoutRow { 
+StartRow();             /* send the horizontal shift register reset signal to the detector */
+wReadEN();              /* tell it we're ready to read */
+ReadPixel_Blank(2);     /* copy the internal delay thing that we do in real modes for consistent frame readout timing */
+ReadPixel_Blank(const_prv_total_columns); /* fake read all the pixels */
+ResetPulse();           /* Reset Pulse after reading out the row */
+wbHclk();               
+wbReadEN();             
+GOTO IdleReadout();     /* GOTO instead of CALL to limit call depth */
 }
 
-SEQUENCE FreerunRXR_GrabFrame {
-if !prv_ghostframe  wFrame();
-StartFrame();
-StartRow();
-prv_firstrow++;
-if H2RG_rows_skip   RR_SkipRow(H2RG_rows_skip);
-RXR_ReadRow(H2RG_rows);
-PulseVCLK();
-ExposureTimer();
-if !prv_ghostframe  DecrExposeCpt(1000);
-return;
+
+SEQUENCE SelectMode {
+if mode_UTR_RR          UTR_RR_Sequence();
+if mode_UTR_GR          UTR_GR_Sequence();
+if mode_RX              RX_Sequence();
+if mode_RXR             RXR_Sequence();
+if mode_PermanentReset  PGR_Sequence();
+if mode_EnhancedRollingReset  EnhancedRR_Sequence();
+if exp_PulseWhileGlobReset    Persistence_PulseGlobalReset();
+if mode_Guiding         Guiding_Sequence();
+GOTO WaitForExpose();
 }
 
 /******** Up The Ramp ROLLING RESET *********/
@@ -133,14 +139,14 @@ GOTO WaitForExpose();
 }
 
 SEQUENCE UTR_RR_GrabFrame {
-Expose--;Expose--;
-if !prv_flag_reset ExposureTimer(); /* Do not expose before the first frame*/
+if Expose           Dec_Expose();
+if !prv_flag_reset  ExposureTimer();     /* Do not expose before the first frame*/
 wFrame();
 StartFrame();
 RR_SkipRow(H2RG_rows_skip);
 RR_ReadRow(H2RG_rows);
 PulseVCLK();
-prv_flag_reset--;
+if prv_flag_reset   Dec_prv_flag_reset();
 return;
 }
 
@@ -148,9 +154,9 @@ SEQUENCE RR_ReadRow {
 wLine();
 StartRow();
 wReadEN();
-if prv_flag_reset ResetPulse();
-if !prv_flag_reset ResetPulse_Dummy();
-ReadPixel_Blank(2); /*Needs two extra pixels because of the internal delay.*/
+if prv_flag_reset   ResetPulse();
+if !prv_flag_reset  ResetPulse_Dummy();
+ReadPixel_Blank(2);               /*Needs two extra pixels because of the internal delay.*/
 ReadPixel(H2RG_columns);
 wbHclk();
 wbReadEN();
@@ -159,8 +165,8 @@ return;
 
 SEQUENCE RR_SkipRow {
 StartRow();
-wDelay10us();
-if prv_flag_reset ResetPulse(); /* In RR, we pulse rows we don;t read to avoid build up that could overflow */
+wDelay1us();
+if prv_flag_reset   ResetPulse();   /* In RR, we pulse rows we don;t read to avoid build up that could overflow */
 return;
 }
 
@@ -181,13 +187,13 @@ GOTO WaitForExpose();
 
 
 SEQUENCE UTR_GR_GrabFrame {
-Expose--;
+if Expose           Dec_Expose();
 wFrame();
 StartFrame();
-PulseVCLK();         /* Not documented but have to add 1 pulse to start from 1 and not 0 apparently*/
+PulseVCLK();        /* Not documented but have to add 1 pulse to start from 1 and not 0 apparently*/
 GR_ReadRow(2048);
 PulseVCLK();
-prv_flag_reset--;
+if prv_flag_reset   Dec_prv_flag_reset();
 return;
 }
 
@@ -195,30 +201,30 @@ SEQUENCE GR_ReadRow {
 wLine();
 StartRow();
 wReadEN();
-ReadPixel_Blank(2); /*Needs two extra pixels because of the internl delay.*/
+ReadPixel_Blank(2);   /*Needs two extra pixels because of the internl delay.*/
 ReadPixel(64);
-wbHclk(); /*Lower HCLK to start the next row in good condition*/
+wbHclk();             /*Lower HCLK to start the next row in good condition*/
 wbReadEN();
 return;
 }
 
-/****  RX -- Read then Reeset per row ***/
+/****  RX -- Read then Reset per row ***/
 
 SEQUENCE RX_Sequence {
-if Expose RX_GrabFrame();
-if Abort  AbortSeq();
-if freerun GOTO RX_Sequence();
+RX_GrabFrame();
+if Abort      AbortSeq();
+if freerun    GOTO RX_Sequence();
 GOTO WaitForExpose();
 }
 
 SEQUENCE RX_GrabFrame {
-if !prv_ghostframe wFrame(); /* We save the pixels only not during idling */
+wFrame();
 StartFrame();
-RR_SkipRow(H2RG_rows_skip);
+if H2RG_rows_skip  RR_SkipRow(H2RG_rows_skip);
 RX_ReadRow(H2RG_rows);
 PulseVCLK();
 ExposureTimer();
-if !prv_ghostframe DecrExposeCpt();
+DecreaseExposeCount();
 return;
 }
 
@@ -226,9 +232,10 @@ SEQUENCE RX_ReadRow {
 wLine();
 StartRow();
 wReadEN();
-ReadPixel_Blank(2); /*Needs two extra pixels because of the internl delay.*/
+ReadPixel_Blank(2);   /*Needs two extra pixels because of the internal delay.*/
 ReadPixel(H2RG_columns);
-ResetPulse(); /* Reset Pulse after reading out the row */
+ReadPixel_Blank(1); /*ashley added this to fix last pixel reset issue but need a detector person to check!*/
+ResetPulse();         /* Reset Pulse after reading out the row */
 wbHclk();
 wbReadEN();
 return;
@@ -238,32 +245,31 @@ return;
 /****  RXR -- Read, Reset then Read again per row ***/
 
 SEQUENCE RXR_Sequence {
-if Expose RXR_GrabFrame();
-if Abort GOTO AbortSeq();
+RXR_GrabFrame();
+if Abort      AbortSeq();
+if freerun    GOTO RXR_Sequence();
 GOTO WaitForExpose();
 }
 
 SEQUENCE RXR_GrabFrame {
-if !prv_ghostframe wFrame();
+wFrame();
 StartFrame();
-StartRow();
-prv_firstrow++;
 RR_SkipRow(H2RG_rows_skip);
 RXR_ReadRow(H2RG_rows);
 PulseVCLK();
 ExposureTimer();
-if !prv_ghostframe DecrExposeCpt();
+DecreaseExposeCount();
 return;
 }
 
 SEQUENCE RXR_ReadRow {
 wLine();
 StartRow();
-prv_firstrow--;
 wReadEN();
-ReadPixel_Blank(2); /*Needs two extra pixels because of the internl delay.*/
+ReadPixel_Blank(2);           /*Needs two extra pixels because of the internal delay.*/
 ReadPixel(H2RG_columns);
-ResetPulse(); /* Reset Pulse after reading out the row */
+ReadPixel_Blank(1); /*ashley added this to fix last pixel reset issue but need a detector person to check!*/
+ResetPulse();                 /* Reset Pulse after reading out the row */
 LSyncBPulse();
 ReadPixel_Blank(1);
 ReadPixel(H2RG_columns);
@@ -276,9 +282,9 @@ return;
 /******** Persistence experiment -- Light Pulse while Global Reset ***********/
 SEQUENCE Persistence_PulseGlobalReset{
 wResetEN();
-UTR_GR_GrabFrame(10); /* Grab 10 frames while global reset */
+UTR_GR_GrabFrame(10);         /* Grab 10 frames while global reset */
 wbResetEN();
-UTR_GR_GrabFrame(100); /* Grabe 100 regular frames */
+UTR_GR_GrabFrame(100);        /* Grabe 100 regular frames */
 return;
 }
 
@@ -292,7 +298,7 @@ GOTO WaitForExpose();
 }
 
 SEQUENCE EnhancedRR_GrabFrame {
-Expose--;
+if Expose   Dec_Expose();           /*implicitly should never be 0 because of call condition*/
 wFrame();
 /*somehow, lower FSYNCB for Delta rows and then rise it for 2048-Delta rows*/
 wbFSyncB();
@@ -309,13 +315,13 @@ wbVReadEdge();          /* Lower VReadEdge to read from rising edge on the verti
 LSyncBPulse();          /*reset pixel counter (still in normal mode)*/
 wReadEN();
 ResetPulse();
-    ReadPixel_Blank(1); /*Needs two extra pixels because of the internl delay.*/
-    ReadPixel(64);
+ReadPixel_Blank(1);     /*Needs two extra pixels because of the internal delay.*/
+ReadPixel(64);
 
 wVReadEdge();           /* Higher VReadEdge to read from falling edge on the vertical register */
 LSyncBPulse();          /*reset pixel counter*/
-    ReadPixel_Blank(1); /*Needs two extra pixels because of the internl delay.*/
-    ReadPixel(64);
+ReadPixel_Blank(1);     /*Needs two extra pixels because of the internal delay.*/
+ReadPixel(64);
 wbReadEN();
 return;
 }
@@ -324,13 +330,13 @@ return;
 /******** Guiding Only Mode *********/
 
 SEQUENCE Guiding_Sequence {
-if Expose  GrabWindow();
 if Abort    AbortSeq();
-GOTO Guiding_Sequence();
+if freerun  GOTO Guiding_Sequence();
+GOTO WaitForExpose();
 }
 
 SEQUENCE GrabWindow {
-Expose--;
+if Expose   Dec_Expose();   /*implicitly cannot be 0 because of call condition, check anyway*/
 wFrame();
 StartFrame();
 WinRX_ReadRow(H2RG_rows);
@@ -343,9 +349,9 @@ SEQUENCE WinRX_ReadRow {
 wLine();
 StartRow();
 wReadEN();
-ReadPixel_Blank(2); /*Needs two extra pixels because of the internl delay.*/
+ReadPixel_Blank(2);     /*Needs two extra pixels because of the internl delay.*/
 ReadPixel(H2RG_columns);
-ResetPulse(); /* Reset Pulse after reading out the row */
+ResetPulse();           /* Reset Pulse after reading out the row */
 wbHclk();
 wbReadEN();
 return;
@@ -356,9 +362,9 @@ return;
  */
 
 SEQUENCE ExposureTimer {
-if longexposure    Sec(exptime);  /*If longexposure, counts in s*/
-if !longexposure   MilliSec(exptime); /*If shortexposure, counts in ms*/
-if Abort GOTO AbortSeq();
+if longexposure     Sec(exptime);      /*If longexposure, counts in s*/
+if !longexposure    MilliSec(exptime); /*If shortexposure, counts in ms*/
+if Abort            GOTO AbortSeq();
 return;
 }
 
@@ -368,29 +374,98 @@ return;
 }
 
 SEQUENCE Sec {
-  wDelay1ms(1000);	
-if Abort GOTO AbortSeq();
-  return;
+wDelay1ms(1000);	
+if Abort            GOTO AbortSeq();
+return;
 }
 
-SEQUENCE AbortSeq{
-freerun--;
-DecrExposeCpt(1000);
+SEQUENCE AbortSeq{                    /*check for value to prevent underflow*/
+if freerun          Dec_freerun();
+DecreaseExposeCount(1000);
 InitResetCpt(100);
-mode_RX--;
-mode_RXR--;
-mode_Guiding--;
-Abort--;
+if mode_RX          Dec_mode_RX();
+if mode_RXR         Dec_mode_RXR();
+if mode_Guiding     Dec_mode_Guiding();
+if Abort            Dec_Abort();
 GOTO WaitForExpose();
 }
 
-SEQUENCE DecrExposeCpt {
-Expose--;
+SEQUENCE DecreaseExposeCount {
+if Expose   Dec_Expose();                   /*make sure that expose can't underflow*/
 return;
 } 
 
-SEQUENCE InitResetCpt {
-prv_flag_reset--;
+SEQUENCE Dec_Expose {
+Expose--;
 return;
 }
 
+SEQUENCE InitResetCpt {
+if prv_flag_reset Dec_prv_flag_reset();   /*make sure that the prv_flag_reset param can't underflow*/
+return;
+}
+
+SEQUENCE Dec_prv_flag_reset {
+  prv_flag_reset--;
+  return;
+}
+
+SEQUENCE Dec_mode_RX {
+  mode_RX--;
+  return;
+}
+
+SEQUENCE Dec_mode_RXR {
+  mode_RXR--;
+  return;
+}
+
+SEQUENCE Dec_mode_Guiding {
+  mode_Guiding--;
+  return;
+}
+
+SEQUENCE Dec_freerun {
+  freerun--;
+  return;
+}
+
+SEQUENCE Dec_Abort {
+  Abort--;
+  return;
+}
+
+SEQUENCE Dec_H2RGMainReset {
+  H2RGMainReset--;
+  return;
+}
+
+SEQUENCE Inc_prv_idle_counter {
+  prv_idle_counter++;
+  return;
+}
+
+SEQUENCE Test_Dec_prv_idle_counter {
+  if prv_idle_counter  Dec_prv_idle_counter();
+  return;
+}
+
+SEQUENCE Dec_prv_idle_counter {
+  prv_idle_counter--;
+  return;
+}
+
+SEQUENCE Test_Dec_prv_started_idle_readout {
+  if prv_started_idle_readout  Dec_prv_started_idle_readout();
+  return;
+}
+
+SEQUENCE Inc_prv_started_idle_readout {
+  prv_started_idle_readout++;
+  return;
+}
+
+SEQUENCE Dec_prv_started_idle_readout {
+  prv_started_idle_readout--;
+  return;
+}
