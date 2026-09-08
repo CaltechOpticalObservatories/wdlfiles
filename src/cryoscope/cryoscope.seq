@@ -15,7 +15,7 @@
 param Start=0
 param Expose=0
 param ExposeWindow=0
-param exptime=0
+param exptime=0 /* ms or s depending on longexposure parameter. in high brightness mode, this becomes us*/
 param longexposure=0 /* s|ms . To have exposure time longer than ~20min */
 param Abort=0
 param mode_UTR_RR=1
@@ -23,6 +23,8 @@ param mode_UTR_GR=0
 param mode_EnhancedRollingReset=0
 param mode_VideoRX=0
 param mode_VideoRXR=0
+param mode_HighBrightnessXR=0
+param mode_HighBrightnessXRXR=0
 param mode_PermanentReset=0
 param mode_Guiding=0
 param mode_InterleavedGuiding=0
@@ -32,13 +34,16 @@ param H2RG_rows_skip=0
 param H2RG_columns=64
 param H2RG_win_rows=10
 param H2RG_win_columns=10
+param HighBrightnessRowResetInterval=0 /* In High Brightness mode, we can choose to reset rows at regular interval during the exposure to avoid saturation. This parameter sets the number of rows between each reset. If set to 0, the row is reset every line during the exposure */
 param H2RGMainReset=0 /*We use this to reset the H2RG internal register to its default values*/
 param EnhancedRR_Delta=100
 param Hold4Programming=0
 param WindowPixelNb=100
 param prv_flag_reset=0 /* We use this to reset only the first frame of an UTR sequence*/
 param prv_ghostframe=0 /* We use this to readout a frame out of the detector without storing pixels to buffer */
-
+param prv_firstrow=0
+param prv_HBRRI_counter=0 /* We use this to count the number of rows read since the last reset in High Brightness mode to know when to reset rows again*/
+param prv_ERR_DeltaCounter=0 /* the total rows minus the ERR_Delta*/
 /** ---------------------------------------------------------------------------
  * @fn     SetupHxRG
  * @brief  This executes on start-up and sets levels to initialize CMOS array.
@@ -49,6 +54,7 @@ SEQUENCE Init {
  InitClocks();
  wCLKEn();
 ResetRegistersDefault();
+
 if Start GOTO WaitForExpose();
 GOTO Init();
 }
@@ -66,11 +72,11 @@ return;
 SEQUENCE WaitForExpose {
 if Expose        SelectMode();
 if H2RGMainReset ResetRegHxRG();
-prv_ghostframe++;
-if mode_VideoRXR VideoRXR_GrabFrame();
-if mode_VideoRX VideoRX_GrabFrame();
-prv_ghostframe--;
-wResetEN();
+/*prv_ghostframe++;*/
+/*if mode_VideoRXR VideoRXR_GrabFrame();*/
+/*if mode_VideoRX VideoRX_GrabFrame();*/
+/*prv_ghostframe--;*/
+/*wResetEN();*/
   GOTO WaitForExpose();
 }
 
@@ -81,6 +87,8 @@ if mode_VideoRX    VideoRX_Sequence();
 if mode_VideoRXR   VideoRXR_Sequence();
 if mode_PermanentReset  PGR_Sequence();
 if mode_EnhancedRollingReset EnhancedRR_Sequence();
+if mode_HighBrightnessXR HighBrightnessXR_Sequence();
+if mode_HighBrightnessXRXR HighBrightnessXRXR_Sequence();
 if exp_PulseWhileGlobReset Persistence_PulseGlobalReset();
 if mode_Guiding Guiding_Sequence();
 GOTO WaitForExpose();
@@ -98,10 +106,15 @@ Expose--;Expose--;
 if !prv_flag_reset ExposureTimer(); /* Do not expose before the first frame*/
 wFrame();
 StartFrame();
+if prv_flag_reset ResetHI();
+if !prv_flag_reset ResetDummy();
+StartRow(); /* This extra pulse is required to get the right number of rows. Don't know why... */
 RR_SkipRow(H2RG_rows_skip);
 RR_ReadRow(H2RG_rows);
 PulseVCLK();
-prv_flag_reset--;
+if prv_flag_reset ResetLO();
+if !prv_flag_reset ResetDummy();
+prv_flag_reset--; /*TODO put check to ensure not less than zero; for now works*/
 return;
 }
 
@@ -109,8 +122,6 @@ SEQUENCE RR_ReadRow {
 wLine();
 StartRow();
 wReadEN();
-if prv_flag_reset ResetPulse();
-if !prv_flag_reset ResetPulse_Dummy();
 ReadPixel_Blank(2); /*Needs two extra pixels because of the internl delay.*/
 ReadPixel(H2RG_columns);
 wbHclk();
@@ -127,6 +138,7 @@ return;
 /******** Up The Ramp Global RESET *********/
 SEQUENCE UTR_GR_Sequence {
 prv_flag_reset++;
+ResetPulse();
 UTR_GR_GrabFrame(Expose);
 GOTO WaitForExpose();
 }
@@ -145,7 +157,7 @@ Expose--;
 wFrame();
 StartFrame();
 PulseVCLK();         /* Not documented but have to add 1 pulse to start from 1 and not 0 apparently*/
-GR_ReadRow(2048);
+GR_ReadRow(H2RG_rows);
 PulseVCLK();
 prv_flag_reset--;
 return;
@@ -174,6 +186,7 @@ GOTO VideoRX_Sequence();
 SEQUENCE VideoRX_GrabFrame {
 if !prv_ghostframe wFrame(); /* We save the pixels only not during idling */
 StartFrame();
+StartRow(); /* This extra pulse is required to get the right number of rows. Don't know why... */
 RR_SkipRow(H2RG_rows_skip);
 RX_ReadRow(H2RG_rows);
 PulseVCLK();
@@ -194,6 +207,41 @@ wbReadEN();
 return;
 }
 
+/**** High Brightness XR -- Reset then Read per row ***/
+
+SEQUENCE HighBrightnessXR_Sequence {
+if Expose HighBrightnessXR_GrabFrame();
+if Abort  AbortSeq();
+if !Expose GOTO WaitForExpose();
+GOTO HighBrightnessXR_Sequence();
+}
+
+SEQUENCE HighBrightnessXR_GrabFrame {
+if !prv_ghostframe wFrame(); /* We save the pixels only not during idling */
+StartFrame();
+StartRow(); /* This extra pulse is required to get the right number of rows. Don't know why... */
+RR_SkipRow(H2RG_rows_skip);
+HighBrightnessXR_ReadRow(H2RG_rows);
+PulseVCLK();
+if !prv_ghostframe DecrExposeCpt();
+return;
+}
+
+SEQUENCE HighBrightnessXR_ReadRow {
+wLine();
+StartRow();
+wReadEN();
+ReadPixel_Blank(2); /*Needs two extra pixels because of the internl delay.*/
+if !prv_HBRRI_counter ResetPulse(); /* Reset Pulse after reading out the row */
+if !prv_HBRRI_counter ExposureTimer_us(); /* In high brightness mode, the exptime is in us, so we start the timer after the reset pulse */
+if !prv_HBRRI_counter Inc_HBRRI_Counter(HighBrightnessRowResetInterval); /* We count the number of rows read since the last reset to know when to reset rows again*/
+if prv_HBRRI_counter Dec_HBRRI_Counter(1); /* We decrement the counter at each row, so that when it reaches 0, we reset rows and start the counter again*/
+ReadPixel(H2RG_columns);
+wbHclk();
+wbReadEN();
+return;
+}
+
 
 /**** VIDEO RXR -- Read, Reset then Read again per row ***/
 
@@ -207,7 +255,9 @@ GOTO VideoRXR_Sequence();
 SEQUENCE VideoRXR_GrabFrame {
 if !prv_ghostframe wFrame();
 StartFrame();
-RR_SkipRow(H2RG_rows_skip);
+StartRow(); /* This extra pulse is required to get the right number of rows. Don't know why... */
+prv_firstrow++;
+if H2RG_rows_skip RR_SkipRow(H2RG_rows_skip);
 RXR_ReadRow(H2RG_rows);
 PulseVCLK();
 ExposureTimer();
@@ -217,14 +267,56 @@ return;
 
 SEQUENCE RXR_ReadRow {
 wLine();
+/*if !prv_firstrow StartRow();*/
 StartRow();
+prv_firstrow--;
 wReadEN();
 ReadPixel_Blank(2); /*Needs two extra pixels because of the internl delay.*/
 ReadPixel(H2RG_columns);
 ResetPulse(); /* Reset Pulse after reading out the row */
 LSyncBPulse();
-ReadPixel_Blank(2);
+ReadPixel_Blank(1);
 ReadPixel(H2RG_columns);
+wbHclk();
+wbReadEN();
+return;
+}
+
+/**** High Brightness XRXR -- Reset then Read per row ***/
+
+SEQUENCE HighBrightnessXRXR_Sequence {
+if Expose HighBrightnessXRXR_GrabFrame();
+if Abort  AbortSeq();
+if !Expose GOTO WaitForExpose();
+GOTO HighBrightnessXRXR_Sequence();
+}
+
+SEQUENCE HighBrightnessXRXR_GrabFrame {
+if !prv_ghostframe wFrame(); /* We save the pixels only not during idling */
+StartFrame();
+StartRow(); /* This extra pulse is required to get the right number of rows. Don't know why... */
+RR_SkipRow(H2RG_rows_skip);
+HighBrightnessXRXR_ReadRow(H2RG_rows);
+PulseVCLK();
+if !prv_ghostframe DecrExposeCpt();
+return;
+}
+
+SEQUENCE HighBrightnessXRXR_ReadRow {
+wLine();
+StartRow();
+wReadEN();
+if !prv_HBRRI_counter ResetPulse(); /* Reset Pulse after reading out the row */
+if !prv_HBRRI_counter ExposureTimer_us(); /* In high brightness mode, the exptime is in us, so we start the timer after the reset pulse */
+if !prv_HBRRI_counter Inc_HBRRI_Counter(HighBrightnessRowResetInterval); /* We count the number of rows read since the last reset to know when to reset rows again*/
+if prv_HBRRI_counter Dec_HBRRI_Counter(1); /* We decrement the counter at each row, so that when it reaches 0, we reset rows and start the counter again*/
+ReadPixel_Blank(2); /*Needs two extra pixels because of the internl delay.*/
+ReadPixel(H2RG_columns);
+wResetEN();
+LSyncBPulse();
+ReadPixel_Blank(1);
+ReadPixel(H2RG_columns);
+wbResetEN();
 wbHclk();
 wbReadEN();
 return;
@@ -251,12 +343,17 @@ GOTO WaitForExpose();
 
 SEQUENCE EnhancedRR_GrabFrame {
 Expose--;
-wFrame();
+INC_ERR_DeltaCounter(H2RG_rows);
+DEC_ERR_DeltaCounter(EnhancedRR_Delta);
 /*somehow, lower FSYNCB for Delta rows and then rise it for 2048-Delta rows*/
 wbFSyncB();
 HDCRR_ReadRow(EnhancedRR_Delta);
 wFSyncB();
-HDCRR_ReadRow(1948);
+wFrame();
+HDCRR_ReadRow(prv_ERR_DeltaCounter);
+HDCRR_ReadRow(EnhancedRR_Delta);
+INC_ERR_DeltaCounter(EnhancedRR_Delta);
+DEC_ERR_DeltaCounter(H2RG_rows);
 return;
 }
 
@@ -267,13 +364,30 @@ wbVReadEdge();          /* Lower VReadEdge to read from rising edge on the verti
 LSyncBPulse();          /*reset pixel counter (still in normal mode)*/
 wReadEN();
 ResetPulse();
-    ReadPixel_Blank(1); /*Needs two extra pixels because of the internl delay.*/
-    ReadPixel(64);
+    ReadPixel_Blank(2); /*Needs two extra pixels because of the internl delay.*/
+    ReadPixel(H2RG_columns);
 
 wVReadEdge();           /* Higher VReadEdge to read from falling edge on the vertical register */
 LSyncBPulse();          /*reset pixel counter*/
-    ReadPixel_Blank(1); /*Needs two extra pixels because of the internl delay.*/
-    ReadPixel(64);
+    ReadPixel_Blank(2); /*Needs two extra pixels because of the internl delay.*/
+    ReadPixel(H2RG_columns);
+wbReadEN();
+return;
+}
+
+SEQUENCE HDCRR_ReadRow_Blank {
+PulseVCLK();            /* Clock FSYNCB into the serial register */
+wbVReadEdge();          /* Lower VReadEdge to read from rising edge on the vertical register */
+LSyncBPulse();          /*reset pixel counter (still in normal mode)*/
+wReadEN();
+ResetPulse();
+    ReadPixel_Blank(2); /*Needs two extra pixels because of the internl delay.*/
+    ReadPixel_Blank(H2RG_columns);
+
+wVReadEdge();           /* Higher VReadEdge to read from falling edge on the vertical register */
+LSyncBPulse();          /*reset pixel counter*/
+    ReadPixel_Blank(2); /*Needs two extra pixels because of the internl delay.*/
+    ReadPixel_Blank(H2RG_columns);
 wbReadEN();
 return;
 }
@@ -320,6 +434,17 @@ if Abort GOTO AbortSeq();
 return;
 }
 
+SEQUENCE ExposureTimer_us {
+MicroSec(exptime); /*If High Brightness mode, counts in us*/
+if Abort GOTO AbortSeq();
+return;
+}
+
+SEQUENCE MicroSec {
+  wDelay1us();
+  return;
+}
+
 SEQUENCE MilliSec {
   wDelay1ms();
   return;
@@ -348,6 +473,26 @@ return;
 
 SEQUENCE InitResetCpt {
 prv_flag_reset--;
+return;
+}
+
+SEQUENCE Inc_HBRRI_Counter {
+prv_HBRRI_counter++;
+return;
+}
+
+SEQUENCE Dec_HBRRI_Counter {
+prv_HBRRI_counter--;
+return;
+}
+
+SEQUENCE INC_ERR_DeltaCounter {
+prv_ERR_DeltaCounter++;
+return;
+}
+
+SEQUENCE DEC_ERR_DeltaCounter {
+prv_ERR_DeltaCounter--;
 return;
 }
 
