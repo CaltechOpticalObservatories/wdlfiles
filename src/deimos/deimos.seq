@@ -47,7 +47,7 @@ param integrate_illum_ms = 50 //amount of time to integrate with light on (ms co
 param integrate_illum_s = 0 //amount of time to integrate with light on (s component)
 param rg_mod_test_mode = 0 //go into special output V_RD modulation mode - EXPERTS ONLY
 param tdi_wait_us = 0 // add a TDI wait period to each llel readout in llel_seq mode (for "quickPTC")
-
+param tdi_illum = 0 // enable the shutter during TDI periods
 
   //internal summit mode state parameters
 param summit_sci_is_integrating = 0
@@ -319,14 +319,16 @@ SEQUENCE StartSeqEngModeFCS {
   if framecount SummitModeFCSIntegrate();
   framecount--;
   if !framecount SummitModeFCSLineFlush(_FCS_LINENUM);
-  GOTO StartSeqEngModeFCS();
+  if engmode_fcs GOTO StartSeqEngModeFCS();
+  GOTO SummitModeLoop();
 }
 
 SEQUENCE StartSeqEngMode {
   if framecount IntegrateAndReadout();
   if !framecount LineReadoutFast(TOTAL_ROWS);
   if rg_mod_test_mode TestBrokenReadout();
-   GOTO StartSeqEngMode();
+  if engmode GOTO StartSeqEngMode();
+  GOTO SummitModeLoop();
 }
 
 
@@ -382,7 +384,7 @@ SEQUENCE Integrate
   Wait1ms(integrate_illum_ms);
   Wait1s(integrate_illum_s);
   //but only close it if illumination (if
-  // doing TDI we need to close it later on)
+  // doing TDI we need to close it later on)if
   if illum CloseShutter();  
   Wait1ms(integrate_ms);
   Wait1s(integrate_s);
@@ -584,7 +586,6 @@ SEQUENCE FrameReadout
   Wait1us(50);
   //single serial read to flush the register
   DumpPixels(_AMPREADCOLS);
-  if tdi_wait_us OpenShutter();
 
   //read all image rows and the desired overscan
   //note these parameters are ALL mutually exclusive
@@ -594,7 +595,6 @@ SEQUENCE FrameReadout
   IF linbin LineReadout(LINBIN_MEAS);
   IF linbin LineReadoutFast(LINBIN_NOBIN_ROWS);
 
-  if tdi_wait_us CloseShutter();
   ReadoutEnd();
 
   //reset llel_bin value
@@ -659,16 +659,20 @@ SEQUENCE LineReadout
   //if we're doing a "linbin", increment llel_bin
   //by one for each line
   if linbin linbinincr();
-  
+
   //wait here is for the clamp to die down. Put some of it in prescan, but not all
   Wait1us(line_clamp_delay_us);
+
+
+  if tdi_illum OpenShutter();
+  if tdi_wait_us Wait1us(tdi_wait_us);
+  if tdi_illum CloseShutter();
 
   if enable_ser_bin ReadPixels(_SERIALPRESCAN);
   if enable_ser_bin SerBinReadPixels(_AMPCOLS);
   if enable_ser_bin ReadPixels(_SERIALOVERSCAN);
   if !enable_ser_bin ReadPixels(_AMPREADCOLS);
 
-  if tdi_wait_us Wait1us(tdi_wait_us);
   //if there are leftover pixels, do them here
    RETURN;
 }
@@ -688,7 +692,6 @@ SEQUENCE SerBinReadPixels
   RETURN;
 
 }
-
 
 
 SEQUENCE LineReadoutCoincident

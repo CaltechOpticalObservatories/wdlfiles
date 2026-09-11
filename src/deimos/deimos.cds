@@ -133,7 +133,7 @@ RAWSEL        = 11
 
 SHP1          = 200
 SHP2          = 447
-SHD1          = 536
+SHD1          = 535
 SHD2          = 831
 
   

@@ -108,8 +108,8 @@ SLOT 9 hvxbias {
   HVLC 18 [0.00,0];
   HVLC 19 [0.00,0];
   HVLC 20 [0.00,0];
-  HVLC 21 [17.00,1] "SCI2 E Reset Drain";
-  HVLC 22 [17.00,1] "SCI2 F Reset Drain";
+  HVLC 21 [17.5,1] "SCI2 E Reset Drain";
+  HVLC 22 [17.50,1] "SCI2 F Reset Drain";
   HVLC 23 [0.0,0];
   HVLC 24 [0.0,0]; //TODO: needs re-assignment!
   HVHC  1 [29.0,27.0,1,1] "SCI E Output Drain";
@@ -123,8 +123,8 @@ SLOT 9 hvxbias {
 SLOT 10 lvxbias {
    LVLC  1 [3.3,6] "LVDS Receiver Output Enable"; 
    LVLC  2 [00.0,0]; 
-   LVLC  3 [3.0,4] "SCI E Output Gate"; 
-   LVLC  4 [3.0,4] "SCI F Output Gate";
+   LVLC  3 [3.5,4] "SCI E Output Gate"; 
+   LVLC  4 [3.5,4] "SCI F Output Gate";
    LVLC  5 [0.0,0] ;  // NB goes through a line driver 
    LVLC  6 [0.0,0];  // NB goes through a line driver
    LVLC  7 [0.0,0];
@@ -135,8 +135,8 @@ SLOT 10 lvxbias {
 // NOTE: it seems last gate on FCS2 detector needs a bit more oomph
    LVLC 12 [-1.0,4] "LastGateA FCS 2"; 
    LVLC 13 [-1.0,4] "LastGateB FCS 2";
-   LVLC 14 [3.0,4] "SCI E Output Gate 2" ; 
-   LVLC 15 [3.0,4] "SCI F Output Gate 2"; 
+   LVLC 14 [3.5,4] "SCI E Output Gate 2" ; 
+   LVLC 15 [3.5,4] "SCI F Output Gate 2"; 
    LVLC 16 [0.0,0] ; 
    LVLC 17 [00.0,0];
    LVLC 18 [0.0,0] ;
@@ -144,7 +144,7 @@ SLOT 10 lvxbias {
    LVLC 20 [00.0,0]; 
    LVLC 21 [00.0,0]; 
    LVLC 22 [0.2,6] "Video offset FCS"; 
-   LVLC 23 [0.60,6] "Video offset SCI"; 
+   LVLC 23 [0.50,6] "Video offset SCI"; 
    LVLC 24 [0.50,6] "Video offset SCI2";
    LVHC  1 [2.00,20.0,5,1] "SCI Summing Well - Low";
    LVHC  2 [11.00,20.0,5,1] "SCI Summing Well - High";
@@ -174,7 +174,7 @@ SLOT 12 lvds {
   LVDSL 12 "AC_clamp";
   LVDSL 13 "SW_SCI4";
   LVDSL 14 "SW_SCI3";
-  LVDSL 15 "RG_SCI1";
+  LVDSL 15 "SW_SCI1";
   LVDSL 16 "SW_SCI2";
   DIO 1 [0,0] "Loopback 4 IN";
   DIO 2 [2,1] "Loopback 4 OUT";
