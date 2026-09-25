@@ -67,22 +67,21 @@ SLOT 3 driverx {
 
 
 #ifdef TC_REV2
-	
-//SLOT 4 LVXBias
-SLOT 4 lvxbias {
-     LVLC1 [0.0,3] "OTG0";
-     LVLC2 [0.0,3] "OTG1";
-     LVLC13 [0.0,3] "OTG2";
-     LVLC14 [0.0,3] "OTG3";
-     LVLC15 [0.0,3] "offset0";
-     LVLC16 [0.0,3] "offset1";
-     LVLC17 [0.0,3] "offset2";
-     LVLC18 [0.0,3] "offset3";
 
-     LVHC1 [5.0, 40.0, 0, 1] "Preamp +5V";
-     LVHC2 [-5.0, 40.0, 0, 1] "Preamp -5V";
-     LVHC4 [5.0, 40.0, 0, 1] "CCD +5V";
-     LVHC5 [-5.0, 40.0, 0, 1] "CCD -5V";
+SLOT 4 lvxbias {
+     LVLC 1 [0.0,3] "OTG0";
+     LVLC 2 [0.0,3] "OTG1";
+     LVLC 13 [0.0,3] "OTG2";
+     LVLC 14 [0.0,3] "OTG3";
+     LVLC 15 [0.0,3] "offset0";
+     LVLC 16 [0.0,3] "offset1";
+     LVLC 17 [0.0,3] "offset2";
+     LVLC 18 [0.0,3] "offset3";
+
+     LVHC 1 [5.0, 40.0, 0, 1] "Preamp +5V";
+     LVHC 2 [-5.0, 40.0, 0, 1] "Preamp -5V";
+     LVHC 4 [5.0, 40.0, 0, 1] "CCD +5V";
+     LVHC 5 [-5.0, 40.0, 0, 1] "CCD -5V";
 
 }
 
