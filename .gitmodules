@@ -1,0 +1,6 @@
+[submodule "wdl"]
+	path = wdl
+	url = https://github.com/CaltechOpticalObservatories/wdl.git
+[submodule "src/hispecatc"]
+	path = src/hispecatc
+	url = https://github.com/COO-Detectors/hispec-atc

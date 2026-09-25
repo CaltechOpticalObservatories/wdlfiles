@@ -1,0 +1,133 @@
+/* -*- C -*- */
+/** ---------------------------------------------------------------------------
+ * @file   deimos.def
+ * @brief  DEIMOS definition file; user macros to be used within Archon files
+ *                                 i.e. within the .script, .states, .cds, or .modules files
+ * 
+ * Use #define to define macros; syntax is case sensitive.
+ * By convention macros will be capitalized and will start with an underscore
+ *      ex. _SW_SLEW_SLOW for setting slow slew rate of the summing well
+ */
+
+ /** --------------------------------------------------------------------------
+ * Configuration modes
+ */
+
+#include "voltage_timing_parameters.h"
+
+
+
+ /** --------------------------------------------------------------------------
+ * Archon Configuration Details
+ */
+
+#define _ARCHON_SAMPLE_MODE        1 /* 0=16bit, 1=32bit                    */
+#define _ARCHON_FRAMEMODE          2 /* 0=top, 1=bottom, 2=split            */
+#define _ARCHON_FRAMEBUFS          0 /* 0=3x512MB, 1=2x768MB, I.E. "BIGBUF" */
+
+#define _RAW_ENABLE                1 /* 0=no, 1=yes                         */
+#define _RAW_STARTLINE             0 /* first line of raw data, 0-65535     */
+#define _RAW_ENDLINE              10 /* last line of raw data, 0-65535      */
+#define _RAW_STARTPIXEL           50
+#define _RAW_SAMPLES            2000
+#define _RAW_SELECT               11 /* AD channel for raw data capture, 0-15 */
+
+//NOTE correspondence from Greg Bredthauer to Dan W:
+//
+//Raw Channel Select 1-4 => ADM channels 1-4
+/* Raw Channel Select 5-8 => ADM channels 19-22 */
+/* Raw Channel Select 9-12 => ADM channels 37-40 */
+/* Raw Channel Select 13-16 => ADM channels 55-58 */
+/* Raw Channel Select 17-30 => ADM channels 5-18 */
+/* Raw Channel Select 31-44 => ADM channels 23-36 */
+/* Raw Channel Select 45-58 => ADM channels 41-54 */
+/* Raw Channel Select 59-72 => ADM channels 59-72 */
+// does not seem that obvious to guess tbh
+
+
+ /** ---------------------------------------------------------------------------
+* Detector Array Parameters
+ */
+
+#define _SECTION_A_ROWS         2056
+#define _SECTION_B_ROWS         2048
+
+#define _IMAGECOLS              2048
+
+//NOTE: read out all through one amp test
+//#define _AMPCOLS _IMAGECOLS
+
+#define _AMPCOLS                #eval _IMAGECOLS / 2
+#define _IMAGEROWS              #eval _SECTION_A_ROWS + _SECTION_B_ROWS
+
+
+/* #define _CDS_WIDTH            10  /* width of each CDS integration component in clocks */
+#define  _SERIALPRESCAN           50
+#define  _SERIALOVERSCAN          20 
+#define  _PARALLELOVERSCAN        20
+
+#define _AMPREADCOLS            #eval (_AMPCOLS + _SERIALPRESCAN + _SERIALOVERSCAN)
+#define _LINENUM                #eval (_IMAGEROWS + _PARALLELOVERSCAN) 
+
+
+
+
+ /** ---------------------------------------------------------------------------
+ * CDS-Deinterlace options
+ */
+
+
+
+/* TODO CLARIFY VLAYES FOR RG AND SW settling time */
+#define RG_settleT    20 // TODO: reduce when get better damping
+#define SW_settleT    20 // TODO: reduce when get better damping
+
+
+#define CDS_RESET_LENGTH   35
+#define CDS_SIGNAL_LENGTH  35
+#define COINC_SW_DELAY 2
+
+
+
+//attempt pixel timing coincident with the nearest ADM samples
+
+
+
+
+#define AC_CLAMP_ON_TIME 1000
+#define AC_CLAMP_EXTRA_RECOVER 1000
+
+
+// constants for use with parallel total deferred charge measurements
+#define LLEL_TDC_LINE_SPACING 10
+#define LLEL_TDC_BINS 1
+
+//could in principle calculate - based on line spacing and how many total lines are availablei
+#define LLEL_TDC_LOOPS 100
+    
+
+#define SER_TDC_LLEL_BINS 1
+#define SER_TDC_SER_BINS 1
+#define SER_TDC_ROW_SPACING 10
+
+
+
+
+/** basic constants to assist in somewhat automating slew rate for triangle clocking.
+    For now we are just entering a slew time manually, then calculating the rate to make
+    sure we hit the intended voltage at the top of the triangle waveform **/
+
+
+
+// FCS array parameters
+#define _FCS_A_ROWS 2048
+#define _FCS_B_ROWS 2048
+#define _FCS_ROWS #eval _FCS_A_ROWS + _FCS_B_ROWS
+#define _FCS_PRESCAN 25
+#define _FCS_AMPCOLS 1024
+#define _FCS_OVERSCAN 20
+#define _FCS_LLEL_OVERSCAN 20
+
+#define _FCS_TOTAL_COLS #eval _FCS_PRESCAN + _FCS_AMPCOLS + _FCS_OVERSCAN
+
+#define _FCS_LINENUM #eval _FCS_ROWS + _FCS_LLEL_OVERSCAN

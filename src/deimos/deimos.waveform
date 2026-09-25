@@ -1,0 +1,993 @@
+/* -*- C -*- */
+/** ---------------------------------------------------------------------------
+ * @file   deimos_science.wavform
+ * @brief  DEIMOS timing file; rules for waveform generation and scripting
+ *
+ * syntax (is case sensitive):
+ *
+ * WAVEFORM waveformlabel { rules }
+ *
+ * where rules (enclosed in curly braces) are as follows:
+ *
+ * [time]: [=timelabel] SET signallabel TO level;
+ *
+ * time: at least one time label is required, followed by colon
+ *       (if omitted then SET... lines are all at the same time as previous time)
+ *       arithmetic operations are allowed for time
+ *       units are allowed to follow numbers, E.G. ns, us, ms
+ *       ".+" means to add to the previous time
+ *
+ * =timelabel is an optional label for this time, which can be used elsewhere
+ *
+ * SET signallabel TO level; 
+ * is required and must end with a semi-colon
+ * signallabel and level can be defined anywhere
+ *
+ */
+
+#include voltage_timing_parameters.h
+
+
+
+/*****************************************/
+/*             LOGIC STATES              */
+/*****************************************/
+#define OPEN  1
+#define CLOSE 0
+#define HIGH  1
+#define LOW   0
+
+#define INV_HIGH 1 //Some signals are inverted. Use this sigil to indicate that
+#define INV_LOW 0
+
+
+
+/*
+WAVEFORM SerialRecieving {
+ 0: 		SET SCI_SCLK1	TO _SER_CLOCK_RCV, FAST;
+			SET SCI_SCLK2	TO _SER_CLOCK_RCV, FAST;
+ .+SCLK_RCV_RESET:	SET RG	TO LOW;
+}
+*/
+
+/*****************************************/
+/*         ARCHON Timing Control         */
+/*****************************************/
+
+WAVEFORM testConst {
+ 0: SET RG_CLOCKS TO sci_llel_high, FAST;
+  .+1us: RETURN;
+
+}
+
+
+
+WAVEFORM Wait1us {
+ 0: 	SET NOP TO HIGH;
+ .+1us:	RETURN;
+}
+
+WAVEFORM Wait1ms {
+ 0:   SET NOP TO HIGH;
+ .+1ms: RETURN;
+}
+
+/* WAVEFORM Wait1s { */
+/*  0: SET NOP TO HIGH; */
+/*  .+1s: RETURN; */
+/* } */
+
+WAVEFORM KeepThisFrame {
+ 0: SET FRAME TO HIGH;
+ 1: SET LINE TO HIGH;
+}
+
+
+/*****************************************/
+/*       Integration related waveforms   */
+/*****************************************/
+
+#define PAR_SLEW_TIME_TICKS #eval PAR_SLEW_TIME_US * 100
+#define SER_SLEW_TIME_TICKS #eval SER_SLEW_TIME_US * 100
+
+#define _PAR_CLOCK_FLUSH_LOW -3.5
+#define _PAR_CLOCK_FLUSH_HIGH 7.5
+#define _PAR_CLOCK_FLUSH 10.0
+
+#define _SER_CLOCK_FLUSH 10.0
+
+
+WAVEFORM InitialSetup
+{0  : 
+  SET RG TO INV_HIGH;
+  SET SW TO INV_HIGH;
+  SET RG_CLOCKS TO _RG_LOW,FAST;
+  SET SW_CLOCKS TO _SW_LOW, FAST;
+
+  //disable the pin drivers
+  SET PD_OE_IN TO 1;
+
+  SET AC_Clamp to HIGH;
+
+  .+1000:
+  SET AC_Clamp to LOW;
+
+  SET SCI_PCLK3 TO _PAR_CLOCK_LOW, FAST;
+  SET SCI_PCLK2 TO _PAR_CLOCK_HIGH, FAST;
+  SET SCI_PCLK1 TO _PAR_CLOCK_HIGH, FAST;
+
+  .+10000:
+  SET NOP TO HIGH;
+  
+}
+
+WAVEFORM InitialSetupFCS
+{
+0  : 
+  SET FCS_RG TO _RG_LOW_FCS, FAST;
+  SET FCS_SW TO _SW_LOW_FCS, FAST;
+  
+  
+  //disable the pin drivers
+  SET PD_OE_IN TO 1;
+
+  SET AC_Clamp_FCS to HIGH;
+
+  .+1000:
+  SET AC_Clamp_FCS to LOW;
+
+  SET FCS_P3 TO _MPP_CLOCK_LOW_FCS, FAST;
+  SET FCS_P2 TO _PAR_CLOCK_LOW_FCS, FAST;
+  SET FCS_P1 TO _PAR_CLOCK_LOW_FCS, FAST;
+
+  SET FCS_S2 TO _SER_CLOCK_LOW_FCS, FAST;
+  SET FCS_S1 TO _SER_CLOCK_HIGH_FCS, FAST;
+  SET FCS_S3 TO _SER_CLOCK_LOW_FCS, FAST;
+  
+  .+10000:
+  SET NOP TO HIGH;
+}
+
+
+
+WAVEFORM OpenShutter
+{
+ 0: SET SHUTTER to 1;
+}
+
+WAVEFORM CloseShutter
+{
+ 0: SET SHUTTER TO 0;
+}
+
+
+WAVEFORM ReadoutBegin
+{
+ 0:SET LINE TO HIGH;
+  SET FRAME TO HIGH;
+  SET SCI_PCLK1 TO _PAR_CLOCK_LOW, FAST;
+}
+
+WAVEFORM ReadoutEnd
+{
+ 0: SET SCI_PCLK2 TO _PAR_CLOCK_HIGH, FAST;
+  SET SCI_PCLK1 TO _PAR_CLOCK_HIGH, FAST;
+}
+
+
+WAVEFORM TransferToSerialRegisterCoincident
+{
+  //set serials to receive charge
+ 0:=BEGIN SET SCI_SCLK1 TO _SER_CLOCK_RCV, FAST;
+    SET SCI_SCLK2 TO _SER_CLOCK_RCV, FAST;
+    SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
+    SET RG TO INV_HIGH;
+    SET TG TO _TG_CLOCK_HIGH, FAST;
+    SET LINE TO HIGH;
+    SET SW TO INV_LOW;
+    SET SW_CLOCKS TO _SW_LOW,FAST;
+    //NOTE: don't think we want to clamp with reset gate activated
+ .+1000:
+    SET RG TO INV_LOW;
+    SET RG_CLOCKS TO _RG_LOW,FAST;
+    SET TG TO _TG_CLOCK_LOW, FAST;
+    //simultaneously, operate the AC clamp
+ .+50:
+    SET AC_Clamp to HIGH;
+      SET SCI_SCLK1 TO _SER_CLOCK_HIGH, FAST;
+      SET SCI_SCLK2 TO _SER_CLOCK_LOW, FAST;
+      SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
+ .+50:
+    SET AC_Clamp to LOW;
+}
+
+
+
+WAVEFORM ParallelForwardNoCoincident
+{
+ 0: SET NOP TO HIGH;
+
+  SET SCI_PCLK3 TO _PAR_CLOCK_HIGH, FAST;
+  SET TG TO _TG_CLOCK_HIGH, FAST;
+  
+  SET SW TO INV_LOW;
+  SET SW_CLOCKS TO _SW_LOW, FAST;
+  SET LINE TO HIGH;
+
+  SET SCI_SCLK1 TO _SER_CLOCK_RCV, FAST;
+  SET SCI_SCLK2 TO _SER_CLOCK_RCV, FAST;
+  SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
+  SET RG to INV_HIGH;
+  SET RG_CLOCKS TO _RG_HIGH, FAST;
+
+
+  
+  .+1200:=PHASE3_HIGH SET SCI_PCLK2 TO _PAR_CLOCK_LOW, FAST;
+  .+1200: SET SCI_PCLK1 TO _PAR_CLOCK_HIGH, FAST;
+  .+1200:=TG_GOES_LOW SET SCI_PCLK3 TO _PAR_CLOCK_LOW, FAST;
+  SET TG TO _TG_CLOCK_LOW, FAST;
+
+  .+1200: SET SCI_PCLK2 TO _PAR_CLOCK_HIGH, FAST;
+  .+1200: SET SCI_PCLK1 TO _PAR_CLOCK_LOW, FAST;
+
+  //delay before starting SCLKs
+  .+1200: SET NOP TO HIGH;
+
+  
+  //serial receive side
+  
+  TG_GOES_LOW+200:=RG_GOES_LOW
+    SET RG TO INV_LOW;
+  SET RG_CLOCKS TO _RG_LOW, FAST;
+    SET SW TO INV_LOW;
+    SET SW_CLOCKS TO _SW_HIGH, FAST;
+  .+50:   SET AC_Clamp to HIGH;
+  .+300:
+  SET SCI_SCLK1 TO _SER_CLOCK_LOW, FAST;
+  SET SCI_SCLK2 TO _SER_CLOCK_HIGH, FAST;
+  SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
+
+  .+50: SET AC_Clamp TO LOW;
+}
+
+
+
+//waveforms for coincident (triangular) parallel clocking
+WAVEFORM ParallelForwardSegment1
+{
+  //NOTE: after integration, if done properly
+  //all charge should be under SCI_PCLK2
+  // the transfer to serial reg is done after this happens
+ 0: SET SCI_PCLK2 to _PAR_CLOCK_LOW, SLOW;
+    SET SCI_PCLK3 to _PAR_CLOCK_HIGH, SLOW;
+}
+
+WAVEFORM ParallelForwardSegment2
+{
+ 0: SET SCI_PCLK3 TO _PAR_CLOCK_LOW, SLOW;
+  SET SCI_PCLK1 TO _PAR_CLOCK_HIGH, SLOW;
+}
+
+WAVEFORM ParallelForwardSegment3
+{
+ 0: SET SCI_PCLK1 TO _PAR_CLOCK_LOW, SLOW;
+  SET SCI_PCLK2 TO _PAR_CLOCK_HIGH, SLOW;
+}
+
+WAVEFORM OutputTestSetup
+{
+ 0: SET FCS_RG TO _RG_HIGH_FCS, FAST;
+  //  SET RG_CLOCKS TO _RG_HIGH, FAST;
+  SET VRD_FCSA TO 14.0;
+  SET VRD_FCSB to 14.0;
+  SET FCS_SW TO _SW_HIGH_FCS, FAST;
+  //  SET SW_CLOCKS TO _SW_HIGH, FAST;
+  .+10ms: SET NOP TO HIGH;
+  //SET TG TO _TG_CLOCK_LOW, FAST;
+  //.+10ms: SET NOP TO HIGH;
+
+  /* SET SCI_SCLK1 TO _SER_CLOCK_LOW,FAST; */
+  /* SET SCI_SCLK2 TO _SER_CLOCK_LOW, FAST; */
+  /* SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST; */
+
+  /* SET SCI_PCLK1 TO _PAR_CLOCK_HIGH, FAST; */
+  /* SET SCI_PCLK2 TO _PAR_CLOCK_HIGH, FAST; */
+  /* SET SCI_PCLK3 TO _PAR_CLOCK_HIGH, FAST; */
+}
+
+WAVEFORM PulseTGA
+{
+ 0: SET TG TO _TG_CLOCK_HIGH,FAST;
+  .+25us: SET TG TO _TG_CLOCK_LOW,FAST;
+  .+25us: SET RG TO INV_LOW;
+}
+
+
+
+WAVEFORM VRDModulate
+{
+ 0: SET VRD_FCSA TO 12.0;
+  .+10ms: SET FCS_RG TO _RG_HIGH_FCS;
+  .+1us: SET FCS_RG TO _RG_LOW_FCS, FAST;
+  .+1us:  SET VRD_FCSA TO 12.5;
+  .+1us:  SET VRD_FCSB TO 12.5;
+  .+1us:  SET VRD_FCSA2 TO 12.5;
+  .+1us: SET VRD_FCSB2 TO 12.5;
+  
+  .+10ms: SET FCS_RG TO _RG_HIGH_FCS;
+  .+1us: SET FCS_RG TO _RG_LOW_FCS, FAST;
+  .+1us:  SET VRD_FCSA TO 13.0;
+  .+1us:  SET VRD_FCSB TO 13.0;
+  .+1us:  SET VRD_FCSA2 TO 13.0;
+  .+1us: SET VRD_FCSB2 TO 13.0;
+
+
+  .+10ms: SET FCS_RG TO _RG_HIGH_FCS;
+  .+1us: SET FCS_RG TO _RG_LOW_FCS, FAST;
+  .+1us:  SET VRD_FCSA TO 13.5;
+  .+1us:  SET VRD_FCSB TO 13.5;
+  .+1us:  SET VRD_FCSA2 TO 13.5;
+  .+1us: SET VRD_FCSB2 TO 13.5;
+
+
+    .+10ms: SET FCS_RG TO _RG_HIGH_FCS;
+  .+1us: SET FCS_RG TO _RG_LOW_FCS, FAST;
+  .+1us:  SET VRD_FCSA TO 14.0;
+  .+1us:  SET VRD_FCSB TO 14.0;
+  .+1us:  SET VRD_FCSA2 TO 14.0;
+  .+1us: SET VRD_FCSB2 TO 14.0;
+
+
+  .+10ms: SET FCS_RG TO _RG_HIGH_FCS;
+  .+1us: SET FCS_RG TO _RG_LOW_FCS, FAST;
+  .+1us:  SET VRD_FCSA TO 14.5;
+  .+1us:  SET VRD_FCSB TO 14.5;
+  .+1us:  SET VRD_FCSA2 TO 14.5;
+  .+1us: SET VRD_FCSB2 TO 14.5;
+
+  .+10ms: SET FCS_RG TO _RG_HIGH_FCS;
+  .+1us: SET FCS_RG TO _RG_LOW_FCS, FAST;
+  .+1us:  SET VRD_FCSA TO 15.0;
+  .+1us:  SET VRD_FCSB TO 15.0;
+  .+1us:  SET VRD_FCSA2 TO 15.0;
+  .+1us: SET VRD_FCSB2 TO 15.0;
+
+  .+10ms: SET FCS_RG TO _RG_HIGH_FCS;
+  .+1us: SET FCS_RG TO _RG_LOW_FCS, FAST;
+  .+1us:  SET VRD_FCSA TO 15.5;
+  .+1us:  SET VRD_FCSB TO 15.5;
+  .+1us:  SET VRD_FCSA2 TO 15.5;
+  .+1us: SET VRD_FCSB2 TO 15.5;
+
+  .+10ms: SET FCS_RG TO _RG_HIGH_FCS;
+  .+1us: SET FCS_RG TO _RG_LOW_FCS, FAST;
+  .+1us:  SET VRD_FCSA TO 16.0;
+  .+1us:  SET VRD_FCSB TO 16.0;
+  .+1us:  SET VRD_FCSA2 TO 16.0;
+  .+1us: SET VRD_FCSB2 TO 16.0;
+
+  
+  
+}
+
+
+
+WAVEFORM ReadPixels
+{
+  //NB using slow slew rate for triangular serial clockingdef
+ 0:=PIX_BEGIN
+    SET PIXEL  TO HIGH;
+  .+1: SET PIXEL TO LOW;
+       SET LINE TO LOW;
+       SET FRAME TO LOW;
+       //reset pulse at the start of the pixel
+    SET RG TO INV_HIGH; //NOTE reset gate is inverted
+    .+60: 	   SET RG TO INV_LOW;
+    //charge STARTS UNDER SCI_SCLK2 NOW
+
+    //conventional serial clock
+    //this is redundant on the first pixel
+     0: SET SCI_SCLK2 TO _SER_CLOCK_HIGH, FAST;
+     SET SCI_SCLK1 TO _SER_CLOCK_LOW, FAST;
+    .+60: 
+    SET SW TO INV_HIGH;
+    SET SCI_SCLK3 TO _SER_CLOCK_HIGH, FAST;
+    SET SCI_SCLK2 TO _SER_CLOCK_LOW, FAST;
+    .+300: SET SW TO INV_LOW;
+    
+    .+200: SET SCI_SCLK1 TO _SER_CLOCK_HIGH, FAST; //was +150
+    SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
+
+    .+60: SET NOP TO HIGH;
+}
+
+
+
+WAVEFORM ReadPixelsSlow
+{
+ 0 := PIX_BEGIN
+    SET PIXEL TO HIGH;
+  .+1: SET PIXEL TO LOW;
+  SET LINE TO LOW;
+  SET FRAME TO LOW;
+
+  SET RG TO INV_HIGH;
+  .+60: SET RG TO INV_LOW;
+
+ 0: SET SCI_SCLK2 TO _SER_CLOCK_HIGH, FAST;
+  .+15: SET SCI_SCLK1 TO _SER_CLOCK_LOW, FAST;
+ 30:
+  SET SW TO INV_HIGH;
+  .+5 : 
+  SET SCI_SCLK3 TO _SER_CLOCK_HIGH, FAST;
+  .+10: SET SCI_SCLK2 TO _SER_CLOCK_LOW, FAST;
+
+ 180: SET SCI_SCLK1 TO _SER_CLOCK_HIGH, FAST;
+  .+15: SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
+  .+15: SET SW TO INV_LOW;
+
+  180+147: SET NOP TO HIGH;
+
+
+}
+
+WAVEFORM ForwardParallelSectionANoCoincident
+{
+   0: SET NOP TO HIGH;
+  .+1000:=PHASE3_HIGH
+
+  SET SCI_PCLK3_A TO _PAR_CLOCK_HIGH, FAST;
+  SET TG TO _TG_CLOCK_HIGH, FAST;
+  
+  SET SW TO INV_LOW;
+  SET SW_CLOCKS TO _SW_LOW, FAST;
+  SET LINE TO HIGH;
+  
+  .+1000: SET SCI_PCLK2_A TO _PAR_CLOCK_LOW, FAST;
+  .+1000: SET SCI_PCLK1_A TO _PAR_CLOCK_HIGH, FAST;
+  .+1000:=TG_GOES_LOW SET SCI_PCLK3_A TO _PAR_CLOCK_LOW, FAST;
+  SET TG TO _TG_CLOCK_LOW, FAST;
+
+  .+1000: SET SCI_PCLK2_A TO _PAR_CLOCK_HIGH, FAST;
+  .+1000: SET SCI_PCLK1_A TO _PAR_CLOCK_LOW, FAST;
+
+  //delay before starting SCLKs
+  .+1000: SET NOP TO HIGH;
+
+  
+  //serial receive side
+  PHASE3_HIGH: SET SCI_SCLK1 TO _SER_CLOCK_RCV, FAST;
+  SET SCI_SCLK2 TO _SER_CLOCK_RCV, FAST;
+  SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
+  SET RG to INV_HIGH;
+  SET RG_CLOCKS TO _RG_HIGH, FAST;
+  
+  TG_GOES_LOW+200:=RG_GOES_LOW
+    SET RG TO INV_LOW;
+    SET RG_CLOCKS TO _RG_LOW, FAST;
+    SET SW TO INV_HIGH;
+    SET SW_CLOCKS TO _SW_HIGH, FAST;
+  .+50:   SET AC_Clamp to HIGH;
+  .+300:
+  SET SCI_SCLK1 TO _SER_CLOCK_HIGH, FAST;
+  SET SCI_SCLK2 TO _SER_CLOCK_LOW, FAST;
+  SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
+
+  .+50: SET AC_Clamp TO LOW;
+
+}
+
+WAVEFORM ForwardParallelSectionBNoCoincident
+{
+     0: SET NOP TO HIGH;
+  .+1000:=PHASE3_HIGH
+
+  SET SCI_PCLK3_B TO _PAR_CLOCK_HIGH, FAST;
+  
+  .+1000: SET SCI_PCLK2_B TO _PAR_CLOCK_LOW, FAST;
+  .+1000: SET SCI_PCLK1_B TO _PAR_CLOCK_HIGH, FAST;
+  .+1000:=TG_GOES_LOW SET SCI_PCLK3_B TO _PAR_CLOCK_LOW, FAST;
+
+  .+1000: SET SCI_PCLK2_B TO _PAR_CLOCK_HIGH, FAST;
+  .+1000: SET SCI_PCLK1_B TO _PAR_CLOCK_LOW, FAST;
+
+  //delay before starting SCLKs
+  .+1000: SET NOP TO HIGH;
+
+  //no serial receive or TGA, this is purely on the B segment to move into A segment
+
+  
+}
+
+
+
+#define PCLK_NOREAD_DELAY 
+
+//definitions for llel total deferred charge measurement
+WAVEFORM ForwardParallelSectionA
+{
+ 0: SET SCI_PCLK3_A to _PAR_CLOCK_LOW, SLOW;
+  SET SCI_PCLK1_A to _PAR_CLOCK_HIGH, SLOW;
+  PAR_SLEW_TIME_US*100: SET SCI_PCLK1_A to _PAR_CLOCK_LOW, SLOW;
+  SET SCI_PCLK2_A TO _PAR_CLOCK_HIGH, SLOW;
+  2*PAR_SLEW_TIME_US*100: SET SCI_PCLK2_A TO _PAR_CLOCK_LOW, SLOW;
+  SET SCI_PCLK3_A TO _PAR_CLOCK_HIGH, SLOW;
+}
+
+WAVEFORM ForwardParallelSectionB
+{
+ 0: SET SCI_PCLK3_B TO _PAR_CLOCK_LOW, SLOW;
+  SET SCI_PCLK1_B TO _PAR_CLOCK_HIGH, SLOW;
+  PAR_SLEW_TIME_US*100: SET SCI_PCLK1_B TO _PAR_CLOCK_LOW, SLOW;
+  SET SCI_PCLK2_B TO _PAR_CLOCK_HIGH, SLOW;
+  2*PAR_SLEW_TIME_US*100: SET SCI_PCLK2_B TO _PAR_CLOCK_LOW, SLOW;
+  SET SCI_PCLK3_B TO _PAR_CLOCK_HIGH, SLOW; 
+}
+
+WAVEFORM ForwardParallelAll
+{
+   0: SET SCI_PCLK3 TO _PAR_CLOCK_LOW, SLOW;
+  SET SCI_PCLK1 TO _PAR_CLOCK_HIGH, SLOW;
+  PAR_SLEW_TIME_US*100: SET SCI_PCLK1 TO _PAR_CLOCK_LOW, SLOW;
+  SET SCI_PCLK2 TO _PAR_CLOCK_HIGH, SLOW;
+  2*PAR_SLEW_TIME_US*100: SET SCI_PCLK2 TO _PAR_CLOCK_LOW, SLOW;
+  SET SCI_PCLK3 TO _PAR_CLOCK_HIGH, SLOW;
+}
+
+
+WAVEFORM ParallelForwardSectionASegment1
+{
+ 0: SET SCI_PCLK3_A to _PAR_CLOCK_LOW, SLOW;
+  SET SCI_PCLK1_A to _PAR_CLOCK_HIGH, SLOW;
+}
+
+WAVEFORM ParallelForwardSectionASegment2
+{
+  0: SET SCI_PCLK1_A to _PAR_CLOCK_LOW, SLOW;
+  SET SCI_PCLK2_A TO _PAR_CLOCK_HIGH, SLOW;
+}
+
+WAVEFORM ParallelForwardSectionASegment3
+{
+  0: SET SCI_PCLK2_A TO _PAR_CLOCK_LOW, SLOW;
+  SET SCI_PCLK3_A TO _PAR_CLOCK_HIGH, SLOW;
+}
+
+
+//definitions for serial total deferred charge measurement
+WAVEFORM Wait10us
+{
+ 1000: SET NOP TO HIGH;
+}
+
+//readout only clocking the E register (we have stored bright edge in the F for this one)
+WAVEFORM ReadPixelsEOnly
+{
+  //NB using slow slew rate for triangular serial clockingdef
+ 0:=PIX_BEGIN
+    SET PIXEL  TO HIGH;
+  .+1: SET PIXEL TO LOW;
+       SET LINE TO LOW;
+       SET FRAME TO LOW;
+       //reset pulse at the start of the pixel
+    SET RG TO INV_HIGH; //NOTE reset gate is inverted
+    .+60: 	   SET RG TO INV_LOW;
+    //charge STARTS UNDER RPhi2
+
+    //conventional serial clock
+     0: SET SCI_SCLK2_EONLY TO _SER_CLOCK_HIGH, FAST;
+    SET SCI_SCLK1_EONLY TO _SER_CLOCK_LOW, FAST;
+    .+60:
+    SET SW TO INV_HIGH;
+    SET SCI_SCLK3 TO _SER_CLOCK_HIGH, FAST;
+    SET SCI_SCLK2_EONLY TO _SER_CLOCK_LOW, FAST;
+    .+300:  SET SW TO INV_LOW;
+
+	   //NOTE: set this up so it's a multiple  of ADM ssample times that way they ALL
+	   //stay as groups of 8.
+    .+200: SET SCI_SCLK1_EONLY TO _SER_CLOCK_HIGH, FAST;
+    SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
+    .+60: SET NOP TO HIGH;
+}
+
+WAVEFORM ReadPixelsFOnly
+{
+  //NB using slow slew rate for triangular serial clockingdef
+ 0:=PIX_BEGIN
+    SET PIXEL  TO HIGH;
+  .+1: SET PIXEL TO LOW;
+       SET LINE TO LOW;
+       SET FRAME TO LOW;
+       //reset pulse at the start of the pixel
+    SET RG TO INV_HIGH; //NOTE reset gate is inverted
+    .+60: 	   SET RG TO INV_LOW;
+    //charge STARTS UNDER RPhi2
+
+    //conventional serial clock
+     0: SET SCI_SCLK2_FONLY TO _SER_CLOCK_HIGH, FAST;
+    SET SCI_SCLK1_FONLY TO _SER_CLOCK_LOW, FAST;
+    .+60:
+    SET SW TO INV_HIGH;
+    SET SCI_SCLK3 TO _SER_CLOCK_HIGH, FAST;
+    SET SCI_SCLK2_FONLY TO _SER_CLOCK_LOW, FAST;
+    .+300:  SET SW TO INV_LOW;
+
+	   //NOTE: set this up so it's a multiple  of ADM ssample times that way they ALL
+	   //stay as groups of 8.
+    .+130: SET SCI_SCLK1_FONLY TO _SER_CLOCK_HIGH, FAST;
+    SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
+    .+80: SET NOP TO HIGH;
+}
+
+
+WAVEFORM PrepSerBin
+{
+
+ 0: SET RG TO INV_HIGH;
+  .+40: SET SW TO INV_HIGH;
+  .+20: SET RG TO INV_LOW;
+
+}
+
+WAVEFORM SerialBinForwards
+{
+
+ 0: SET SCI_SCLK2 TO _SER_CLOCK_HIGH, FAST;
+  SET SCI_SCLK1 TO _SER_CLOCK_LOW, FAST;
+  .+40:
+  SET SCI_SCLK3 TO _SER_CLOCK_HIGH, FAST;
+  SET SCI_SCLK2 TO _SER_CLOCK_LOW, FAST;
+
+  .+40:
+  SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
+  SET SCI_SCLK1 TO _SER_CLOCK_HIGH, FAST;
+
+  .+40:
+  SET SCI_SCLK1 TO _SER_CLOCK_LOW, FAST;
+  SET SCI_SCLK2 TO _SER_CLOCK_HIGH, FAST;
+
+  .+40:
+  SET NOP TO HIGH;
+
+}
+
+
+
+
+WAVEFORM DumpPixels
+{
+    //NB using slow slew rate for triangular serial clockingdef
+ 0:=PIX_BEGIN
+       //reset pulse at the start of the pixel
+    SET RG TO INV_HIGH; //NOTE reset gate is inverted
+    .+60: 	   SET RG TO INV_LOW;
+    //charge STARTS UNDER SCI_SCLK2 NOW
+
+    //conventional serial clock
+    //this is redundant on the first pixel
+     0: SET SCI_SCLK2 TO _SER_CLOCK_HIGH, FAST;
+     SET SCI_SCLK1 TO _SER_CLOCK_LOW, FAST;
+    .+40:
+    SET SW TO INV_HIGH;
+    SET SCI_SCLK3 TO _SER_CLOCK_HIGH, FAST;
+    SET SCI_SCLK2 TO _SER_CLOCK_LOW, FAST;
+    .+300: SET SW TO INV_LOW;
+
+    .+200: SET SCI_SCLK1 TO _SER_CLOCK_HIGH, FAST; //was +150
+    SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
+    SET RG TO INV_LOW;
+
+    .+60: SET NOP TO HIGH;
+}
+
+
+WAVEFORM trigpix
+{
+ 0: SET PIXEL TO HIGH;
+  .+1: SET PIXEL TO LOW;
+  SET LINE TO LOW;
+  SET FRAME TO LOW;
+}
+
+
+
+//readout only clocking the E register (we have stored bright edge in the F for this one)
+WAVEFORM DumpPixelsEOnly
+{
+    //NB using slow slew rate for triangular serial clockingdef
+ 0:=PIX_BEGIN
+       //reset pulse at the start of the pixel
+    SET RG TO INV_HIGH; //NOTE reset gate is inverted
+    //charge STARTS UNDER RPhi2
+
+    //conventional serial clock
+     0: SET SCI_SCLK2_EONLY TO _SER_CLOCK_HIGH, FAST;
+    SET SCI_SCLK1_EONLY TO _SER_CLOCK_LOW, FAST;
+    .+40:
+    SET SW TO INV_HIGH;
+    SET SCI_SCLK3 TO _SER_CLOCK_HIGH, FAST;
+    SET SCI_SCLK2_EONLY TO _SER_CLOCK_LOW, FAST;
+    .+300:  SET SW TO INV_LOW;
+
+	   //NOTE: set this up so it's a multiple  of ADM ssample times that way they ALL
+	   //stay as groups of 8.
+    .+200: SET SCI_SCLK1_EONLY TO _SER_CLOCK_HIGH, FAST;
+    SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
+    SET RG TO INV_LOW;
+    .+60: SET NOP TO HIGH;
+
+
+}
+
+
+WAVEFORM DumpPixelsFOnly
+{
+  //NB using slow slew rate for triangular serial clockingdef
+ 0:=PIX_BEGIN
+       //reset pulse at the start of the pixel
+    SET RG TO INV_HIGH; //NOTE reset gate is inverted
+    //charge STARTS UNDER RPhi2
+
+    //conventional serial clock
+     0: SET SCI_SCLK2_FONLY TO _SER_CLOCK_HIGH, FAST;
+    SET SCI_SCLK1_FONLY TO _SER_CLOCK_LOW, FAST;
+    .+40:
+    SET SW TO INV_HIGH;
+    SET SCI_SCLK3 TO _SER_CLOCK_HIGH, FAST;
+    SET SCI_SCLK2_FONLY TO _SER_CLOCK_LOW, FAST;
+    .+300:  SET SW TO INV_LOW;
+
+	   //NOTE: set this up so it's a multiple  of ADM ssample times that way they ALL
+	   //stay as groups of 8.
+    .+130: SET SCI_SCLK1_FONLY TO _SER_CLOCK_HIGH, FAST;
+    SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
+    SET RG TO INV_LOW;
+    .+80: SET NOP TO HIGH;
+}
+
+
+
+//use this to move charge from F register back into E register
+WAVEFORM SerialFBackwards
+{
+  //first, set the E side to receive
+  //in the beggining, everything is under SCI_SCLK1_EONLY
+  //so we move everything to be under number 2
+ 0: SET  SCI_SCLK2_EONLY TO _SER_CLOCK_HIGH, FAST;
+  SET SCI_SCLK1_EONLY TO _SER_CLOCK_LOW, FAST;
+  
+ .+30: SET SCI_SCLK1_FONLY TO _SER_CLOCK_LOW, FAST;
+  SET SCI_SCLK3 TO _SER_CLOCK_RCV, FAST;
+
+  .+30: SET SCI_SCLK3 to _SER_CLOCK_LOW, FAST;
+  SET SCI_SCLK2_FONLY to _SER_CLOCK_HIGH, FAST;
+
+  .+30: SET SCI_SCLK1_FONLY to _SER_CLOCK_HIGH, FAST;
+  SET SCI_SCLK2_FONLY TO _SER_CLOCK_LOW, FAST;
+
+  //and now move the charge under E back again
+  .+30: SET SCI_SCLK2_EONLY to _SER_CLOCK_LOW, FAST;
+  SET SCI_SCLK1_EONLY to _SER_CLOCK_HIGH, FAST;
+}
+
+//use this to move charge from E register back into F register
+WAVEFORM SerialEBackwards
+{
+    //first, set the F side to receive
+  //in the beggining, everything is under SCI_SCLK1_EONLY
+  //so we move everything to be under number 2
+ 0: SET  SCI_SCLK2_FONLY TO _SER_CLOCK_HIGH, FAST;
+  SET SCI_SCLK1_FONLY TO _SER_CLOCK_LOW, FAST;
+
+  .+30: SET SCI_SCLK1_EONLY TO _SER_CLOCK_LOW, FAST;
+  SET SCI_SCLK3 TO _SER_CLOCK_RCV, FAST;
+
+  .+30: SET SCI_SCLK3 to _SER_CLOCK_LOW, FAST;
+  SET SCI_SCLK2_EONLY to _SER_CLOCK_HIGH, FAST;
+
+  .+30: SET SCI_SCLK1_EONLY to _SER_CLOCK_HIGH, FAST;
+  SET SCI_SCLK2_EONLY TO _SER_CLOCK_LOW, FAST;
+
+  //and now move the charge under E back again
+  .+30: SET SCI_SCLK2_FONLY to _SER_CLOCK_LOW, FAST;
+  SET SCI_SCLK1_FONLY to _SER_CLOCK_HIGH, FAST;
+  
+}
+
+
+WAVEFORM EvacuateFFinish
+{
+ 0: 
+ SET SW TO INV_LOW;
+  SET RG TO INV_LOW;
+  .+2000:
+   SET SCI_SCLK1_FONLY TO _SER_CLOCK_HIGH, FAST;
+   SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
+  SET SCI_SCLK2_FONLY TO _SER_CLOCK_LOW, FAST;
+  .+500: SET NOP TO HIGH;
+}
+
+WAVEFORM EvacuateFStart
+{
+ 0: SET SCI_SCLK1_FONLY TO _SER_CLOCK_HIGH, FAST;
+  SET SCI_SCLK3 TO _SER_CLOCK_HIGH, FAST;
+  SET SCI_SCLK2_FONLY TO _SER_CLOCK_HIGH, FAST;
+  SET SW TO INV_HIGH;
+  SET RG TO INV_HIGH;
+}
+
+
+WAVEFORM EvacuateEFinish
+{
+ 0: 
+ SET SW TO INV_LOW;
+  SET RG TO INV_LOW;
+  .+2000:
+   SET SCI_SCLK1_EONLY TO _SER_CLOCK_HIGH, FAST;
+   SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
+  SET SCI_SCLK2_EONLY TO _SER_CLOCK_LOW, FAST;
+  .+500: SET NOP TO HIGH;
+}
+
+WAVEFORM EvacuateEStart
+{
+ 0: SET SCI_SCLK1_EONLY TO _SER_CLOCK_HIGH, FAST;
+  SET SCI_SCLK3 TO _SER_CLOCK_HIGH, FAST;
+  SET SCI_SCLK2_EONLY TO _SER_CLOCK_HIGH, FAST;
+  SET SW TO INV_HIGH;
+  SET RG TO INV_HIGH;
+}
+
+
+WAVEFORM BounceTGTest
+{
+ 0: SET TG to _TG_CLOCK_HIGH,FAST;
+ .+500: SET TG to _TG_CLOCK_LOW, FAST;
+ .+200: SET NOP to HIGH;
+ 0: SET PIXEL TO HIGH;
+  .+1: SET PIXEL TO LOW;
+  SET FRAME TO LOW;
+  SET LINE TO LOW;
+
+}
+
+WAVEFORM ClampTestInner
+{
+ 0: SET TG to _TG_CLOCK_HIGH,FAST;
+ .+100: SET TG to _TG_CLOCK_LOW, FAST;
+ .+100: SET NOP to HIGH;
+ 0: SET PIXEL TO HIGH;
+  .+1: SET PIXEL TO LOW;
+  SET FRAME TO LOW;
+  SET LINE TO LOW;
+
+}
+
+WAVEFORM ClampOn
+{
+ 0: SET AC_Clamp TO HIGH;
+}
+
+WAVEFORM ClampOnFCS
+{
+ 0: SET AC_Clamp_FCS TO HIGH;
+}
+
+
+Waveform ClampOff
+{
+ 0: SET AC_Clamp to LOW;
+}
+
+WAVEFORM ClampOffFCS
+{
+ 0: SET AC_Clamp_FCS TO LOW;
+}
+
+
+
+WAVEFORM ClampTestLineStart
+{
+ 0: SET LINE TO HIGH;
+}
+
+
+WAVEFORM TGTestLineStart
+{
+ 0: SET LINE TO HIGH;
+ SET AC_Clamp TO HIGH;
+ .+100: SET AC_Clamp TO LOW;
+
+  
+}
+
+
+WAVEFORM setupTGTest
+{
+ 0: SET FRAME TO HIGH;
+  SET RG TO INV_LOW;
+  SET SCI_SCLK1 TO _SER_CLOCK_LOW, FAST;
+  SET SCI_SCLK2 TO _SER_CLOCK_LOW, FAST;
+  SET SCI_SCLK3 TO _SER_CLOCK_LOW, FAST;
+
+  SET SCI_PCLK1 TO _PAR_CLOCK_LOW,FAST;
+  SET SCI_PCLK2 TO _PAR_CLOCK_LOW,FAST;
+  SET SCI_PCLK3 TO _PAR_CLOCK_LOW,FAST;
+  SET SW TO INV_LOW;
+
+}
+
+
+//Jake's working sequence did 1ms between llel clocks
+#define FCS_PAR_STEP 20000
+
+WAVEFORM FCSParallelForward
+{
+ 0:  SET FCS_S1 TO _SER_CLOCK_HIGH_FCS, FAST;
+  //SET FCS_S3 TO _SER_CLOCK_HIGH_FCS, FAST;
+  //SET FCS_S2 TO _SER_CLOCK_HIGH_FCS, FAST;
+  SET FCS_SW TO _SW_LOW_FCS, FAST;
+  SET FCS_RG TO _RG_HIGH_FCS, FAST;
+
+  SET LINE TO HIGH;
+  SET FCS_P1 to _PAR_CLOCK_LOW_FCS, FAST;
+  .+FCS_PAR_STEP: SET FCS_P3 to _MPP_CLOCK_HIGH_FCS, FAST;
+   .+FCS_PAR_STEP: SET FCS_P2 to _PAR_CLOCK_LOW_FCS, FAST;
+  .+FCS_PAR_STEP: SET FCS_P1 to _PAR_CLOCK_HIGH_FCS, FAST;
+  .+FCS_PAR_STEP: SET FCS_P3 to _MPP_CLOCK_LOW_FCS, FAST;
+  .+FCS_PAR_STEP: set FCS_P2 to _PAR_CLOCK_HIGH_FCS, FAST;
+  SET FCS_RG TO _RG_LOW_FCS, FAST;
+  .+1000: SET AC_Clamp_FCS TO HIGH;
+  .+1000: SET AC_Clamp_FCS TO LOW;
+
+  .+200: SET NOP TO HIGH;
+
+
+}
+
+
+#define FCS_SER_STEP 40
+#define FCS_SIG_DELAY 300
+#define FCS_RST_DELAY 300
+
+WAVEFORM FCSSplitReadout
+{
+  //readout strobes and reset gate
+ 0:=FCS_PIX_BEGIN
+    SET PIXEL TO HIGH;
+  .+1: SET PIXEL TO LOW;
+  SET LINE TO LOW;
+  SET FRAME TO LOW;
+  SET FCS_S3 TO _SER_CLOCK_HIGH_FCS, FAST;
+  SET FCS_RG TO _RG_HIGH_FCS, FAST;
+  //serial clocking
+  .+FCS_SER_STEP: SET FCS_S1 TO _SER_CLOCK_LOW_FCS, FAST;
+  .+FCS_SER_STEP: SET FCS_S2 TO _SER_CLOCK_HIGH_FCS, FAST;
+  .+FCS_SER_STEP:   SET FCS_RG TO _RG_LOW_FCS, FAST;
+  SET FCS_SW TO _SW_HIGH_FCS, FAST;
+
+  .+FCS_SER_STEP: SET FCS_S3 TO _SER_CLOCK_LOW_FCS,FAST;
+   .+FCS_SER_STEP: SET FCS_S1 TO _SER_CLOCK_HIGH_FCS, FAST;
+   .+FCS_SER_STEP: SET FCS_S2 TO _SER_CLOCK_LOW_FCS, FAST;
+  .+FCS_RST_DELAY: SET FCS_SW TO _SW_LOW_FCS, FAST;
+  .+FCS_SIG_DELAY: SET NOP TO HIGH;
+}
+
+WAVEFORM DumpPixelsFCS
+{
+ 0:=FCS_DUMP_BEGIN
+    SET FCS_RG TO _RG_HIGH_FCS, FAST;
+  SET FCS_S3 TO _SER_CLOCK_HIGH_FCS, FAST;
+  .+FCS_SER_STEP:  SET FCS_S3 TO _SER_CLOCK_HIGH_FCS, FAST;
+  SET FCS_SW TO _SW_HIGH_FCS, FAST;
+  .+FCS_SER_STEP:  SET FCS_S1 TO _SER_CLOCK_LOW_FCS, FAST;
+    .+FCS_SER_STEP: SET FCS_S2 TO _SER_CLOCK_HIGH_FCS, FAST;
+
+   .+FCS_SER_STEP: SET FCS_S3 TO _SER_CLOCK_LOW_FCS, FAST;
+   .+FCS_SER_STEP: SET FCS_S1 TO _SER_CLOCK_HIGH_FCS,FAST;
+   .+FCS_SER_STEP: SET FCS_S2 TO _SER_CLOCK_LOW_FCS, FAST;
+  SET FCS_SW TO _SW_LOW_FCS, FAST;
+  SET FCS_RG TO _RG_LOW_FCS, FAST;
+
+}
+
