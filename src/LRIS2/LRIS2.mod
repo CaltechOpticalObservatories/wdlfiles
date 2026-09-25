@@ -4,7 +4,9 @@
 #define PCLK_FAST 100.0
 #define PCLK_SLOW 0.5
 
+#define TC_REV2
 
+			 
 SLOT 1  driverx {
   DRVX 1 [PCLK_FAST, PCLK_SLOW,1] "A3x";
   DRVX 2 [PCLK_FAST, PCLK_SLOW,1] "DGy";
@@ -77,6 +79,10 @@ SLOT 4 lvxbias {
      LVLC17 [0.0,3] "offset2";
      LVLC18 [0.0,3] "offset3";
 
+     LVHC1 [5.0, 40.0, 0, 1] "Preamp +5V";
+     LVHC2 [-5.0, 40.0, 0, 1] "Preamp -5V";
+     LVHC4 [5.0, 40.0, 0, 1] "CCD +5V";
+     LVHC5 [-5.0, 40.0, 0, 1] "CCD -5V";
 
 }
 
@@ -127,12 +133,19 @@ SLOT 9 HVXBias {
   HVLC 22 [0.0, 0] "NC";
   HVLC 23 [0.0, 0] "NC";
   HVLC 24 [0.0, 0] "NC";
+
+#ifdef TC_REV2
+  
+#else
+       
 //  HVHC 1 [VOTG, 5.0,  3, 1] "Output Gate c"; - needs ot be on an LVX
   HVHC 2 [0.0, 0.0, 0, 0] "NC";
   HVHC 3 [5.0, 20.0, 0, 1] "+5V";
   HVHC 4 [0.0, 20.0, 0, 1] "should be -5V";
   HVHC 5 [0.0, 20.0, 0, 1] "should be -5V CCD";
   HVHC 6 [5.0, 20.0, 0, 1] "+5V CCD";
+
+#endif
 }
 
 SLOT 10 xvbias {
