@@ -269,6 +269,23 @@ SEQUENCE SummitModeFCSIntegrate
   RETURN;
 }
 
+SEQUENCE EngModeFCSIntegrate
+{
+  //IF FcsStart FCSStart--;
+  KeepThisFrame();
+  if illum OpenShutter();
+  Wait1ms(integrate_illum_ms);
+  Wait1s(integrate_illum_s);
+  if illum CloseShutter();
+  Wait1ms(integrate_ms);
+  Wait1s(integrate_s);
+  Wait1ms(2);
+  SummitModeFCSReadout();
+  RETURN;
+}
+
+
+
 
 SEQUENCE SummitModeSciReadout {
   //very similar to eng mode FrameReadout, except
@@ -316,7 +333,7 @@ SEQUENCE FCSLineReadout {
 
 
 SEQUENCE StartSeqEngModeFCS {
-  if framecount SummitModeFCSIntegrate();
+  if framecount EngModeFCSIntegrate();
   framecount--;
   if !framecount SummitModeFCSLineFlush(_FCS_LINENUM);
   if engmode_fcs GOTO StartSeqEngModeFCS();
