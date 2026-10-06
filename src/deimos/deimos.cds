@@ -1,8 +1,4 @@
 /* -*- C -*- */
-/** ---------------------------------------------------------------------------
- * @file   wasp.cds
- * @brief  CDS/Deinterlace parameters for WaSP instrument
- */
 
 #include "voltage_timing_parameters.h"
 
@@ -16,17 +12,16 @@
   
   // last sample number must fit the series 8*n-1
   // first sample number must be in the series 8*n
-BIGBUF        = _ARCHON_FRAMEBUFS  
+BIGBUF        = 0
 RAWSTARTLINE  = 0
   //to view the last prescan and start of the line
   //RAWSTARTPIXEL = 48
   //to view the end of the line
 RAWSTARTPIXEL = 1061
 SAMPLEMODE    = 1
-RAWENABLE     = _RAW_ENABLE
+RAWENABLE     = 1
 RAWENDLINE    = 800
 RAWSAMPLES    = 20000
-  
 
   //ADM module installed in slot 7
 
@@ -40,70 +35,6 @@ RAWSAMPLES    = 20000
   // raw channel selection 48
 
 
-  //NOTE due to a small mistake in the VIB schematic, ALL signals come out inverted. Due to a mistake in the mapping of the cameralink cable, the channels are mixed up and some are inverted. This inversion cancels out the other inversion. Hence SCI2F is NOT inverted, but SCI 2E IS
-
-  
-
-#if 0
-  //detector currently installed in slot 2
-TAPLINE0="AM39L,1,100"
-TAPLINE1="AM40R,1,100"
-TAPLINES=2
-FRAMEMODE=0
-
-BIGBUF=_ARCHON_FRAMEBUFS
-LINECOUNT=_LINENUM
-PIXELCOUNT=_AMPREADCOLS
-  //RAWSEL        = _RAW_SELECT
-  //NOTE RAWSEL of 11 should be E channel of slot 2
-RAWSEL=11
-RAWSTARTLINE=0
-  //to view the last prescan and start of the line
-  //RAWSTARTPIXEL = 48
-  //to view the end of the line
-
-SHP1=120
-SHP2=303
-SHD1=448
-SHD2=575
-
-#elif 0
-TAPLINES=2
-FRAMEMODE=0
-TAPLINE0="AM45L,1,100"
-TAPLINE1="AM46R,1,100"  
-
-RAWSEL=48
-LINECOUNT  = _FCS_LINENUM
-PIXELCOUNT = _FCS_TOTAL_COLS  
-
-SHP1 = 350
-SHP2 = 500
-SHD1 = 600
-SHD2 = 750
-
-RAWSTARTPIXEL=23
-  
-  
-#else
-  //FRAMEMODE=0
-/* TAPLINE0="AM37L,1,100" */
-/* TAPLINE1="AM38R,1,100" */
-/* TAPLINE2="AM39L,1,100" */
-/* TAPLINE3="AM40R,1,100" */
-/* TAPLINE4="AM41L,1,100" */
-/* TAPLINE5="AM42R,1,100" */
-/* TAPLINE6="AM43L,1,100" */
-/* TAPLINE7="AM44R,1,100" */
-/* TAPLINE8="AM47L,1,100" */
-/* TAPLINE9="AM48R,1,100" */
-/* TAPLINE10="AM49L,1,100" */
-/* TAPLINE11="AM50R,1,100" */
-/* TAPLINE12="AM51L,1,100" */
-/* TAPLINE13="AM52R,1,100" */
-/* TAPLINE14="AM53L,1,100" */
-  //TAPLINE15="AM54R,1,100"
-  //TAPLINES=16
 
 FRAMEMODE=2
 TAPLINE0="AM37L,1,100"
@@ -124,11 +55,10 @@ TAPLINE14="AM48L,1,100"
 TAPLINE15="AM47R,1,100"
 TAPLINES=16
 
-  
 LINECOUNT=_LINENUM
 PIXELCOUNT=_AMPREADCOLS
-RAWSEL        = _RAW_SELECT
-  //NOTE RAWSEL of 11 should be E channel of slot 2
+//NOTE RAWSEL of 11 should be E channel of slot 2
+
 RAWSEL        = 11
 
 SHP1          = 200
@@ -136,9 +66,6 @@ SHP2          = 447
 SHD1          = 535
 SHD2          = 831
 
-  
-  
-#endif
 
 TRIGOUTFORCE=0
 TRIGOUTINVERT=0
